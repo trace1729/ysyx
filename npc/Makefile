@@ -13,6 +13,6 @@ sim: $(CPP_SRC) $(V_SRC)
 
 clean:
 	rm -fr obj_dir/
-	rm ./wave.vcd
+	rm -fr wave.vcd
 
 include ../Makefile

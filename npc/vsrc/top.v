@@ -1,9 +1,14 @@
 module top(
 	input clk,
-	input [1:0] sw,
-	output led
+	input rst,
+	output [15:0] led
 );
 
-assign led = sw[0]^sw[1];
+light light1(
+	.clk(clk),
+	.rst(rst),
+	.led(led)
+);
 
 endmodule;
+

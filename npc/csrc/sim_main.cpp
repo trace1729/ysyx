@@ -22,9 +22,9 @@ void single_cycle()
 
 void reset(int n)
 {
-  dut.rst = 0;
-  while(n -- > 0) single_cycle();
   dut.rst = 1;
+  while(n -- > 0) single_cycle();
+  dut.rst = 0;
 }
 
 int main() {

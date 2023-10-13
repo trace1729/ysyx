@@ -6,64 +6,28 @@
 //======================================================================
 
 // Include common routines
-#include <verilated.h>
-#include "verilated_vcd_c.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
-
-
+#include <nvboard.h>
 
 // Include model header, generated from Verilating "top.v"
 #include "Vtop.h"
 
-int main(int argc, char** argv) {
-    // See a similar example walkthrough in the verilator manpage.
+static TOP_NAME dut;
+void nvboard_bind_all_pins(Vtop* top);
 
-    // This is intended to be a minimal example.  Before copying this to start a
-    // real project, it is better to start with a more complete example,
-    // e.g. examples/c_tracing.
+void single_cycle()
+{
+	dut.clk = 0; dut.eval();
+	dut.clk = 1; dut.eval():
+}
 
-    // Construct a VerilatedContext to hold simulation time, etc.
-    VerilatedContext* contextp = new VerilatedContext;
+int main() {
+  nvboard_bind_all_pins(&dut);
+  nvboard_init();
 
-    // Pass arguments so Verilated code can see them, e.g. $value$plusargs
-    // This needs to be called before you create any model
-    contextp->commandArgs(argc, argv);
+  while(1) {
+    nvboard_update();
+	single_cycle();
+  }
 
-    // Construct the Verilated model, from Vtop.h generated from Verilating "top.v"
-    Vtop* top = new Vtop{contextp};
-
-    VerilatedVcdC* tfp = new VerilatedVcdC; //初始化VCD对象指针
-    contextp->traceEverOn(true); //打开追踪功能
-    top->trace(tfp, 0); //
-    tfp->open("wave.vcd"); //设置输出的文件wave.vcd
-
-    // Simulate until $finish
-    while (!contextp->gotFinish()) {
-
-        // Evaluate model
-		int a = rand() & 1;
-		int b = rand() & 1;
-		top->a = a;
-		top->b = b;
-        top->eval();
-		printf("a = %d, b = %d, c = %d\n", a, b, top->f);
-
-        tfp->dump(contextp->time()); // dump wave 
-        contextp->timeInc(1);
-
-
-		assert(top->f == (a^b));
-    }
-
-    // Final model cleanup
-    top->final();
-
-    // Destroy model
-    delete top;
-    tfp->close();
-    delete contextp;
-    // Return good completion status
-    return 0;
+  nvboard_quit();
 }

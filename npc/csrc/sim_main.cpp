@@ -17,7 +17,7 @@ void nvboard_bind_all_pins(Vtop* top);
 void single_cycle()
 {
 	dut.clk = 0; dut.eval();
-	dut.clk = 1; dut.eval():
+	dut.clk = 1; dut.eval();
 }
 
 int main() {

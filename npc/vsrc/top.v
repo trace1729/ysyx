@@ -1,4 +1,5 @@
 module top(
+	input clk,
 	input [1:0] sw,
 	output led
 );

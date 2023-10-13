@@ -11,4 +11,4 @@ module light(
       count <= (count >= 5000000 ? 32'b0 : count + 1);
     end
   end
-endmodule
+endmodule;

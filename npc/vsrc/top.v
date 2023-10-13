@@ -8,6 +8,7 @@ light light1(
 	.clk(clk),
 	.rst(rst),
 	.led(led)
-)
+);
 
 endmodule;
+

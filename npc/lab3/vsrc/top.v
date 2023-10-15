@@ -27,10 +27,10 @@ module alu(
 	output reg [3:0] res
 );
 	
-	reg [3:0] results [7:0];
-	reg zfs [7:0];
-	reg cfs [7:0];
-	reg ofs [7:0];
+	wire [3:0] results [7:0];
+	wire zfs [7:0];
+	wire cfs [7:0];
+	wire ofs [7:0];
 
 	my_add_sub add_sub1(.a(a), .b(b), .sub(0), .res(results[0]), .zf(zfs[0]), .cf(cfs[0]), .of(ofs[0]));
 	my_add_sub add_sub2(.a(a), .b(b), .sub(1), .res(results[1]), .zf(zfs[1]), .cf(cfs[1]), .of(ofs[1]));
@@ -38,8 +38,8 @@ module alu(
 	my_and		and1   (.a(a), .b(b), .res(results[3]), .zf(zfs[3]), .cf(cfs[3]), .of(ofs[3]));
 	my_or		or1    (.a(a), .b(b), .res(results[4]), .zf(zfs[4]), .cf(cfs[4]), .of(ofs[4]));
 	my_xor		xor1   (.a(a), .b(b), .res(results[5]), .zf(zfs[5]), .cf(cfs[5]), .of(ofs[5]));
-	my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]), .of(ofs[6]));
-	my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]), .of(ofs[7]));
+	// my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]), .of(ofs[6]));
+	// my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]), .of(ofs[7]));
 
 	always @(*) begin
 		case (sel)
@@ -49,8 +49,8 @@ module alu(
 			3'b011: begin res = results[3]; zf = zfs[3]; cf = cfs[3]; of = ofs[3];  end
 			3'b100: begin res = results[4]; zf = zfs[4]; cf = cfs[4]; of = ofs[4];  end
 			3'b101: begin res = results[5]; zf = zfs[5]; cf = cfs[5]; of = ofs[5];  end
-			3'b110: begin res = results[6]; zf = zfs[6]; cf = cfs[6]; of = ofs[6];  end
-			3'b111: begin res = results[7]; zf = zfs[7]; cf = cfs[7]; of = ofs[7];  end
+			// 3'b110: begin res = results[6]; zf = zfs[6]; cf = cfs[6]; of = ofs[6];  end
+			// 3'b111: begin res = results[7]; zf = zfs[7]; cf = cfs[7]; of = ofs[7];  end
 			default: begin res = 4'b0;  zf = 0; cf = 0; of = 0; end
 		endcase
 	end

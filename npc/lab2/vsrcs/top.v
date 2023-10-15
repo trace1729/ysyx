@@ -63,7 +63,7 @@ always @(*) begin
 		3'b101: seg = 8'b10110110;
 		3'b110: seg = 8'b10111110;
 		3'b111: seg = 8'b11100000;
-		default: out = 8'b11111111;
+		default: seg = 8'b11111111;
 	endcase
 end
 endmodule

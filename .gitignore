@@ -7,10 +7,11 @@
 !/navy-apps/*
 !/npc/*
 !/ddca/*
-!/ddca_labs/*
 !Makefile
 !README.md
 !.gitignore
 !init.sh
 /fceux-am
 /nvboard
+/build
+/obj_dir

@@ -47,21 +47,26 @@ end
 endmodule
 
 module bcd7seg(
-	input reg [2:0] in,
+	input [2:0] in,
 	output reg [7:0] seg
 );
 
+reg [7:0] tmp;
+
+assign seg = ~tmp;
+
 always @(*) begin
 	casez (in)
-		3'b000: seg = 8'b11111101;
-		3'b001: seg = 8'b01100000;
-		3'b010: seg = 8'b11011010;
-		3'b011: seg = 8'b11110010;
-		3'b100: seg = 8'b01100110;
-		3'b101: seg = 8'b10110110;
-		3'b110: seg = 8'b10111110;
-		3'b111: seg = 8'b11100000;
-		default: seg = 8'b11111111;
+		3'b000: tmp = 8'b11111101;
+		3'b001: tmp = 8'b01100000;
+		3'b010: tmp = 8'b11011010;
+		3'b011: tmp = 8'b11110010;
+		3'b100: tmp = 8'b01100110;
+		3'b101: tmp = 8'b10110110;
+		3'b110: tmp = 8'b10111110;
+		3'b111: tmp = 8'b11100000;
+		default:tmp = 8'b11111111;
 	endcase
 end
+
 endmodule

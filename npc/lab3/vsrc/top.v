@@ -15,7 +15,7 @@ alu alu1(
 	.res(led[3:0])
 )
 
-endmodule;
+endmodule
 
 module alu(
 	input [2:0] sel,
@@ -24,7 +24,7 @@ module alu(
 	output reg zf,
 	output reg cf,
 	output reg of,
-	output reg [3:0] res,
+	output reg [3:0] res
 );
 	
 	reg [3:0] results [7:0];
@@ -64,7 +64,7 @@ module my_add_sub(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of
 );
 	assign b_xor = {4{ sub }}^b;
 	assign {cf,res} = a + b_xor + sub;
@@ -80,7 +80,7 @@ module my_revert(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of
 );
 	assign res = ~a;
 	assign cf = 1;
@@ -95,7 +95,7 @@ module my_and(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of 
 );
 	assign res = a & b;
 	assign cf = 0;
@@ -110,7 +110,7 @@ module my_or(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of 
 );
 	assign res = a | b;
 	assign cf = 0;
@@ -126,7 +126,7 @@ module my_xor(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of 
 );
 	assign res = a ^ b;
 	assign cf = 0;
@@ -142,7 +142,7 @@ module my_cmp(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of
 );
 
 	
@@ -155,7 +155,7 @@ module my_eq(
 	output [3:0] res,
 	output zf, 
 	output cf, 
-	output of, 
+	output of
 );
 	
 endmodule

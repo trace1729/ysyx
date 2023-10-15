@@ -6,7 +6,7 @@ module top(
 	output reg [7:0] seg1
 );
 
-output reg [2:0] out;
+reg [2:0] out;
 
 enc38 enc381(
 	.in(sw[7:0]),

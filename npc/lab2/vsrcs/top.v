@@ -51,7 +51,7 @@ endmodule
 module bcd7seg(
 	input reg [2:0] in,
 	output reg [7:0] seg
-)
+);
 
 always @(*) begin
 	casez (in)

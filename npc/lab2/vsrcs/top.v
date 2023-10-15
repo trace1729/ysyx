@@ -6,18 +6,14 @@ module top(
 	output reg [7:0] seg0
 );
 
-wire [2:0] out;
-
-assign out = led;
-
 enc38 enc381(
 	.in(sw[7:0]),
 	.en(sw[8]),
-	.out(out)
+	.out(led)
 );
 
 bcd7seg bcd7seg1(
-	.in(out),
+	.in(led),
 	.seg(seg0)
 );
 

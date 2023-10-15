@@ -42,7 +42,7 @@ always @(*) begin
 	endcase
 	end
 	else begin
-		out = 3'b000
+		out = 3'b000;
 	end
 end
 

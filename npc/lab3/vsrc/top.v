@@ -32,15 +32,15 @@ module alu(
 	reg cfs [7:0];
 	reg ofs [7:0];
 
-	my_add_sub add_sub1(.a(a), .b(b), .sub(0), .res(res[0]), .zf(zfs[0]), .cf(cfs[0]));
-	my_add_sub add_sub2(.a(a), .b(b), .sub(1), .res(res[1]), .zf(zfs[1]), .cf(cfs[1]));
-	my_revert revert   (.a(a), .b(b), .res(results[2]), .zf(zfs[2]), .cf(cfs[2]));
-	my_and		and1   (.a(a), .b(b), .res(results[3]), .zf(zfs[3]), .cf(cfs[3]));
-	my_or		or1    (.a(a), .b(b), .res(results[4]), .zf(zfs[4]), .cf(cfs[4]));
-	my_xor		xor1   (.a(a), .b(b), .res(results[5]), .zf(zfs[5]), .cf(cfs[5]));
-	my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]));
-	my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]));
-                                                              
+	my_add_sub add_sub1(.a(a), .b(b), .sub(0), .res(res[0]), .zf(zfs[0]), .cf(cfs[0]), of(ofs[0]));
+	my_add_sub add_sub2(.a(a), .b(b), .sub(1), .res(res[1]), .zf(zfs[1]), .cf(cfs[1]), of[ofs[1]]);
+	my_revert revert   (.a(a), .b(b), .res(results[2]), .zf(zfs[2]), .cf(cfs[2]), of(ofs[2]));
+	my_and		and1   (.a(a), .b(b), .res(results[3]), .zf(zfs[3]), .cf(cfs[3]), of(ofs[3]));
+	my_or		or1    (.a(a), .b(b), .res(results[4]), .zf(zfs[4]), .cf(cfs[4]), of(ofs[4]));
+	my_xor		xor1   (.a(a), .b(b), .res(results[5]), .zf(zfs[5]), .cf(cfs[5]), of(ofs[5]));
+	my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]), of(ofs[6]));
+	my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]), of(ofs[7]));
+
 	always @(*) begin
 		case (sel)
 			3'b000: begin res = results[0]; zf = zfs[0]; cf = cfs[0]; of = ofs[0];  end
@@ -99,7 +99,7 @@ module my_and(
 );
 	assign res = a & b;
 	assign cf = 0;
-	assign of = (a[n-1] == b[n-1]) && (res [n-1] != a[n-1]);
+	assign of = (a[3] == b[3]) && (res [3] != a[3]);
 	assign zf = ~(| res);
 endmodule
 
@@ -114,7 +114,7 @@ module my_or(
 );
 	assign res = a | b;
 	assign cf = 0;
-	assign of = (a[n-1] == b[n-1]) && (res [n-1] != a[n-1]);
+	assign of = (a[3] == b[3]) && (res [3] != a[3]);
 	assign zf = ~(| res);
 
 endmodule
@@ -130,7 +130,7 @@ module my_xor(
 );
 	assign res = a ^ b;
 	assign cf = 0;
-	assign of = (a[n-1] == b[n-1]) && (res [n-1] != a[n-1]);
+	assign of = (a[3] == b[3]) && (res [3] != a[3]);
 	assign zf = ~(| res);
 
 endmodule

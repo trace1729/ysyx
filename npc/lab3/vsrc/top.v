@@ -76,7 +76,6 @@ endmodule
 module my_revert(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 
@@ -91,7 +90,6 @@ endmodule
 module my_and(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 
@@ -106,7 +104,6 @@ endmodule
 module my_or(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 
@@ -122,7 +119,6 @@ endmodule
 module my_xor(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 
@@ -138,7 +134,6 @@ endmodule
 module my_cmp(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 
@@ -151,7 +146,6 @@ endmodule
 module my_eq(
 	input [3:0] a,
 	input [3:0] b,
-	input sub, // whether sub or add
 	output [3:0] res,
 	output zf, 
 	output cf, 

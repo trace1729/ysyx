@@ -6,9 +6,12 @@
 !/nanos-lite/*
 !/navy-apps/*
 !/npc/*
+!/ddca/*
 !Makefile
 !README.md
 !.gitignore
 !init.sh
 /fceux-am
 /nvboard
+/build
+/obj_dir

@@ -32,8 +32,8 @@ module alu(
 	reg cfs [7:0];
 	reg ofs [7:0];
 
-	my_add_sub add_sub1(.a(a), .b(b), .sub(0), .res(res[0]), .zf(zfs[0]), .cf(cfs[0]), .of(ofs[0]));
-	my_add_sub add_sub2(.a(a), .b(b), .sub(1), .res(res[1]), .zf(zfs[1]), .cf(cfs[1]), .of(ofs[1]));
+	my_add_sub add_sub1(.a(a), .b(b), .sub(0), .res(results[0]), .zf(zfs[0]), .cf(cfs[0]), .of(ofs[0]));
+	my_add_sub add_sub2(.a(a), .b(b), .sub(1), .res(results[1]), .zf(zfs[1]), .cf(cfs[1]), .of(ofs[1]));
 	my_revert revert   (.a(a), .b(b), .res(results[2]), .zf(zfs[2]), .cf(cfs[2]), .of(ofs[2]));
 	my_and		and1   (.a(a), .b(b), .res(results[3]), .zf(zfs[3]), .cf(cfs[3]), .of(ofs[3]));
 	my_or		or1    (.a(a), .b(b), .res(results[4]), .zf(zfs[4]), .cf(cfs[4]), .of(ofs[4]));
@@ -66,7 +66,7 @@ module my_add_sub(
 	output cf, 
 	output of
 );
-	wire b_xor;
+	wire [3:0] b_xor;
 	assign b_xor = {4{ sub }}^b;
 	assign {cf,res} = a + b_xor + sub;
 	assign of = (a[3] == b[3]) && (res [3] != a[3]);
@@ -84,7 +84,7 @@ module my_revert(
 );
 	assign res = ~a;
 	assign cf = 1;
-	assign zf = ~(res);
+	assign zf = ~(| res);
 
 endmodule
 

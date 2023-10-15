@@ -33,8 +33,8 @@ always @(*) begin
 		8'bzzzzz100: out = 3'b010;
 		8'bzzzz1000: out = 3'b011;
 		8'bzzz10000: out = 3'b100;
-		8'b11100000: out = 3'b101;
-		8'b11000000: out = 3'b110;
+		8'bzz100000: out = 3'b101;
+		8'bz1000000: out = 3'b110;
 		8'b10000000: out = 3'b111;
 		default: out = 3'b000;
 	endcase

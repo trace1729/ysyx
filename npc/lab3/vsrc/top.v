@@ -13,7 +13,7 @@ alu alu1(
 	.cf(led[5]),
 	.of(led[4]),
 	.res(led[3:0])
-)
+);
 
 endmodule
 

@@ -6,7 +6,9 @@ module top(
 	output reg [7:0] seg0
 );
 
-reg [2:0] out;
+wire [2:0] out;
+
+assign out = led;
 
 enc38 enc381(
 	.in(sw[7:0]),

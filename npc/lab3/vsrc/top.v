@@ -68,7 +68,7 @@ module my_add_sub(
 );
 	assign b_xor = {4{ sub }}^b;
 	assign {cf,res} = a + b_xor + sub;
-	assign of = (a[n-1] == b_xor[n-1]) && (res [n-1] != a[n-1]);
+	assign of = (a[3] == b[3]) && (res [3] != a[3]);
 	assign zf = ~(| res);
 endmodule
 

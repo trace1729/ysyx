@@ -66,6 +66,7 @@ module my_add_sub(
 	output cf, 
 	output of
 );
+	wire b_xor;
 	assign b_xor = {4{ sub }}^b;
 	assign {cf,res} = a + b_xor + sub;
 	assign of = (a[3] == b[3]) && (res [3] != a[3]);

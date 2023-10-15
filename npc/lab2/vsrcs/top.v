@@ -3,7 +3,7 @@ module top(
 	input rst,
 	input [8:0] sw,
 	output [2:0] led,
-	output reg [7:0] seg1
+	output reg [7:0] seg0
 );
 
 reg [2:0] out;
@@ -16,7 +16,7 @@ enc38 enc381(
 
 bcd7seg bcd7seg1(
 	.in(out),
-	.seg(seg1)
+	.seg(seg0)
 );
 
 endmodule

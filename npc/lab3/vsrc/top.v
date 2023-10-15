@@ -40,7 +40,7 @@ module alu(
 	my_xor		xor1   (.a(a), .b(b), .res(results[5]), .zf(zfs[5]), .cf(cfs[5]));
 	my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]));
 	my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]));
-                                                              s
+                                                              
 	always @(*) begin
 		case (sel)
 			3'b000: begin res = results[0]; zf = zfs[0]; cf = cfs[0]; of = ofs[0];  end

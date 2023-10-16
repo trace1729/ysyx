@@ -142,7 +142,7 @@ module my_cmp(
 );
 	wire [3:0] tmp;
 	my_add_sub add_sub3(.a(a), .b(b), .sub(1), .res(tmp), .zf(zf), .cf(cf), .of(of));
-	assign res = {3'b000, res[3] ^ of};
+	assign res = {3'b000, tmp[3] ^ of};
 	
 endmodule
 

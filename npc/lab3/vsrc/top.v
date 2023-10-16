@@ -38,8 +38,8 @@ module alu(
 	my_and		and1   (.a(a), .b(b), .res(results[3]), .zf(zfs[3]), .cf(cfs[3]), .of(ofs[3]));
 	my_or		or1    (.a(a), .b(b), .res(results[4]), .zf(zfs[4]), .cf(cfs[4]), .of(ofs[4]));
 	my_xor		xor1   (.a(a), .b(b), .res(results[5]), .zf(zfs[5]), .cf(cfs[5]), .of(ofs[5]));
-	// my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]), .of(ofs[6]));
-	// my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]), .of(ofs[7]));
+	my_cmp		cmp    (.a(a), .b(b), .res(results[6]), .zf(zfs[6]), .cf(cfs[6]), .of(ofs[6]));
+	my_eq		eq     (.a(a), .b(b), .res(results[7]), .zf(zfs[7]), .cf(cfs[7]), .of(ofs[7]));
 
 	always @(*) begin
 		case (sel)
@@ -49,8 +49,8 @@ module alu(
 			3'b011: begin res = results[3]; zf = zfs[3]; cf = cfs[3]; of = ofs[3];  end
 			3'b100: begin res = results[4]; zf = zfs[4]; cf = cfs[4]; of = ofs[4];  end
 			3'b101: begin res = results[5]; zf = zfs[5]; cf = cfs[5]; of = ofs[5];  end
-			// 3'b110: begin res = results[6]; zf = zfs[6]; cf = cfs[6]; of = ofs[6];  end
-			// 3'b111: begin res = results[7]; zf = zfs[7]; cf = cfs[7]; of = ofs[7];  end
+			3'b110: begin res = results[6]; zf = zfs[6]; cf = cfs[6]; of = ofs[6];  end
+			3'b111: begin res = results[7]; zf = zfs[7]; cf = cfs[7]; of = ofs[7];  end
 			default: begin res = 4'b0;  zf = 0; cf = 0; of = 0; end
 		endcase
 	end
@@ -140,7 +140,9 @@ module my_cmp(
 	output cf, 
 	output of
 );
-
+	wire [3:0] tmp;
+	my_add_sub add_sub3(.a(a), .b(b), .sub(1), .res(tmp), .zf(zf), .cf(cf), .of(of));
+	assign res = {3'b000, tmp[3] ^ of};
 	
 endmodule
 
@@ -152,6 +154,10 @@ module my_eq(
 	output cf, 
 	output of
 );
+
+	wire [3:0] tmp;
+	my_add_sub add_sub4(.a(a), .b(b), .sub(1), .res(tmp), .zf(zf), .cf(cf), .of(of));
+	assign res = {3'b000, zf};
 	
 endmodule
 

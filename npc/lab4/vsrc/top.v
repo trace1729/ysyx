@@ -32,11 +32,15 @@ module shift_reg(
 	input reset,
 	output reg [7:0] q
 );
+  reg [31:0] count;
 
-always @(posedge clk) begin
-	if (reset) q <= 8'b1;
-	else q <= {q[4]^q[3]^q[2]^q[0], q[7:1]};
-end
+  always @(posedge clk) begin
+    if (rst) begin q <= 8'b1; count <= 0; end
+    else begin
+      if (count == 0) q <= {q[4]^q[3]^q[2]^q[0], q[7:1]};
+      count <= (count >= 5000000 ? 32'b0 : count + 1);
+    end
+  end
 
 endmodule
 

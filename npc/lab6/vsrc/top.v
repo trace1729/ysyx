@@ -34,6 +34,7 @@ module shift_reg(
 );
   reg [31:0] count;
 
+	// 延时函数
   always @(posedge clk) begin
     if (reset) begin q <= 8'b1; count <= 0; end
     else begin
@@ -68,7 +69,7 @@ always @(*) begin
 		4'b1010: tmp = 8'b11101111;
 		4'b1011: tmp = 8'b00111110;
 		4'b1100: tmp = 8'b10011100;
-		4'b1101: tmp = 8'b01111000;
+		4'b1101: tmp = 8'b01111010;
 		4'b1110: tmp = 8'b10011110;
 		4'b1111: tmp = 8'b10001110;
 		default:tmp = 8'b11111111;

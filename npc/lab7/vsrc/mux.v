@@ -1,18 +1,3 @@
-module top(
-	input clk,
-	input rst,
-	input [9:0] sw,
-	output [1:0] led
-);
-
-mux41 mux(
-	.a(sw[9:2]),
-	.s(sw[1:0]),
-	.y(led[1:0])
-);
-
-endmodule
-
 module MuxKeyInternal #(NR_KEY = 2, KEY_LEN = 1, DATA_LEN = 1, HAS_DEFAULT = 0) (
   output reg [DATA_LEN-1:0] out,
   input [KEY_LEN-1:0] key,
@@ -64,17 +49,5 @@ module MuxKeyWithDefault #(NR_KEY = 2, KEY_LEN = 1, DATA_LEN = 1) (
   input [NR_KEY*(KEY_LEN + DATA_LEN)-1:0] lut
 );
   MuxKeyInternal #(NR_KEY, KEY_LEN, DATA_LEN, 1) i0 (out, key, default_out, lut);
-endmodule
-
-module mux41(a, s, y);
-	input [7:0] a;
-	input [1:0] s;
-	output [1:0] y;
-	MuxKeyWithDefault #(4, 2, 2) i0 (y, s, 2'b0, {
-		2'b00, a[1:0],
-		2'b01, a[3:2],
-		2'b10, a[5:4],
-		2'b11, a[7:6]
-	});
 endmodule
 

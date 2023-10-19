@@ -17,12 +17,12 @@ shift_reg u_shift_reg(
 
 seg u_bcd7seg(
 	.in  	( q[3:0] ),
-	.seg 	( seg0  )
+	.seg0 	( seg0  )
 );
 
 seg u_bcd7seg2(
 	.in  	( q[7:4] ),
-	.seg 	( seg1  )
+	.seg0 	( seg1  )
 );
 
 endmodule

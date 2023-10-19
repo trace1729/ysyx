@@ -15,12 +15,12 @@ shift_reg u_shift_reg(
 	.q     	( q )
 );
 
-bcd7seg u_bcd7seg(
+seg u_bcd7seg(
 	.in  	( q[3:0] ),
 	.seg 	( seg0  )
 );
 
-bcd7seg u_bcd7seg2(
+seg u_bcd7seg2(
 	.in  	( q[7:4] ),
 	.seg 	( seg1  )
 );
@@ -45,14 +45,14 @@ module shift_reg(
 
 endmodule
 
-module bcd7seg(
+module seg(
 	input [3:0] in,
-	output reg [7:0] seg
+	output reg [7:0] seg0
 );
 
 reg [7:0] tmp;
 
-assign seg = ~tmp;
+assign seg0 = ~tmp;
 
 always @(*) begin
 	casez (in)

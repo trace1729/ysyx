@@ -22,7 +22,7 @@ ps2_keyboard keyboard(
 	.seg1(seg1),
 	.seg2(seg2),
 	.seg3(seg3)
-)
+);
 
 endmodule
 

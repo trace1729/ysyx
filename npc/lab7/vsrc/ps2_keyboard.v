@@ -41,9 +41,6 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data, seg0, seg1, seg2, seg3);
                 count <= count + 3'b1;
               end
             end
-            else begin
-              buffer <= 10'b0;
-            end
         end
     end
 

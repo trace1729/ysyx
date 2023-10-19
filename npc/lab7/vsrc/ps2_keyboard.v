@@ -17,8 +17,8 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data, seg0, seg1, seg2, seg3);
 
     wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1]; // 检测由高电平向低电平的下降沿 (1 & ~(0) = 1)
 
-    seg u_seg0(bffer[3:0], seg0);
-    seg u_seg1(bffer[7:4], seg1);
+    seg u_seg0(buffer[3:0], seg0);
+    seg u_seg1(buffer[7:4], seg1);
     seg u_seg2(counter[3:0], seg2);
     seg u_seg3(counter[7:4], seg3);
 

@@ -49,7 +49,7 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
-  return -1;
+  return 0;
 }
 
 static int cmd_help(char *args);
@@ -102,8 +102,9 @@ void sdb_mainloop() {
     return;
   }
 
+  // read from std input (nemu) xxxx
   for (char *str; (str = rl_gets()) != NULL; ) {
-    char *str_end = str + strlen(str);
+    char *str_end = str + strlen(str); // '\0'
 
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");

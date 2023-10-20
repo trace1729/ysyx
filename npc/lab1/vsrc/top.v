@@ -11,7 +11,7 @@ mux41 mux(
 	.y(led[1:0])
 );
 
-endmodule;
+endmodule
 
 module MuxKeyInternal #(NR_KEY = 2, KEY_LEN = 1, DATA_LEN = 1, HAS_DEFAULT = 0) (
   output reg [DATA_LEN-1:0] out,

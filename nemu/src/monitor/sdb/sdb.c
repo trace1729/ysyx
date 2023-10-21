@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include <isa.h>
 #include <cpu/cpu.h>
 #include <readline/readline.h>
@@ -20,9 +21,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "common.h"
-#include "debug.h"
-#include "sdb.h"
+#include <memory/vaddr.h>
 
 static int is_batch_mode = false;
 
@@ -157,7 +156,7 @@ static int cmd_x(char* args) {
 
   char* arg1 = strtok(args, " ");
   int N;
-  vaddr_t* s;
+  uint32_t s;
 
   // check argument 1
   if (arg1 == NULL) {
@@ -180,7 +179,7 @@ static int cmd_x(char* args) {
     printf("%s", cmd_table[X].description);
     return 0;
   } else {
-    s = (vaddr_t*)strtol(arg2, NULL, 16);
+    s = strtol(arg2, NULL, 16);
   }
 
   if (!s) {
@@ -188,8 +187,8 @@ static int cmd_x(char* args) {
     return 0;
   }
   
-  for (int i = 0; i < N; i ++, s ++) {
-    printf("0x%x ",*s);
+  for (int i = 0; i < N; i ++, s += sizeof(vaddr_t)) {
+    printf("0x%x ",vaddr_read(s, sizeof(vaddr_t)));
   }
   printf("\n");
   

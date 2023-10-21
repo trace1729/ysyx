@@ -17,6 +17,10 @@
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "debug.h"
 #include "sdb.h"
 
 static int is_batch_mode = false;
@@ -54,6 +58,12 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_help(char *args);
+static int cmd_info(char *args);
+static int cmd_si(char *args);
+
+enum {
+  HELP=0, INFO, C, Q
+};
 
 static struct {
   const char *name;
@@ -61,6 +71,8 @@ static struct {
   int (*handler) (char *);
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
+  { "info", "Display information about registers and watchpoints", cmd_info },
+  { "si", "step [N] instructions exactly", cmd_si },
   { "c", "Continue the execution of the program", cmd_c },
   { "q", "Exit NEMU", cmd_q },
 
@@ -93,6 +105,49 @@ static int cmd_help(char *args) {
   return 0;
 }
 
+static int cmd_info(char* args)
+{
+  /* extract the first argument */
+  char *arg = strtok(NULL, " ");
+
+  if (arg == NULL) {
+    printf("%s\n", cmd_table[INFO].description);
+  }
+  
+  if (strlen(arg) != 1 || arg[0] != 'r' || arg[0] != 'w') {
+    Log("unexpected argument %s found, argument can only be `w` or `r`", arg);
+    return 0;
+  }  
+
+  switch (arg[0]) {
+    case 'r': isa_reg_display(); break;
+    case 'w': break;
+  }
+
+  return 0;
+}
+
+static int cmd_si(char* args)
+{
+  int steps;
+  char* arg = strtok(args, " ");
+
+  if (arg == NULL) {
+    steps = 1;
+  } else {
+    steps = strtol(arg, NULL, 10);
+  }
+  
+  if (!steps) {
+    Log("input argument %s contains invaild characters argument must be a non-zero integers, please check", arg);
+  }
+  
+  cpu_exec(steps);
+  
+  return 0;
+}
+
+
 void sdb_set_batch_mode() {
   is_batch_mode = true;
 }
@@ -114,7 +169,7 @@ void sdb_mainloop() {
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char *args = cmd + strlen(cmd) + 1; // +1 means bypass space 
     if (args >= str_end) {
       args = NULL;
     }

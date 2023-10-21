@@ -180,7 +180,7 @@ static int cmd_x(char* args) {
     printf("%s", cmd_table[X].description);
     return 0;
   } else {
-    s = (vaddr_t*)strtol(arg2, NULL, 10);
+    s = (vaddr_t*)strtol(arg2, NULL, 16);
   }
 
   if (!s) {

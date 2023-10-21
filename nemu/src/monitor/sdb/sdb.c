@@ -112,6 +112,7 @@ static int cmd_info(char* args)
 
   if (arg == NULL) {
     printf("%s\n", cmd_table[INFO].description);
+    return 0;
   }
   
   if (strlen(arg) != 1 || arg[0] != 'r' || arg[0] != 'w') {
@@ -138,8 +139,10 @@ static int cmd_si(char* args)
     steps = strtol(arg, NULL, 10);
   }
   
+  // the step must be non-zero integer
   if (!steps) {
-    Log("input argument %s contains invaild characters argument must be a non-zero integers, please check", arg);
+    Log("input argument %s contains invaild characters argument must be a non-zero integer, please check", arg);
+    return 0;
   }
   
   cpu_exec(steps);

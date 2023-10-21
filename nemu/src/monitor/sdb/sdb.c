@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "common.h"
 #include "debug.h"
 #include "sdb.h"
 
@@ -60,9 +61,10 @@ static int cmd_q(char *args) {
 static int cmd_help(char *args);
 static int cmd_info(char *args);
 static int cmd_si(char *args);
+static int cmd_x(char *args);
 
 enum {
-  HELP=0, INFO, C, Q
+  HELP=0, INFO, SI, C, X, Q
 };
 
 static struct {
@@ -74,6 +76,7 @@ static struct {
   { "info", "Display information about registers and watchpoints", cmd_info },
   { "si", "step [N] instructions exactly", cmd_si },
   { "c", "Continue the execution of the program", cmd_c },
+  { "x", "scanning memory", cmd_x },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
@@ -128,6 +131,7 @@ static int cmd_info(char* args)
   return 0;
 }
 
+
 static int cmd_si(char* args)
 {
   int steps;
@@ -138,18 +142,59 @@ static int cmd_si(char* args)
   } else {
     steps = strtol(arg, NULL, 10);
   }
-  
-  // the step must be non-zero integer
+
   if (!steps) {
-    Log("input argument %s contains invaild characters argument must be a non-zero integer, please check", arg);
+    Log("input argument %s contains invaild characters, please check", arg);
     return 0;
   }
-  
+
   cpu_exec(steps);
   
   return 0;
 }
 
+static int cmd_x(char* args) {
+
+  char* arg1 = strtok(args, " ");
+  int N;
+  vaddr_t* s;
+
+  // check argument 1
+  if (arg1 == NULL) {
+    printf("%s", cmd_table[X].description);
+    return 0;
+  } else {
+    N = strtol(arg1, NULL, 10);
+  }
+
+  if (!N) {
+    Log("input argument %s contains invaild characters, please check", arg1);
+    return 0;
+  }
+
+  char* arg2 = args + strlen(arg1) + 1;
+  arg2 = strtok(arg2, " ");
+
+  // check argument 2
+  if (arg2 == NULL) {
+    printf("%s", cmd_table[X].description);
+    return 0;
+  } else {
+    s = (vaddr_t*)strtol(arg2, NULL, 10);
+  }
+
+  if (!s) {
+    Log("input argument %s contains invaild characters, please check", arg2);
+    return 0;
+  }
+  
+  for (int i = 0; i < N; i ++, s ++) {
+    printf("0x%x ",*s);
+  }
+  printf("\n");
+  
+  return 0;
+}
 
 void sdb_set_batch_mode() {
   is_batch_mode = true;

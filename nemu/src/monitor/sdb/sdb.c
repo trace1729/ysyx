@@ -115,7 +115,7 @@ static int cmd_info(char* args)
     return 0;
   }
   
-  if (strlen(arg) != 1 || arg[0] != 'r' || arg[0] != 'w') {
+  if (strlen(arg) != 1 || (arg[0] != 'r' && arg[0] != 'w')) {
     Log("unexpected argument %s found, argument can only be `w` or `r`", arg);
     return 0;
   }  

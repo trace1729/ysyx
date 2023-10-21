@@ -188,6 +188,7 @@ static int cmd_x(char* args) {
     return 0;
   }
   
+  printf("%d %lx\n", N, (uint64_t)s);
   for (int i = 0; i < N; i ++, s ++) {
     printf("0x%x ",*s);
   }

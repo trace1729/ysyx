@@ -13,7 +13,6 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "common.h"
 #include <isa.h>
 #include <cpu/cpu.h>
 #include <readline/readline.h>
@@ -22,6 +21,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <memory/vaddr.h>
+#include "sdb.h"
 
 static int is_batch_mode = false;
 
@@ -56,6 +56,11 @@ static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
   return -1;
 }
+static int cmd_d(char *args) {
+  bool success;
+  expr(args, &success);
+  return success;
+}
 
 static int cmd_help(char *args);
 static int cmd_info(char *args);
@@ -63,7 +68,7 @@ static int cmd_si(char *args);
 static int cmd_x(char *args);
 
 enum {
-  HELP=0, INFO, SI, C, X, Q
+  HELP=0, INFO, SI, C, X, Q, D
 };
 
 static struct {
@@ -77,6 +82,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "x", "scanning memory", cmd_x },
   { "q", "Exit NEMU", cmd_q },
+  { "d", "test functionality", cmd_d },
 
   /* TODO: Add more commands */
 

@@ -19,11 +19,10 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <string.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ,
-
-  /* TODO: Add more token types */
+  TK_NOTYPE = 256, TK_EQ, TK_NUM
 
 };
 
@@ -32,13 +31,15 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  /* TODO: Add more rules.
-   * Pay attention to the precedence level of different rules.
-   */
-
+  {"[0-9]", TK_NUM},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
+  {"-", '-'},         // minus
+  {"\\*", '*'},         // multiple
+  {"/", '/'},         // div
   {"==", TK_EQ},        // equal
+  {"\\(", '('},        // equal
+  {"\\)", ')'},        // equal
 };
 
 #define NR_REGEX ARRLEN(rules)
@@ -94,10 +95,26 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
+        tokens[nr_token].type = rules[i].token_type;
         switch (rules[i].token_type) {
-          default: TODO();
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+            tokens[nr_token].str[0] = rules[i].token_type;
+            break;
+          case TK_NUM:
+            tokens[nr_token].str[0] = '=';
+            tokens[nr_token].str[1] = '=';
+            break;
+          case TK_EQ:
+            substr_len = substr_len > 32? substr_len: 32; // truncate to 32 bits
+            mempcpy(tokens[nr_token].str, substr_start, substr_len);
+            break;
         }
-
+        nr_token++;
         break;
       }
     }
@@ -119,7 +136,7 @@ word_t expr(char *e, bool *success) {
   }
 
   /* TODO: Insert codes to evaluate the expression. */
-  TODO();
+  /* TODO(); */
 
   return 0;
 }

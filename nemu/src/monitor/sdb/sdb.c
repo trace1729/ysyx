@@ -13,11 +13,15 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include <isa.h>
 #include <cpu/cpu.h>
 #include <readline/readline.h>
 #include <readline/history.h>
-#include "sdb.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <memory/vaddr.h>
 
 static int is_batch_mode = false;
 
@@ -49,10 +53,18 @@ static int cmd_c(char *args) {
 
 
 static int cmd_q(char *args) {
+  nemu_state.state = NEMU_QUIT;
   return -1;
 }
 
 static int cmd_help(char *args);
+static int cmd_info(char *args);
+static int cmd_si(char *args);
+static int cmd_x(char *args);
+
+enum {
+  HELP=0, INFO, SI, C, X, Q
+};
 
 static struct {
   const char *name;
@@ -60,7 +72,10 @@ static struct {
   int (*handler) (char *);
 } cmd_table [] = {
   { "help", "Display information about all supported commands", cmd_help },
+  { "info", "Display information about registers and watchpoints", cmd_info },
+  { "si", "step [N] instructions exactly", cmd_si },
   { "c", "Continue the execution of the program", cmd_c },
+  { "x", "scanning memory", cmd_x },
   { "q", "Exit NEMU", cmd_q },
 
   /* TODO: Add more commands */
@@ -92,6 +107,94 @@ static int cmd_help(char *args) {
   return 0;
 }
 
+static int cmd_info(char* args)
+{
+  /* extract the first argument */
+  char *arg = strtok(NULL, " ");
+
+  if (arg == NULL) {
+    printf("%s\n", cmd_table[INFO].description);
+    return 0;
+  }
+  
+  if (strlen(arg) != 1 || (arg[0] != 'r' && arg[0] != 'w')) {
+    Log("unexpected argument %s found, argument can only be `w` or `r`", arg);
+    return 0;
+  }  
+
+  switch (arg[0]) {
+    case 'r': isa_reg_display(); break;
+    case 'w': break;
+  }
+
+  return 0;
+}
+
+
+static int cmd_si(char* args)
+{
+  int steps;
+  char* arg = strtok(args, " ");
+
+  if (arg == NULL) {
+    steps = 1;
+  } else {
+    steps = strtol(arg, NULL, 10);
+  }
+
+  if (!steps) {
+    Log("input argument %s contains invaild characters, please check", arg);
+    return 0;
+  }
+
+  cpu_exec(steps);
+  
+  return 0;
+}
+
+static int cmd_x(char* args) {
+
+  char* arg1 = strtok(args, " ");
+  int N;
+  uint32_t s;
+
+  // check argument 1
+  if (arg1 == NULL) {
+    printf("%s", cmd_table[X].description);
+    return 0;
+  } else {
+    N = strtol(arg1, NULL, 10);
+  }
+
+  if (!N) {
+    Log("input argument %s contains invaild characters, please check", arg1);
+    return 0;
+  }
+
+  char* arg2 = args + strlen(arg1) + 1;
+  arg2 = strtok(arg2, " ");
+
+  // check argument 2
+  if (arg2 == NULL) {
+    printf("%s", cmd_table[X].description);
+    return 0;
+  } else {
+    s = strtol(arg2, NULL, 16);
+  }
+
+  if (!s) {
+    Log("input argument %s contains invaild characters, please check", arg2);
+    return 0;
+  }
+  
+  for (int i = 0; i < N; i ++, s += sizeof(vaddr_t)) {
+    printf("0x%x ",vaddr_read(s, sizeof(vaddr_t)));
+  }
+  printf("\n");
+  
+  return 0;
+}
+
 void sdb_set_batch_mode() {
   is_batch_mode = true;
 }
@@ -102,8 +205,9 @@ void sdb_mainloop() {
     return;
   }
 
+  // read from std input (nemu) xxxx
   for (char *str; (str = rl_gets()) != NULL; ) {
-    char *str_end = str + strlen(str);
+    char *str_end = str + strlen(str); // '\0'
 
     /* extract the first token as the command */
     char *cmd = strtok(str, " ");
@@ -112,7 +216,7 @@ void sdb_mainloop() {
     /* treat the remaining string as the arguments,
      * which may need further parsing
      */
-    char *args = cmd + strlen(cmd) + 1;
+    char *args = cmd + strlen(cmd) + 1; // +1 means bypass space 
     if (args >= str_end) {
       args = NULL;
     }

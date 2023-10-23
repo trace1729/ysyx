@@ -183,7 +183,7 @@ int find_prime_operator(int l, int r) {
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){
-      if (prime_op == -1) {
+      if (prime_op == BAD_EXPRESSION) {
         prime_op = i;
       } else {
         prime_op = priority[(int)prime_op] >= priority[tokens[i].type]? i: prime_op;

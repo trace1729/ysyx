@@ -116,11 +116,11 @@ static bool make_token(char *e) {
           case ')':
             tokens[nr_token].str[0] = rules[i].token_type;
             break;
-          case TK_NUM:
+          case TK_EQ:
             tokens[nr_token].str[0] = '=';
             tokens[nr_token].str[1] = '=';
             break;
-          case TK_EQ:
+          case TK_NUM:
             substr_len = substr_len > 31? substr_len: 31; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';

@@ -153,14 +153,21 @@ static bool check_parentheses(int l, int r) {
     return false;
   }
 
-  int stack = 0;
+  int stack = 1; // the first symbol must be a ( 
 
-  for (int i = l; i <= r; i ++) {
-    if (stack < 0) return false;
+  for (int i = l + 1; i <= r; i ++) {
+    // give the responsibility to function eval
+    if (stack < 0)
+      return false;
     // stack == 0 means the leftmost brackets is canceled along the way.
-    if (tokens[i].type == '(') stack++; 
-    if (stack == 0 && i != r) return false;
-    else if (tokens[i].type == ')') stack--;
+    if (stack == 0 && i != r) 
+      return false;
+
+    if (tokens[i].type == '(') 
+      stack++; 
+    else if (tokens[i].type == ')') 
+      stack--;
+
   }
 
   return stack == 0;

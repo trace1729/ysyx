@@ -206,6 +206,8 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
+    Log("%d %c %d", val_l, prime_op, val_r);
+
     Check(val_l != BAD_EXPRESSION, "BAD_EXPRESSION");
     Check(val_r != BAD_EXPRESSION, "BAD_EXPRESSION");
 

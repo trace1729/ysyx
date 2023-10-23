@@ -56,9 +56,15 @@ static int cmd_q(char *args) {
   nemu_state.state = NEMU_QUIT;
   return -1;
 }
+
 static int cmd_d(char *args) {
+  return 0;
+}
+
+static int cmd_p(char *args) {
   bool success;
-  expr(args, &success);
+  int res = expr(args, &success);
+  printf("%d", res);
   return success;
 }
 
@@ -68,7 +74,7 @@ static int cmd_si(char *args);
 static int cmd_x(char *args);
 
 enum {
-  HELP=0, INFO, SI, C, X, Q, D
+  HELP=0, INFO, SI, C, X, Q, P, D
 };
 
 static struct {
@@ -82,6 +88,7 @@ static struct {
   { "c", "Continue the execution of the program", cmd_c },
   { "x", "scanning memory", cmd_x },
   { "q", "Exit NEMU", cmd_q },
+  { "p", "eval expression", cmd_p },
   { "d", "test functionality", cmd_d },
 
   /* TODO: Add more commands */

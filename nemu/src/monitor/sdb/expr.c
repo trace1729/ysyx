@@ -158,8 +158,8 @@ static bool check_parentheses(int l, int r) {
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return false;
     // stack == 0 means the leftmost brackets is canceled along the way.
-    if (stack == 0 && i != r) return false;
     if (tokens[i].type == '(') stack++; 
+    if (stack == 0 && i != r) return false;
     else if (tokens[i].type == ')') stack--;
   }
 

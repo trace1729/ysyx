@@ -106,6 +106,7 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
+
         switch (rules[i].token_type) {
           case '+':
           case '-':
@@ -125,11 +126,10 @@ static bool make_token(char *e) {
           default:
             break;
         }
-        
-        // exclude NOTYPE
         if (rules[i].token_type != TK_NOTYPE) {
           tokens[nr_token++].type = rules[i].token_type;
         }
+        break; // found a match, break
       }
     }
 

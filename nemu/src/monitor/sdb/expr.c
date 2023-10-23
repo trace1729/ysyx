@@ -178,7 +178,7 @@ int find_prime_operator(int l, int r) {
       if (prime_op == -1) {
         prime_op = tokens[i].type;
       } else {
-        prime_op = priority[(int)prime_op] > priority[tokens[i].type]? tokens[i].type: prime_op;
+        prime_op = priority[(int)prime_op] > priority[tokens[i].type]? i: prime_op;
       }
     }
   }
@@ -191,7 +191,7 @@ uint32_t eval(int l, int r) {
   }
 
   if (l == r) {
-    // may inlegal input
+    // may be inlegal input
     return strtol(tokens[l].str, NULL, 10);
   } else if (check_parentheses(l, r)){
     // if vaild, drop brackets directly

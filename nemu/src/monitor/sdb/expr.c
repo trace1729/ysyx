@@ -106,11 +106,19 @@ static bool make_token(char *e) {
          * of tokens, some extra actions should be performed.
          */
 
-        tokens[nr_token].type = rules[i].token_type;
+        if (rules[i].token_type != TK_NOTYPE) {
+          tokens[nr_token++].type = rules[i].token_type;
+        }
+
         switch (rules[i].token_type) {
+          case '+':
+          case '-':
+          case '*':
+          case '/':
+          case '(':
+          case ')':
+            break;
           case TK_EQ:
-            tokens[nr_token].str[0] = '=';
-            tokens[nr_token].str[1] = '=';
             break;
           case TK_NUM:
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
@@ -118,8 +126,10 @@ static bool make_token(char *e) {
             tokens[nr_token].str[substr_len] = '\0';
             Log("copy to tokens %s", tokens[nr_token].str);
             break;
+          default:
+            break;
         }
-        nr_token++;
+
         break;
       }
     }
@@ -171,8 +181,7 @@ int find_prime_operator(int l, int r) {
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
-    
-    
+
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){

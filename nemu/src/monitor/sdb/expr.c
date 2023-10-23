@@ -124,7 +124,7 @@ static bool make_token(char *e) {
             substr_len = substr_len > 31? substr_len: 31; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
-            Log("%s", tokens[nr_token].str);
+            Log("copy to tokens %s", tokens[nr_token].str);
             break;
         }
         nr_token++;

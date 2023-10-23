@@ -176,7 +176,7 @@ int find_prime_operator(int l, int r) {
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){
       if (prime_op == -1) {
-        prime_op = tokens[i].type;
+        prime_op = i;
       } else {
         prime_op = priority[(int)prime_op] > priority[tokens[i].type]? i: prime_op;
       }
@@ -198,7 +198,7 @@ uint32_t eval(int l, int r) {
     return eval(l + 1, r - 1);
 
   } else {
-    // find prime operator
+    // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
     
     Check(prime_op != BAD_EXPRESSION, "BAD_EXPRESSION");
@@ -206,7 +206,7 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
-    Log("%d %c %d", val_l, prime_op, val_r);
+    Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
 
     Check(val_l != BAD_EXPRESSION, "BAD_EXPRESSION");
     Check(val_r != BAD_EXPRESSION, "BAD_EXPRESSION");

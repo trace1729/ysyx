@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "debug.h"
 #include <isa.h>
 
 /* We use the POSIX regex functions to process regular expressions.
@@ -31,7 +32,7 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  {"[0-9]", TK_NUM},    // spaces
+  {"[0-9]+", TK_NUM},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},         // minus
@@ -42,7 +43,17 @@ static struct rule {
   {"\\)", ')'},        // equal
 };
 
+static int priority[] __attribute__((used)) = {
+  ['+'] = 0,
+  ['-'] = 0,
+  ['*'] = 1,
+  ['/'] = 1,
+  ['('] = 2,
+  [')'] = 2,
+};
+
 #define NR_REGEX ARRLEN(rules)
+#define BAD_EXPRESSION -1
 
 static regex_t re[NR_REGEX] = {};
 
@@ -110,8 +121,10 @@ static bool make_token(char *e) {
             tokens[nr_token].str[1] = '=';
             break;
           case TK_EQ:
-            substr_len = substr_len > 32? substr_len: 32; // truncate to 32 bits
+            substr_len = substr_len > 31? substr_len: 31; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
+            tokens[nr_token].str[substr_len] = '\0';
+            Log("%s", tokens[nr_token].str);
             break;
         }
         nr_token++;
@@ -127,7 +140,86 @@ static bool make_token(char *e) {
 
   return true;
 }
+static bool is_arithmatic(int type) {
+  return type == '+' || \
+               type == '-' || \
+               type == '*' || \
+               type == '/';
 
+}
+
+static bool check_parentheses(int l, int r) {
+  if (tokens[l].type != '(' || tokens[r].type != ')') {
+    return false;
+  }
+
+  int stack = 0;
+
+  for (int i = l; i <= r; i ++) {
+    if (stack < 0) return false;
+    if (tokens[i].type == '(') stack++; 
+    else if (tokens[i].type == ')') stack--;
+  }
+
+  return stack == 0;
+}
+
+int find_prime_operator(int l, int r) {
+  
+  int stack = 0;
+  char prime_op = BAD_EXPRESSION;
+
+  for (int i = l; i <= r; i ++) {
+    if (stack < 0) return BAD_EXPRESSION;
+
+    if (tokens[i].type == '(') stack++;
+    else if (tokens[i].type == ')') stack--;
+    else if (is_arithmatic(tokens[i].type) && !stack){
+      if (prime_op == -1) {
+        prime_op = tokens[i].type;
+      } else {
+        prime_op = priority[(int)prime_op] > priority[tokens[i].type]? tokens[i].type: prime_op;
+      }
+    }
+  }
+  return prime_op;
+}
+
+uint32_t eval(int l, int r) {
+  if (l > r) {
+    return BAD_EXPRESSION;
+  }
+
+  if (l == r) {
+    // may inlegal input
+    return strtol(tokens[l].str, NULL, 10);
+  } else if (check_parentheses(l, r)){
+    // if vaild, drop brackets directly
+    return eval(l + 1, r - 1);
+
+  } else {
+    // find prime operator
+    int prime_op = find_prime_operator(l, r);
+    
+    Check(prime_op != BAD_EXPRESSION, "BAD_EXPRESSION");
+
+    uint32_t val_l = eval(l, prime_op - 1);
+    uint32_t val_r = eval(prime_op + 1, r);
+
+    Check(val_l != BAD_EXPRESSION, "BAD_EXPRESSION");
+    Check(val_r != BAD_EXPRESSION, "BAD_EXPRESSION");
+
+    switch (tokens[prime_op].type) {
+      case '+':return val_l + val_r;
+      case '-':return val_l - val_r;
+      case '*':return val_l * val_r;
+      case '/':return val_l / val_r;
+      default:return BAD_EXPRESSION;
+    }
+  }
+error:
+  return BAD_EXPRESSION;
+}
 
 word_t expr(char *e, bool *success) {
   if (!make_token(e)) {
@@ -137,6 +229,6 @@ word_t expr(char *e, bool *success) {
 
   /* TODO: Insert codes to evaluate the expression. */
   /* TODO(); */
-
-  return 0;
+  return eval(0, nr_token - 1);
 }
+

@@ -194,8 +194,8 @@ int find_prime_operator(int l, int r) {
 }
 
 uint32_t eval(int l, int r) {
+  Log("call eval(%d, %d)", l, r);
   if (l > r) {
-    Log("l > r");
     return BAD_EXPRESSION;
   }
 

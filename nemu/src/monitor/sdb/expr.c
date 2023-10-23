@@ -213,15 +213,15 @@ uint32_t eval(int l, int r) {
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
     
-    Check(prime_op != BAD_EXPRESSION, "BAD_EXPRESSION");
+    Check(prime_op != BAD_EXPRESSION, "eval: Wrong prime_operator!");
 
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
     Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
 
-    Check(val_l != BAD_EXPRESSION, "BAD_EXPRESSION");
-    Check(val_r != BAD_EXPRESSION, "BAD_EXPRESSION");
+    Check(val_l != BAD_EXPRESSION, "eval: wrong operand l");
+    Check(val_r != BAD_EXPRESSION, "eval: wrong operand r");
 
     switch (tokens[prime_op].type) {
       case '+':return val_l + val_r;

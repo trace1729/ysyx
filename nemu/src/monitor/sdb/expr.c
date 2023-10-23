@@ -108,14 +108,6 @@ static bool make_token(char *e) {
 
         tokens[nr_token].type = rules[i].token_type;
         switch (rules[i].token_type) {
-          case '+':
-          case '-':
-          case '*':
-          case '/':
-          case '(':
-          case ')':
-            tokens[nr_token].str[0] = rules[i].token_type;
-            break;
           case TK_EQ:
             tokens[nr_token].str[0] = '=';
             tokens[nr_token].str[1] = '=';
@@ -179,7 +171,8 @@ int find_prime_operator(int l, int r) {
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
-
+    
+    
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){

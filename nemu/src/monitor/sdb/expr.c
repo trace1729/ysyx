@@ -167,7 +167,6 @@ static bool check_parentheses(int l, int r) {
       stack++; 
     else if (tokens[i].type == ')') 
       stack--;
-
   }
 
   return stack == 0;
@@ -196,17 +195,21 @@ int find_prime_operator(int l, int r) {
 
 uint32_t eval(int l, int r) {
   if (l > r) {
+    Log("l > r");
     return BAD_EXPRESSION;
   }
 
   if (l == r) {
     // may be inlegal input
+    Log("evaluate %s", tokens[l].str);
     return strtol(tokens[l].str, NULL, 10);
   } else if (check_parentheses(l, r)){
+    Log("removeing brackets");
     // if vaild, drop brackets directly
     return eval(l + 1, r - 1);
 
   } else {
+    
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
     
@@ -238,8 +241,5 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  /* TODO: Insert codes to evaluate the expression. */
-  /* TODO(); */
   return eval(0, nr_token - 1);
 }
-

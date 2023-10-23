@@ -24,7 +24,12 @@
     _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_BLUE) "\n", \
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
-#define Check(cond, format, ...) if(!(cond)) { Log(format, ##__VA_ARGS__);  goto error; }
+
+#define _Check(format, ...) \
+    _Log(ANSI_FMT("[%s:%d %s] " format, ANSI_FG_RED) "\n", \
+        __FILE__, __LINE__, __func__, ## __VA_ARGS__)
+
+#define Check(cond, format, ...) if(!(cond)) { _Check(format, ##__VA_ARGS__);  goto error; }
 
 #define Assert(cond, format, ...) \
   do { \

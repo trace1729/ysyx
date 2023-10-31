@@ -119,9 +119,9 @@ static bool make_token(char *e) {
             tokens[nr_token++].type = rules[i].token_type;
             break;
           case '-':
-            // arithmetic sign exists before -, so - should be 
+            // arithmetic sign exists before - or - is the first token, so - should be 
             // interpret as TK_MINUS instead of `-`
-            if (is_arithmatic(tokens[nr_token - 1].type)) {
+            if (nr_token == 0 || is_arithmatic(tokens[nr_token - 1].type)) {
               tokens[nr_token++].type = TK_MINUS;
             }
             tokens[nr_token++].type = rules[i].token_type;

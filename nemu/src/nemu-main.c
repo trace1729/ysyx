@@ -52,7 +52,6 @@ int main(int argc, char *argv[]) {
     // remove \n in the end of the line
     assert(*(c_expr + strlen(c_expr) - 1) == '\n');
     *(c_expr + strlen(c_expr) - 1) = '\0';
-    
     unsigned int actual = expr(c_expr, &success);
     Check(res == actual, "failed on #%d, expected %u , but %u", i,  res, actual) ;
   }

@@ -224,8 +224,8 @@ uint32_t eval(int l, int r) {
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
 
-    // 判断是不是遇到了单目运算符
-    if (prime_op != BAD_EXPRESSION && tokens[l].type == TK_MINUS) {
+    // if there is no prime operator and the type of first operator is unary operator
+    if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_MINUS) {
       return -eval(l+1, r);
     }
     

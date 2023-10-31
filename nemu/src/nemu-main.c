@@ -36,7 +36,7 @@ int main(int argc, char *argv[]) {
 
   assert(fp != NULL);
   char buf[65536+10];
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < 100; i++) {
     // read oneline into the buf
     fgets(buf, ARRLEN(buf), fp);
     // split line by spaces

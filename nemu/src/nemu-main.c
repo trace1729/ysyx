@@ -13,7 +13,10 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "macro.h"
 #include <common.h>
+#include <stdio.h>
+#include <stdlib.h>
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -27,6 +30,25 @@ int main(int argc, char *argv[]) {
 #else
   init_monitor(argc, argv);
 #endif
+
+  FILE *fp = fopen("~/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_10", "r");
+
+  assert(fp != NULL);
+  char buf[65536+10];
+  for (int i = 0; i < 10; i++) {
+    // read oneline into the buf
+    fgets(buf, ARRLEN(buf), fp);
+    // split line by spaces
+    char* c_res = strtok(buf, " ");
+    // parse the interger
+    unsigned int res = strtol(c_res, NULL, 10);
+    // remainging should be the expression
+    char* c_expr = buf + strlen(c_res) + 1;
+    printf("%u %s\n", res, c_expr);
+  }
+
+
+  fclose(fp);
 
   /* Start engine. */
   engine_start();

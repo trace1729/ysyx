@@ -31,7 +31,7 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  FILE *fp = fopen("~/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_10", "r");
+  FILE *fp = fopen("/home/trace/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_10", "r");
 
   assert(fp != NULL);
   char buf[65536+10];

@@ -32,7 +32,7 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  {"[0-9]+", TK_NUM},    // spaces
+  {"[0-9]+u*", TK_NUM},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},         // minus

@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     // remainging should be the expression
     char* c_expr = buf + strlen(c_res) + 1;
     *(c_expr + strlen(c_expr) - 1) = '\0';
-    printf("%u %s", res, c_expr);
+    printf("%u %s\n", res, c_expr);
   }
 
 

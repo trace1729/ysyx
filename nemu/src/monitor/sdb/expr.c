@@ -123,8 +123,9 @@ static bool make_token(char *e) {
             // interpret as TK_MINUS instead of `-`
             if (nr_token == 0 || is_arithmatic(tokens[nr_token - 1].type)) {
               tokens[nr_token++].type = TK_MINUS;
+            } else {
+              tokens[nr_token++].type = rules[i].token_type;
             }
-            tokens[nr_token++].type = rules[i].token_type;
             break;
           case TK_NUM:
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits

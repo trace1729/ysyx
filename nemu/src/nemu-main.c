@@ -13,11 +13,13 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "debug.h"
 #include "macro.h"
 #include <assert.h>
 #include <common.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "monitor/sdb/sdb.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -36,6 +38,7 @@ int main(int argc, char *argv[]) {
 
   assert(fp != NULL);
   char buf[65536+10];
+  bool success;
   for (int i = 0; i < 9; i++) {
     // read oneline into the buf; 
     // will continue read the last line of the file
@@ -46,13 +49,15 @@ int main(int argc, char *argv[]) {
     unsigned int res = strtol(c_res, NULL, 10);
     // remainging should be the expression
     char* c_expr = buf + strlen(c_res) + 1;
-    assert(*(c_expr + strlen(c_expr) - 1) == '\n');
+    // remove \n in the end of the line
     assert(*(c_expr + strlen(c_expr) - 1) == '\n');
     *(c_expr + strlen(c_expr) - 1) = '\0';
-    printf("%u %s\n", res, c_expr);
+    
+    unsigned int actual = expr(c_expr, &success);
+    Check(res == actual, "failed, expected %u , but %u", res, actual) ;
   }
 
-
+error:
   fclose(fp);
 
   /* Start engine. */

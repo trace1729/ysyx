@@ -46,7 +46,7 @@ int main(int argc, char *argv[]) {
     unsigned int res = strtol(c_res, NULL, 10);
     // remainging should be the expression
     char* c_expr = buf + strlen(c_res) + 1;
-    assert(*(c_expr + strlen(c_expr) - 1) == '\0');
+    assert(*(c_expr + strlen(c_expr) - 1) == '\n');
     *(c_expr + strlen(c_expr) - 1) = '\0';
     printf("%u %s\n", res, c_expr);
   }

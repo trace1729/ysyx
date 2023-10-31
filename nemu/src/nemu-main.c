@@ -37,7 +37,8 @@ int main(int argc, char *argv[]) {
   assert(fp != NULL);
   char buf[65536+10];
   for (int i = 0; i < 9; i++) {
-    // read oneline into the buf
+    // read oneline into the buf; 
+    // will continue read the last line of the file
     fgets(buf, ARRLEN(buf), fp);
     // split line by spaces
     char* c_res = strtok(buf, " ");
@@ -45,6 +46,7 @@ int main(int argc, char *argv[]) {
     unsigned int res = strtol(c_res, NULL, 10);
     // remainging should be the expression
     char* c_expr = buf + strlen(c_res) + 1;
+    assert(*(c_expr + strlen(c_expr) - 1) == '\0');
     *(c_expr + strlen(c_expr) - 1) = '\0';
     printf("%u %s\n", res, c_expr);
   }

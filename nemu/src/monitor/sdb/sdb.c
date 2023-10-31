@@ -63,8 +63,8 @@ static int cmd_d(char *args) {
 
 static int cmd_p(char *args) {
   bool success;
-  int res = expr(args, &success);
-  printf("%d", res);
+  unsigned int res = expr(args, &success);
+  printf("%u", res);
   return success;
 }
 

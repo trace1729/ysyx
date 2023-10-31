@@ -32,7 +32,7 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  {"[0-9]+", TK_NUM},    // spaces
+  {"[0-9]+u*", TK_NUM},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},         // minus
@@ -81,7 +81,7 @@ typedef struct token {
   char str[32];
 } Token;
 
-static Token tokens[32] __attribute__((used)) = {};
+static Token tokens[4096] __attribute__((used)) = {};
 static int nr_token __attribute__((used))  = 0;
 
 static bool make_token(char *e) {
@@ -189,7 +189,6 @@ int find_prime_operator(int l, int r) {
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
-
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){
@@ -220,13 +219,14 @@ uint32_t eval(int l, int r) {
 
   } else {
     
-    // 在找主运算符之前，先判断是不是遇到了单目运算符
-    if (tokens[l].type == TK_MINUS) {
-      return -eval(l+1, r);
-    }
 
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
+
+    // if there is no prime operator and the type of first operator is unary operator
+    if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_MINUS) {
+      return -eval(l+1, r);
+    }
     
     Check(prime_op != BAD_EXPRESSION, "eval: Wrong prime_operator!");
 

@@ -23,7 +23,7 @@
 #include <string.h>
 
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_NUM
+  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_MINUS
 
 };
 
@@ -56,6 +56,8 @@ static int priority[] __attribute__((used)) = {
 #define BAD_EXPRESSION -1
 
 static regex_t re[NR_REGEX] = {};
+
+static bool is_arithmatic(int type);
 
 /* Rules are used for many times.
  * Therefore we compile them only once before any usage.
@@ -109,15 +111,23 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case '+':
-          case '-':
           case '*':
           case '/':
           case '(':
           case ')':
-            break;
           case TK_EQ:
+            tokens[nr_token++].type = rules[i].token_type;
+            break;
+          case '-':
+            // arithmetic sign exists before -, so - should be 
+            // interpret as TK_MINUS instead of `-`
+            if (is_arithmatic(tokens[nr_token - 1].type)) {
+              tokens[nr_token++].type = TK_MINUS;
+            }
+            tokens[nr_token++].type = rules[i].token_type;
             break;
           case TK_NUM:
+            tokens[nr_token++].type = rules[i].token_type;
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
@@ -125,9 +135,6 @@ static bool make_token(char *e) {
             break;
           default:
             break;
-        }
-        if (rules[i].token_type != TK_NOTYPE) {
-          tokens[nr_token++].type = rules[i].token_type;
         }
         break; // found a match, break
       }
@@ -145,7 +152,8 @@ static bool is_arithmatic(int type) {
   return type == '+' || \
                type == '-' || \
                type == '*' || \
-               type == '/';
+               type == '/' || \
+               type == TK_EQ;
 
 }
 
@@ -211,6 +219,11 @@ uint32_t eval(int l, int r) {
 
   } else {
     
+    // 在找主运算符之前，先判断是不是遇到了单目运算符
+    if (tokens[l].type == TK_MINUS) {
+      return -eval(l+1, r);
+    }
+
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
     

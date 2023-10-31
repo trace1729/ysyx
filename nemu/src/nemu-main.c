@@ -54,7 +54,7 @@ int main(int argc, char *argv[]) {
     *(c_expr + strlen(c_expr) - 1) = '\0';
     
     unsigned int actual = expr(c_expr, &success);
-    Check(res == actual, "failed, expected %u , but %u", res, actual) ;
+    Check(res == actual, "failed on #%d, expected %u , but %u", i,  res, actual) ;
   }
 
 error:

@@ -127,11 +127,11 @@ static bool make_token(char *e) {
             tokens[nr_token++].type = rules[i].token_type;
             break;
           case TK_NUM:
-            tokens[nr_token++].type = rules[i].token_type;
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
             Log("copy to tokens %s", tokens[nr_token].str);
+            tokens[nr_token++].type = rules[i].token_type;
             break;
           default:
             break;

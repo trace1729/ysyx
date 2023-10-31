@@ -189,7 +189,6 @@ int find_prime_operator(int l, int r) {
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
-
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){

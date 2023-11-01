@@ -31,8 +31,8 @@ static struct rule {
   int token_type;
 } rules[] = {
 
-  {"[0-9]+u*", TK_NUM},    // spaces
   {"0x[0-9a-fA-F]+u*", TK_HEX_NUM},    // spaces
+  {"[0-9]+u*", TK_NUM},    // spaces
   {"\\$0?[a-z]*[0-9]*", TK_REG},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus

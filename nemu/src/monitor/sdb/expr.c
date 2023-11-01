@@ -185,21 +185,21 @@ static bool check_parentheses(int l, int r) {
 int find_prime_operator(int l, int r) {
   
   int stack = 0;
-  char prime_op = BAD_EXPRESSION;
+  unsigned int prime_idx = BAD_EXPRESSION;
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){
-      if (prime_op == BAD_EXPRESSION) {
-        prime_op = i;
+      if (prime_idx == BAD_EXPRESSION) {
+        prime_idx = i;
       } else {
-        prime_op = priority[(int)prime_op] >= priority[tokens[i].type]? i: prime_op;
+        prime_idx = priority[tokens[prime_idx].type] >= priority[tokens[i].type]? i: prime_idx;
       }
     }
   }
-  return prime_op;
+  return prime_idx;
 }
 
 uint32_t eval(int l, int r) {

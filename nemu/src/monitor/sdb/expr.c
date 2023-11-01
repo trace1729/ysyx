@@ -98,8 +98,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            //i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -131,7 +131,7 @@ static bool make_token(char *e) {
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
-            Log("copy to tokens %s", tokens[nr_token].str);
+            //Log("copy to tokens %s", tokens[nr_token].str);
             tokens[nr_token++].type = rules[i].token_type;
             break;
           default:
@@ -185,35 +185,35 @@ static bool check_parentheses(int l, int r) {
 int find_prime_operator(int l, int r) {
   
   int stack = 0;
-  char prime_op = BAD_EXPRESSION;
+  unsigned int prime_idx = BAD_EXPRESSION;
 
   for (int i = l; i <= r; i ++) {
     if (stack < 0) return BAD_EXPRESSION;
     if (tokens[i].type == '(') stack++;
     else if (tokens[i].type == ')') stack--;
     else if (is_arithmatic(tokens[i].type) && !stack){
-      if (prime_op == BAD_EXPRESSION) {
-        prime_op = i;
+      if (prime_idx == BAD_EXPRESSION) {
+        prime_idx = i;
       } else {
-        prime_op = priority[(int)prime_op] >= priority[tokens[i].type]? i: prime_op;
+        prime_idx = priority[tokens[prime_idx].type] >= priority[tokens[i].type]? i: prime_idx;
       }
     }
   }
-  return prime_op;
+  return prime_idx;
 }
 
 uint32_t eval(int l, int r) {
-  Log("call eval(%d, %d)", l, r);
+  //Log("call eval(%d, %d)", l, r);
   if (l > r) {
     return BAD_EXPRESSION;
   }
 
   if (l == r) {
     // may be inlegal input
-    Log("evaluate %s", tokens[l].str);
+    //Log("evaluate %s", tokens[l].str);
     return strtol(tokens[l].str, NULL, 10);
   } else if (check_parentheses(l, r)){
-    Log("removeing brackets");
+    //Log("removeing brackets");
     // if vaild, drop brackets directly
     return eval(l + 1, r - 1);
 
@@ -233,10 +233,10 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
-    Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
+    //Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
 
-    Check(val_l != BAD_EXPRESSION, "eval: wrong operand l");
-    Check(val_r != BAD_EXPRESSION, "eval: wrong operand r");
+    /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
+    /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */
 
     switch (tokens[prime_op].type) {
       case '+':return val_l + val_r;

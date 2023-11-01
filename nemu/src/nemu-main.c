@@ -39,7 +39,7 @@ int main(int argc, char *argv[]) {
   assert(fp != NULL);
   char buf[65536+10];
   bool success;
-  for (int i = 0; i < 9; i++) {
+  for (int i = 0; i < 9000; i++) {
     // read oneline into the buf; 
     // will continue read the last line of the file
     fgets(buf, ARRLEN(buf), fp);
@@ -54,6 +54,7 @@ int main(int argc, char *argv[]) {
     *(c_expr + strlen(c_expr) - 1) = '\0';
     unsigned int actual = expr(c_expr, &success);
     Check(res == actual, "failed on #%d, expression is %s, expected %u , but %u", i, c_expr, res, actual) ;
+    printf("PASSED #%d\n", i);
   }
 
 error:

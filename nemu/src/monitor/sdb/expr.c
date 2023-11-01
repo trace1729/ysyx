@@ -268,7 +268,7 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
-    Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
+    Log("%u %c %u", val_l, tokens[prime_op].type, val_r);
 
     /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
     /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */

@@ -21,10 +21,9 @@
  */
 #include <regex.h>
 #include <string.h>
-
+#include <memory/vaddr.h>
 enum {
-  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_MINUS
-
+  TK_NOTYPE = 256, TK_EQ, TK_NUM, TK_MINUS, TK_HEX_NUM, TK_NEQ, TK_AND, TK_REG, TK_DREF
 };
 
 static struct rule {
@@ -33,12 +32,16 @@ static struct rule {
 } rules[] = {
 
   {"[0-9]+u*", TK_NUM},    // spaces
+  {"0x[0-9]+u*", TK_HEX_NUM},    // spaces
+  {"\\$0?[a-z]*[0-9]*", TK_REG},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
   {"-", '-'},         // minus
   {"\\*", '*'},         // multiple
   {"/", '/'},         // div
   {"==", TK_EQ},        // equal
+  {"!=", TK_NEQ},        // equal
+  {"&&", TK_AND},        // equal
   {"\\(", '('},        // equal
   {"\\)", ')'},        // equal
 };
@@ -111,11 +114,12 @@ static bool make_token(char *e) {
 
         switch (rules[i].token_type) {
           case '+':
-          case '*':
           case '/':
           case '(':
           case ')':
           case TK_EQ:
+          case TK_AND:
+          case TK_NEQ:
             tokens[nr_token++].type = rules[i].token_type;
             break;
           case '-':
@@ -127,7 +131,16 @@ static bool make_token(char *e) {
               tokens[nr_token++].type = rules[i].token_type;
             }
             break;
+            // the same as '-'
+          case '*':
+            if (nr_token == 0 || is_arithmatic(tokens[nr_token - 1].type)) {
+              tokens[nr_token++].type = TK_DREF;
+            } else {
+              tokens[nr_token++].type = rules[i].token_type;
+            }
           case TK_NUM:
+          case TK_HEX_NUM:
+          case TK_REG:
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
@@ -207,18 +220,26 @@ uint32_t eval(int l, int r) {
   if (l > r) {
     return BAD_EXPRESSION;
   }
-
   if (l == r) {
     // may be inlegal input
     //Log("evaluate %s", tokens[l].str);
-    return strtol(tokens[l].str, NULL, 10);
+    bool success;
+    switch (tokens[l].type) {
+      case TK_NUM:
+        return strtol(tokens[l].str, NULL, 10);
+      case TK_HEX_NUM:
+        return strtol(tokens[l].str, NULL, 16);       
+      case TK_REG:
+        assert(tokens[l].str[0] == '$');
+        return isa_reg_str2val(tokens[l].str + 1, &success);
+      default:break;
+    }
   } else if (check_parentheses(l, r)){
     //Log("removeing brackets");
     // if vaild, drop brackets directly
     return eval(l + 1, r - 1);
 
   } else {
-    
 
     // find prime operator (idx)
     int prime_op = find_prime_operator(l, r);
@@ -227,7 +248,15 @@ uint32_t eval(int l, int r) {
     if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_MINUS) {
       return -eval(l+1, r);
     }
-    
+
+    // if there is no prime operator and the type of first operator is unary operator
+    if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_DREF) {
+        uint32_t addr = eval(l+1, r);
+        return vaddr_read(addr, sizeof(vaddr_t));
+    }
+
+    // if there is no prime operator and the type of first operator is unary operator
+
     Check(prime_op != BAD_EXPRESSION, "eval: Wrong prime_operator!");
 
     uint32_t val_l = eval(l, prime_op - 1);
@@ -243,6 +272,9 @@ uint32_t eval(int l, int r) {
       case '-':return val_l - val_r;
       case '*':return val_l * val_r;
       case '/':return val_l / val_r;
+      case TK_AND: return val_l && val_r;
+      case TK_NEQ: return val_l != val_r;
+      case TK_EQ: return val_l == val_r;
       default:return BAD_EXPRESSION;
     }
   }

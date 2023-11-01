@@ -101,8 +101,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            //i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -144,7 +144,7 @@ static bool make_token(char *e) {
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
-            //Log("copy to tokens %s", tokens[nr_token].str);
+            Log("copy to tokens %s", tokens[nr_token].str);
             tokens[nr_token++].type = rules[i].token_type;
             break;
           default:
@@ -167,7 +167,9 @@ static bool is_arithmatic(int type) {
                type == '-' || \
                type == '*' || \
                type == '/' || \
-               type == TK_EQ;
+               type == TK_EQ || \
+               type == TK_NEQ || \
+               type == TK_AND;
 
 }
 
@@ -216,13 +218,13 @@ int find_prime_operator(int l, int r) {
 }
 
 uint32_t eval(int l, int r) {
-  //Log("call eval(%d, %d)", l, r);
+  Log("call eval(%d, %d)", l, r);
   if (l > r) {
     return BAD_EXPRESSION;
   }
   if (l == r) {
     // may be inlegal input
-    //Log("evaluate %s", tokens[l].str);
+    Log("evaluate %s", tokens[l].str);
     bool success;
     switch (tokens[l].type) {
       case TK_NUM:
@@ -235,7 +237,7 @@ uint32_t eval(int l, int r) {
       default:break;
     }
   } else if (check_parentheses(l, r)){
-    //Log("removeing brackets");
+    Log("removeing brackets");
     // if vaild, drop brackets directly
     return eval(l + 1, r - 1);
 
@@ -262,7 +264,7 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
-    //Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
+    Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
 
     /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
     /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */

@@ -26,15 +26,8 @@ void am_init_monitor();
 void engine_start();
 int is_exit_status_bad();
 
-int main(int argc, char *argv[]) {
-  /* Initialize the monitor. */
-#ifdef CONFIG_TARGET_AM
-  am_init_monitor();
-#else
-  init_monitor(argc, argv);
-#endif
-
-  FILE *fp = fopen("/home/trace/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_10", "r");
+void sdb_arthimetic_test() {
+  FILE *fp = fopen("/home/trace/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_100", "r");
 
   assert(fp != NULL);
   char buf[65536+10];
@@ -59,6 +52,19 @@ int main(int argc, char *argv[]) {
 
 error:
   fclose(fp);
+  return;
+
+}
+
+int main(int argc, char *argv[]) {
+  /* Initialize the monitor. */
+#ifdef CONFIG_TARGET_AM
+  am_init_monitor();
+#else
+  init_monitor(argc, argv);
+#endif
+
+  // sdb_arthimetic_test();
 
   /* Start engine. */
   engine_start();

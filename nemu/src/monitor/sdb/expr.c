@@ -31,8 +31,8 @@ static struct rule {
   int token_type;
 } rules[] = {
 
+  {"0x[0-9a-fA-F]+u*", TK_HEX_NUM},    // spaces
   {"[0-9]+u*", TK_NUM},    // spaces
-  {"0x[0-9]+u*", TK_HEX_NUM},    // spaces
   {"\\$0?[a-z]*[0-9]*", TK_REG},    // spaces
   {" +", TK_NOTYPE},    // spaces
   {"\\+", '+'},         // plus
@@ -138,13 +138,14 @@ static bool make_token(char *e) {
             } else {
               tokens[nr_token++].type = rules[i].token_type;
             }
+            break;
           case TK_NUM:
           case TK_HEX_NUM:
           case TK_REG:
             substr_len = substr_len > 31? 31: substr_len; // truncate to 32 bits
             mempcpy(tokens[nr_token].str, substr_start, substr_len);
             tokens[nr_token].str[substr_len] = '\0';
-            Log("copy to tokens %s", tokens[nr_token].str);
+            //Log("copy to tokens %s", tokens[nr_token].str);
             tokens[nr_token++].type = rules[i].token_type;
             break;
           default:
@@ -224,20 +225,22 @@ uint32_t eval(int l, int r) {
   }
   if (l == r) {
     // may be inlegal input
-    Log("evaluate %s", tokens[l].str);
+    //Log("evaluate %s", tokens[l].str);
     bool success;
     switch (tokens[l].type) {
       case TK_NUM:
         return strtol(tokens[l].str, NULL, 10);
       case TK_HEX_NUM:
-        return strtol(tokens[l].str, NULL, 16);       
+        Log("evaluate hex %s", tokens[l].str);
+        return strtoul(tokens[l].str, NULL, 16);       
       case TK_REG:
         assert(tokens[l].str[0] == '$');
+        Log("get reg %s", tokens[l].str);
         return isa_reg_str2val(tokens[l].str + 1, &success);
       default:break;
     }
   } else if (check_parentheses(l, r)){
-    Log("removeing brackets");
+    //Log("removeing brackets");
     // if vaild, drop brackets directly
     return eval(l + 1, r - 1);
 
@@ -254,6 +257,7 @@ uint32_t eval(int l, int r) {
     // if there is no prime operator and the type of first operator is unary operator
     if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_DREF) {
         uint32_t addr = eval(l+1, r);
+        Log("read addr %x", addr);
         return vaddr_read(addr, sizeof(vaddr_t));
     }
 
@@ -264,7 +268,7 @@ uint32_t eval(int l, int r) {
     uint32_t val_l = eval(l, prime_op - 1);
     uint32_t val_r = eval(prime_op + 1, r);
 
-    Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
+    Log("%u %c %u", val_l, tokens[prime_op].type, val_r);
 
     /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
     /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */

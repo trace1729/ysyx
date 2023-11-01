@@ -105,8 +105,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
-            i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        // Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+           //  i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -222,31 +222,31 @@ int find_prime_operator(int l, int r) {
   return prime_idx;
 }
 
-uint32_t eval(int l, int r) {
-  Log("call eval(%d, %d)", l, r);
+uint32_t eval(int l, int r, bool* success) {
+  // Log("call eval(%d, %d)", l, r);
   if (l > r) {
+    *success = false;
     return BAD_EXPRESSION;
   }
   if (l == r) {
     // may be inlegal input
     //Log("evaluate %s", tokens[l].str);
-    bool success;
     switch (tokens[l].type) {
       case TK_NUM:
         return strtol(tokens[l].str, NULL, 10);
       case TK_HEX_NUM:
-        Log("evaluate hex %s", tokens[l].str);
+        // Log("evaluate hex %s", tokens[l].str);
         return strtoul(tokens[l].str, NULL, 16);       
       case TK_REG:
         assert(tokens[l].str[0] == '$');
-        Log("get reg %s", tokens[l].str);
-        return isa_reg_str2val(tokens[l].str + 1, &success);
+        // Log("get reg %s", tokens[l].str);
+        return isa_reg_str2val(tokens[l].str + 1, success);
       default:break;
     }
   } else if (check_parentheses(l, r)){
     //Log("removeing brackets");
     // if vaild, drop brackets directly
-    return eval(l + 1, r - 1);
+    return eval(l + 1, r - 1, success);
 
   } else {
 
@@ -255,13 +255,13 @@ uint32_t eval(int l, int r) {
 
     // if there is no prime operator and the type of first operator is unary operator
     if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_MINUS) {
-      return -eval(l+1, r);
+      return -eval(l+1, r, success);
     }
 
     // if there is no prime operator and the type of first operator is unary operator
     if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_DREF) {
-        uint32_t addr = eval(l+1, r);
-        Log("read addr %x", addr);
+        uint32_t addr = eval(l+1, r, success);
+        //Log("read addr %x", addr);
         return vaddr_read(addr, sizeof(vaddr_t));
     }
 
@@ -269,13 +269,11 @@ uint32_t eval(int l, int r) {
 
     Check(prime_op != BAD_EXPRESSION, "eval: Wrong prime_operator!");
 
-    uint32_t val_l = eval(l, prime_op - 1);
-    uint32_t val_r = eval(prime_op + 1, r);
+    uint32_t val_l = eval(l, prime_op - 1, success);
+    uint32_t val_r = eval(prime_op + 1, r, success);
 
-    Log("%u %c %u", val_l, tokens[prime_op].type, val_r);
+    // Log("%u %c %u", val_l, tokens[prime_op].type, val_r);
 
-    /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
-    /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */
 
     switch (tokens[prime_op].type) {
       case '+':return val_l + val_r;
@@ -285,10 +283,11 @@ uint32_t eval(int l, int r) {
       case TK_AND: return val_l && val_r;
       case TK_NEQ: return val_l != val_r;
       case TK_EQ: return val_l == val_r;
-      default:return BAD_EXPRESSION;
+      default: goto error;
     }
   }
 error:
+  *success = false;
   return BAD_EXPRESSION;
 }
 
@@ -298,5 +297,5 @@ word_t expr(char *e, bool *success) {
     return 0;
   }
 
-  return eval(0, nr_token - 1);
+  return eval(0, nr_token - 1, success);
 }

@@ -235,8 +235,8 @@ uint32_t eval(int l, int r) {
 
     //Log("%d %c %d", val_l, tokens[prime_op].type, val_r);
 
-    Check(val_l != BAD_EXPRESSION, "eval: wrong operand l");
-    Check(val_r != BAD_EXPRESSION, "eval: wrong operand r");
+    /* Check(val_l != BAD_EXPRESSION, "eval: wrong operand l"); */
+    /* Check(val_r != BAD_EXPRESSION, "eval: wrong operand r"); */
 
     switch (tokens[prime_op].type) {
       case '+':return val_l + val_r;

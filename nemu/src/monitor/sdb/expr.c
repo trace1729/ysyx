@@ -232,7 +232,7 @@ uint32_t eval(int l, int r) {
         return strtol(tokens[l].str, NULL, 10);
       case TK_HEX_NUM:
         Log("evaluate hex %s", tokens[l].str);
-        return strtol(tokens[l].str, NULL, 16);       
+        return strtoul(tokens[l].str, NULL, 16);       
       case TK_REG:
         assert(tokens[l].str[0] == '$');
         Log("get reg %s", tokens[l].str);

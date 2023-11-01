@@ -101,8 +101,8 @@ static bool make_token(char *e) {
         char *substr_start = e + position;
         int substr_len = pmatch.rm_eo;
 
-        //Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
- //           i, rules[i].regex, position, substr_len, substr_len, substr_start);
+        Log("match rules[%d] = \"%s\" at position %d with len %d: %.*s",
+            i, rules[i].regex, position, substr_len, substr_len, substr_start);
 
         position += substr_len;
 
@@ -231,9 +231,11 @@ uint32_t eval(int l, int r) {
       case TK_NUM:
         return strtol(tokens[l].str, NULL, 10);
       case TK_HEX_NUM:
+        Log("evaluate hex %s", tokens[l].str);
         return strtol(tokens[l].str, NULL, 16);       
       case TK_REG:
         assert(tokens[l].str[0] == '$');
+        Log("get reg %s", tokens[l].str);
         return isa_reg_str2val(tokens[l].str + 1, &success);
       default:break;
     }
@@ -255,6 +257,7 @@ uint32_t eval(int l, int r) {
     // if there is no prime operator and the type of first operator is unary operator
     if (prime_op == BAD_EXPRESSION && tokens[l].type == TK_DREF) {
         uint32_t addr = eval(l+1, r);
+        Log("read addr %x", addr);
         return vaddr_read(addr, sizeof(vaddr_t));
     }
 

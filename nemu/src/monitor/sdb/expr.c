@@ -46,13 +46,17 @@ static struct rule {
   {"\\)", ')'},        // equal
 };
 
+// reference precedence table from the c programming language P50
 static int priority[] __attribute__((used)) = {
-  ['+'] = 0,
-  ['-'] = 0,
-  ['*'] = 1,
-  ['/'] = 1,
-  ['('] = 2,
-  [')'] = 2,
+  [TK_AND] = 6,
+  [TK_NEQ] = 7,
+  [TK_EQ] = 7,
+  ['+'] = 8,
+  ['-'] = 8,
+  ['*'] = 9,
+  ['/'] = 9,
+  ['('] = 10,
+  [')'] = 10,
 };
 
 #define NR_REGEX ARRLEN(rules)

@@ -33,8 +33,8 @@ static char *code_format __attribute__((used))=
 "}";
 /* static char* type_unsigned = "(unsigned int)"; */
 
-#define MAXLEN 6
-#define MAXDEPTH 4
+#define MAXLEN 8
+#define MAXDEPTH 6
 #define MAXSPACELEN 4
 #define DEBUG(format, ...) printf("debug: " format "\n", ## __VA_ARGS__)
 

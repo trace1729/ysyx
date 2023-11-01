@@ -33,9 +33,9 @@ static char *code_format __attribute__((used))=
 "}";
 /* static char* type_unsigned = "(unsigned int)"; */
 
-#define MAXLEN 4
+#define MAXLEN 6
 #define MAXDEPTH 4
-#define MAXSPACELEN 2
+#define MAXSPACELEN 4
 #define DEBUG(format, ...) printf("debug: " format "\n", ## __VA_ARGS__)
 
 static void gen_num() {

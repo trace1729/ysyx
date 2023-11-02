@@ -70,7 +70,7 @@ int main(int argc, char *argv[]) {
   // sdb_arthimetic_test();
 
   // test watch points
-  wp_test_bench();
+  // wp_test_bench();
 
   /* Start engine. */
   engine_start();

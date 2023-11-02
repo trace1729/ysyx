@@ -116,12 +116,12 @@ void watchpoint_display() {
   if (head == NULL) {
     printf("No watch point set\n");
   } else {
-    printf("%10s%10s\n", "num", "what");
+    printf("%10s%10s%10s\n", "num", "what", "value");
   }
 
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
-    printf("%10d%10s\n", wp->NO, wp->exp);
+    printf("%10d%10s%10u\n", wp->NO, wp->exp, wp->res);
   }
 
   // for testing purpost only

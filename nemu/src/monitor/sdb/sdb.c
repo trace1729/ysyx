@@ -22,6 +22,7 @@
 #include <string.h>
 #include <memory/vaddr.h>
 #include "sdb.h"
+#include "watchpoint.h"
 
 static int is_batch_mode = false;
 
@@ -62,17 +63,18 @@ static int cmd_d(char *args) {
 }
 
 static int cmd_p(char *args) {
-  bool success;
+  bool success = true;
   unsigned int res = expr(args, &success);
   printf("%u", res);
-  return success;
+  
+  return success? 0: -1;
 }
 
 static int cmd_help(char *args);
 static int cmd_info(char *args);
 static int cmd_si(char *args);
 static int cmd_x(char *args);
-
+static int cmd_w(char* args);
 enum {
   HELP=0, INFO, SI, C, X, Q, P, D
 };
@@ -89,7 +91,8 @@ static struct {
   { "x", "scanning memory", cmd_x },
   { "q", "Exit NEMU", cmd_q },
   { "p", "eval expression", cmd_p },
-  { "d", "test functionality", cmd_d },
+  { "w", "add watchpoint", cmd_w },
+  { "d", "delete watch points", cmd_d },
 
   /* TODO: Add more commands */
 
@@ -137,7 +140,8 @@ static int cmd_info(char* args)
 
   switch (arg[0]) {
     case 'r': isa_reg_display(); break;
-    case 'w': break;
+    case 'w': watchpoint_display(); break;
+    default: break;
   }
 
   return 0;
@@ -206,6 +210,16 @@ static int cmd_x(char* args) {
   printf("\n");
   
   return 0;
+}
+
+static int cmd_w(char* args) {
+  bool success = true;
+  char *arg = strtok(NULL, " ");
+  WP* wp = new_wp();
+  mempcpy(wp->exp, arg, strlen(arg));
+  wp->exp[strlen(arg)] = '\0';
+  wp->res = expr(wp->exp, &success);
+  return success? 0 : -1;
 }
 
 void sdb_set_batch_mode() {

@@ -96,6 +96,7 @@ bool watchpoint_stop()
     // what success goes wrong
     unsigned int n = expr(wp->exp, &success);
     if (!success || wp->res != n) {
+      wp->res = n;
       break;
     }
   }

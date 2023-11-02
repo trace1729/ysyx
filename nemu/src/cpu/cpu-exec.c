@@ -47,8 +47,6 @@ static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
   bool stop = watchpoint_stop();
   if (stop) {
     nemu_state.state = NEMU_STOP;
-    Log("Triggering watch points");
-    sdb_mainloop();
   }
 }
 

@@ -20,6 +20,7 @@
  * Type 'man regex' for more information about POSIX regex functions.
  */
 #include <regex.h>
+#include <stdio.h>
 #include <string.h>
 #include <memory/vaddr.h>
 enum {
@@ -240,7 +241,9 @@ uint32_t eval(int l, int r, bool* success) {
       case TK_REG:
         assert(tokens[l].str[0] == '$');
         // Log("get reg %s", tokens[l].str);
-        return isa_reg_str2val(tokens[l].str + 1, success);
+        unsigned int reg_val = isa_reg_str2val(tokens[l].str + 1, success);
+        // Log("reg %s val:%u", tokens[l].str, reg_val); 
+        return reg_val;
       default:break;
     }
   } else if (check_parentheses(l, r)){

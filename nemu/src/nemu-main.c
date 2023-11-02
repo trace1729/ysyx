@@ -28,12 +28,12 @@ void engine_start();
 int is_exit_status_bad();
 
 void sdb_arthimetic_test() {
-  FILE *fp = fopen("/home/trace/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_100", "r");
+  FILE *fp = fopen("/home/trace/trace/learning/ysyx/ysyx-workbench/nemu/tools/gen-expr/log_1000", "r");
 
   assert(fp != NULL);
   char buf[65536+10];
   bool success;
-  for (int i = 0; i < 90; i++) {
+  for (int i = 0; i < 800; i++) {
     // read oneline into the buf; 
     // will continue read the last line of the file
     fgets(buf, ARRLEN(buf), fp);
@@ -67,10 +67,10 @@ int main(int argc, char *argv[]) {
 #endif
 
   // test expresion parser
-  // sdb_arthimetic_test();
+  sdb_arthimetic_test();
 
   // test watch points
-  wp_test_bench();
+  // wp_test_bench();
 
   /* Start engine. */
   engine_start();

@@ -59,6 +59,9 @@ static int cmd_q(char *args) {
 }
 
 static int cmd_d(char *args) {
+  char *arg = strtok(NULL, " ");
+  unsigned int id = strtoul(arg, NULL, 10);
+  free_wp(id);
   return 0;
 }
 

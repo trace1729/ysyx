@@ -53,7 +53,9 @@ WP* new_wp() {
 }
 
 void free_wp(int NO) {
-  assert(head != NULL);
+
+  Check(head != NULL, "watchpoint does not exists"); 
+
   WP* wp, *backup;
   // free head
   if (head->NO == NO) {
@@ -63,11 +65,9 @@ void free_wp(int NO) {
     free_->next = backup;
     return;
   } 
-  // If thereis only one wp node, and do not match, report an error
-  if (head->next == NULL) {
-    Log("watch pointing not exists");
-    return;
-  }
+
+  // If thereis only one wp node, and does not match, report an error
+  Check(head->next != NULL, "watchpoint does not exists");
 
   // 2..remaining
   for(wp = head; wp->next != NULL; wp = wp->next) {
@@ -82,10 +82,9 @@ void free_wp(int NO) {
     }
   }
 
-  if (free_->NO != NO) {
-    Log("watch pointing not exists");
-  }
-  
+  Check(free_->NO == NO, "watchpoint does not exists");
+  return;
+error:
   return;
 }
 
@@ -94,9 +93,12 @@ bool watchpoint_stop()
   bool success = true;
   WP* wp;
   for(wp = head; wp != NULL; wp = wp->next) {
-    // what success goes wrong
+    // expr
     unsigned int n = expr(wp->exp, &success);
     if (!success || wp->res != n) {
+      /* Log("\ntriggering watchpoints id: %10d, expr: %10s, res_prev: %10u, res_now: %10u", \
+          wp->NO, wp->exp, wp->res, n);*/ 
+      wp->res = n;
       break;
     }
   }
@@ -105,7 +107,7 @@ bool watchpoint_stop()
   if (!success) return true;
   
   // if wp != null, means expression changes
-  if (!wp) return true;
+  if (wp != NULL) return true;
 
   return false;
 }
@@ -116,12 +118,12 @@ void watchpoint_display() {
   if (head == NULL) {
     printf("No watch point set\n");
   } else {
-    printf("%10s%10s\n", "num", "what");
+    printf("%10s%10s%10s\n", "num", "what", "value");
   }
 
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
-    printf("%10d%10s\n", wp->NO, wp->exp);
+    printf("%10d%10s%10u\n", wp->NO, wp->exp, wp->res);
   }
 
   // for testing purpost only

@@ -34,21 +34,34 @@ static char *code_format __attribute__((used))=
 /* static char* type_unsigned = "(unsigned int)"; */
 
 #define MAXLEN 8
-#define MAXDEPTH 6
-#define MAXSPACELEN 4
+#define MAX_HEX_LEN 6
+#define MAXDEPTH 4
+#define MAXSPACELEN 2
 #define DEBUG(format, ...) printf("debug: " format "\n", ## __VA_ARGS__)
 
-static void gen_num() {
-  // whethet to insert spaces
-  int rand_space_len = 0;
-  int space_generate = rand() % 2;
-  if (space_generate == 1) {
-    rand_space_len = rand() % MAXSPACELEN + 1;
-  }
-  for (int i = 0; i < rand_space_len; i++) {
-    buf[head++] = ' ';
-  }
 
+const char seg[] = {
+  '0', '1', '2', '3',
+  '4', '5', '6', '7',
+  '8', '9', 'A', 'B',
+  'C', 'D', 'E', 'F'
+};
+
+static void gen_hex_num() {
+  // generate random number
+  buf[head++] = '0';
+  buf[head++] = 'x';
+
+  int rand_len = rand() % MAX_HEX_LEN + 1;
+
+  buf[head++] = seg[rand() % 15 + 1];
+  for (int i = 1; i < rand_len; i++) {
+    buf[head++] = seg[rand() % 16];
+  }
+  buf[head++] = 'u';
+}
+
+static void gen_oct_num() {
   // generate random number
   int rand_len = rand() % MAXLEN + 1;
   buf[head++] = '1' + rand() % 9;
@@ -58,12 +71,37 @@ static void gen_num() {
   buf[head++] = 'u';
 }
 
+static void gen_num() {
+
+  // whethet to insert spaces
+  int rand_space_len = 0;
+  int space_generate = rand() % 2;
+
+  if (space_generate == 1) {
+    rand_space_len = rand() % MAXSPACELEN + 1;
+  }
+  for (int i = 0; i < rand_space_len; i++) {
+    buf[head++] = ' ';
+  }
+  
+  int hex_or_oct = rand() % 2;
+  if (hex_or_oct == 1) {
+    gen_hex_num();
+  } else {
+    gen_oct_num();
+  }
+
+}
+
 static void gen_rand_op() {
-  switch (rand() % 4) {
+  switch (rand() % 7) {
     case 0: buf[head++] = '+'; break;
     case 1: buf[head++] = '-'; break;
     case 2: buf[head++] = '*'; break;
     case 3: buf[head++] = '/'; break;
+    case 4: buf[head++] = '=';buf[head++] = '=';  break;
+    case 5: buf[head++] = '!';buf[head++] = '=';  break;
+    case 6: buf[head++] = '&';buf[head++] = '&';  break;
   }
 }
 

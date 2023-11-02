@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "debug.h"
+#include "macro.h"
 #include "sdb.h"
 #include "watchpoint.h"
 #include <assert.h>
@@ -81,7 +82,7 @@ void free_wp(int NO) {
     }
   }
 
-  if (wp->next == NULL) {
+  if (free_->NO != NO) {
     Log("watch pointing not exists");
   }
   
@@ -112,9 +113,59 @@ bool watchpoint_stop()
 
 void watchpoint_display() {
   WP* wp;
-  printf("%10s%10s", "num", "what");
+  if (head == NULL) {
+    printf("No watch point set\n");
+  } else {
+    printf("%10s%10s\n", "num", "what");
+  }
+
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
     printf("%10d%10s\n", wp->NO, wp->exp);
   }
+
+  // for testing purpost only
+  int cnt = 0;
+  for (wp = free_; wp != NULL; wp = wp->next) {
+    cnt++;
+  }
+  printf("free node cnt: %d\n", cnt);
 }
+
+const char* test_expr[] = {
+  "1 + 2*$ra",
+  "1 + 2*$a0",
+  "1 + 2*$a1",
+  "1 + 2*$a2",
+  "1 + 2*$a3",
+  "1 + 2*$a4",
+  "1 + 2*$a5",
+  "1 + 2*$a6",
+};
+
+#define TEST_LEN ARRLEN(test_expr)
+
+void wp_test_bench()
+{
+
+  watchpoint_display();
+  assert(free_ == wp_pool);
+
+  for (int i = 0; i < TEST_LEN; i++) {
+    WP* wp = new_wp();
+    mempcpy(wp->exp, test_expr[i], strlen(test_expr[i]));
+    wp->exp[strlen(test_expr[i])] = '\0';
+    watchpoint_display();
+  }
+
+  // free node in order;
+  for (int i = TEST_LEN - 1; i >= 0; i--) {
+    free_wp(i);
+    watchpoint_display();
+  }
+
+  assert(head == NULL);
+  assert(free_ == wp_pool);
+}
+
+

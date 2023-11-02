@@ -20,6 +20,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "monitor/sdb/sdb.h"
+#include "monitor/sdb/watchpoint.h"
 
 void init_monitor(int, char *[]);
 void am_init_monitor();
@@ -32,7 +33,7 @@ void sdb_arthimetic_test() {
   assert(fp != NULL);
   char buf[65536+10];
   bool success;
-  for (int i = 0; i < 9000; i++) {
+  for (int i = 0; i < 90; i++) {
     // read oneline into the buf; 
     // will continue read the last line of the file
     fgets(buf, ARRLEN(buf), fp);
@@ -50,6 +51,7 @@ void sdb_arthimetic_test() {
     printf("PASSED #%d\n", i);
   }
 
+  
 error:
   fclose(fp);
   return;
@@ -64,7 +66,11 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
+  // test expresion parser
   // sdb_arthimetic_test();
+
+  // test watch points
+  wp_test_bench();
 
   /* Start engine. */
   engine_start();

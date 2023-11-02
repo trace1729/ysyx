@@ -57,6 +57,7 @@ void free_wp(int NO) {
   WP* wp, *backup;
   // free head
   if (head->NO == NO) {
+    printf("freeing head\n");
     backup = free_;
     free_ = head;
     head = head->next;
@@ -71,6 +72,7 @@ void free_wp(int NO) {
 
   // 2..remaining
   for(wp = head; wp->next != NULL; wp = wp->next) {
+    printf("free remaining\n");
     // what success goes wrong
     if (wp->next->NO == NO) {
       WP* backup = free_;
@@ -154,9 +156,6 @@ void wp_test_bench()
   for (int i = 0; i < TEST_LEN; i++) {
     WP* wp = new_wp();
     mempcpy(wp->exp, test_expr[i], strlen(test_expr[i]));
-    
-    printf("copy len %ld\n", strlen(test_expr[i]));
-
     wp->exp[strlen(test_expr[i])] = '\0';
     watchpoint_display();
   }
@@ -168,6 +167,7 @@ void wp_test_bench()
   }
 
   assert(head == NULL);
-  printf("%s\n", free_->exp);
+  assert(free_ == wp_pool);
 }
+
 

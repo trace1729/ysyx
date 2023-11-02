@@ -54,7 +54,7 @@ WP* new_wp() {
 
 void free_wp(int NO) {
 
-  Check(head != NULL, ""); 
+  Check(head != NULL, "watchpoint does not exists"); 
 
   WP* wp, *backup;
   // free head
@@ -67,7 +67,7 @@ void free_wp(int NO) {
   } 
 
   // If thereis only one wp node, and do not match, report an error
-  Check(head->next != NULL, "");
+  Check(head->next != NULL, "watchpoint does not exists");
 
   // 2..remaining
   for(wp = head; wp->next != NULL; wp = wp->next) {
@@ -82,9 +82,9 @@ void free_wp(int NO) {
     }
   }
 
-  Check(free_->NO == NO, "");
+  Check(free_->NO == NO, "watchpoint does not exists");
+  return;
 error:
-  Log("watch pointing not exists");
   return;
 }
 

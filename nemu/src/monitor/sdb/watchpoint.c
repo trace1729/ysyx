@@ -96,7 +96,8 @@ bool watchpoint_stop()
     // expr
     unsigned int n = expr(wp->exp, &success);
     if (!success || wp->res != n) {
-      Log("triggering watchpoints #%10d%10s%10u", wp->NO, wp->exp, wp->res);
+      /* Log("\ntriggering watchpoints id: %10d, expr: %10s, res_prev: %10u, res_now: %10u", \
+          wp->NO, wp->exp, wp->res, n);*/ 
       wp->res = n;
       break;
     }

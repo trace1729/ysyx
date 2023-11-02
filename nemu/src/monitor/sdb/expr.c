@@ -242,7 +242,7 @@ uint32_t eval(int l, int r, bool* success) {
         assert(tokens[l].str[0] == '$');
         // Log("get reg %s", tokens[l].str);
         unsigned int reg_val = isa_reg_str2val(tokens[l].str + 1, success);
-        printf("reg %s val:%u\n", tokens[l].str, reg_val);
+        // Log("reg %s val:%u", tokens[l].str, reg_val); 
         return reg_val;
       default:break;
     }

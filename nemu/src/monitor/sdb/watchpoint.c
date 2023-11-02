@@ -14,6 +14,7 @@
 ***************************************************************************************/
 
 #include "debug.h"
+#include "macro.h"
 #include "sdb.h"
 #include "watchpoint.h"
 #include <assert.h>
@@ -117,4 +118,38 @@ void watchpoint_display() {
     // what success goes wrong
     printf("%10d%10s\n", wp->NO, wp->exp);
   }
+  
 }
+
+const char* test_expr[] = {
+  "1 + 2*$ra",
+  "1 + 2*$a0",
+  "1 + 2*$a1",
+  "1 + 2*$a2",
+  "1 + 2*$a3",
+  "1 + 2*$a4",
+  "1 + 2*$a5",
+  "1 + 2*$a6",
+};
+
+#define TEST_LEN ARRLEN(test_expr)
+
+void wp_test_bench()
+{
+  for (int i = 0; i < TEST_LEN; i++) {
+    WP* wp = new_wp();
+    mempcpy(wp->exp, test_expr[i], STRLEN(test_expr[i]));
+    wp->exp[STRLEN(test_expr[i])] = '\0';
+    watchpoint_display();
+  }
+
+  // free node in order;
+  for (int i = 0; i < TEST_LEN; i++) {
+    free_wp(i);
+    watchpoint_display();
+  }
+
+  assert(head == NULL);
+  assert(free_ == wp_pool);
+}
+

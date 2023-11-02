@@ -19,5 +19,6 @@ WP* new_wp();
 void free_wp(int NO);
 bool watchpoint_stop();
 void watchpoint_display();
+void wp_test_bench();
 
 #endif

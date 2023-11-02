@@ -40,6 +40,8 @@ word_t isa_reg_str2val(const char *s, bool *success) {
   for (i = 0; i < NR_REG; i++) {
     // if s == regs[i]
     if (strcmp(s, regs[i]) == 0) {
+      // for debugging purpose
+      printf("match reg %s\n", regs[i]);
       return gpr(i);
     }
   }

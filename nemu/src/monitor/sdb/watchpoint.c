@@ -149,6 +149,7 @@ void wp_test_bench()
 {
 
   watchpoint_display();
+  assert(free_ == wp_pool);
 
   for (int i = 0; i < TEST_LEN; i++) {
     WP* wp = new_wp();
@@ -167,6 +168,6 @@ void wp_test_bench()
   }
 
   assert(head == NULL);
-  assert(free_ == wp_pool);
+  assert(free_ == NULL);
 }
 

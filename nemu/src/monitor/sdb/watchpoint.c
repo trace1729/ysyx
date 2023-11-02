@@ -57,7 +57,6 @@ void free_wp(int NO) {
   WP* wp, *backup;
   // free head
   if (head->NO == NO) {
-    printf("freeing head\n");
     backup = free_;
     free_ = head;
     head = head->next;
@@ -72,7 +71,6 @@ void free_wp(int NO) {
 
   // 2..remaining
   for(wp = head; wp->next != NULL; wp = wp->next) {
-    printf("free remaining\n");
     // what success goes wrong
     if (wp->next->NO == NO) {
       WP* backup = free_;
@@ -161,7 +159,7 @@ void wp_test_bench()
   }
 
   // free node in order;
-  for (int i = 0; i < TEST_LEN; i++) {
+  for (int i = TEST_LEN - 1; i >= 0; i--) {
     free_wp(i);
     watchpoint_display();
   }

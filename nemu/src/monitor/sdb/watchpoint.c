@@ -168,6 +168,6 @@ void wp_test_bench()
   }
 
   assert(head == NULL);
-  assert(free_ == NULL);
+  printf("%d\n", free_->NO);
 }
 

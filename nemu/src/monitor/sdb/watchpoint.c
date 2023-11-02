@@ -113,12 +113,22 @@ bool watchpoint_stop()
 
 void watchpoint_display() {
   WP* wp;
+  if (head == NULL) {
+    printf("No watch point set");
+    return;
+  }
   printf("%10s%10s\n", "num", "what");
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
     printf("%10d%10s\n", wp->NO, wp->exp);
   }
-  
+
+  // for testing purpost only
+  int cnt = 0;
+  for (wp = free_; wp != NULL; wp = wp->next) {
+    cnt++;
+  }
+  printf("free node cnt: %d\n", cnt);
 }
 
 const char* test_expr[] = {

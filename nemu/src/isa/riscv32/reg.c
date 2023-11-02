@@ -31,7 +31,7 @@ void isa_reg_display() {
   uint i;
 
   for (i = 0; i < NR_REG; i ++) {
-    printf("%12s%16x%16d\n", regs[i], gpr(i), gpr(i));
+    printf("%12s%16x%16u\n", regs[i], gpr(i), gpr(i));
   }
 }
 

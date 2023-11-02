@@ -96,6 +96,7 @@ bool watchpoint_stop()
     // what success goes wrong
     unsigned int n = expr(wp->exp, &success);
     if (!success || wp->res != n) {
+      Log("triggering watchpoints #%10d%10s%10u", wp->NO, wp->exp, wp->res);
       wp->res = n;
       break;
     }

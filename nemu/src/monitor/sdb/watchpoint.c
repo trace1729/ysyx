@@ -146,9 +146,15 @@ const char* test_expr[] = {
 
 void wp_test_bench()
 {
+
+  watchpoint_display();
+
   for (int i = 0; i < TEST_LEN; i++) {
     WP* wp = new_wp();
     mempcpy(wp->exp, test_expr[i], STRLEN(test_expr[i]));
+    
+    printf("copy len %ld\n", STRLEN(test_expr[i]));
+
     wp->exp[STRLEN(test_expr[i])] = '\0';
     watchpoint_display();
   }

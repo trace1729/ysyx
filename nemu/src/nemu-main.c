@@ -51,6 +51,7 @@ void sdb_arthimetic_test() {
     printf("PASSED #%d\n", i);
   }
 
+  
 error:
   fclose(fp);
   return;

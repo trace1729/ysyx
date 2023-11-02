@@ -53,7 +53,9 @@ WP* new_wp() {
 }
 
 void free_wp(int NO) {
-  assert(head != NULL);
+
+  Check(head != NULL, ""); 
+
   WP* wp, *backup;
   // free head
   if (head->NO == NO) {
@@ -63,11 +65,9 @@ void free_wp(int NO) {
     free_->next = backup;
     return;
   } 
+
   // If thereis only one wp node, and do not match, report an error
-  if (head->next == NULL) {
-    Log("watch pointing not exists");
-    return;
-  }
+  Check(head->next != NULL, "");
 
   // 2..remaining
   for(wp = head; wp->next != NULL; wp = wp->next) {
@@ -82,10 +82,9 @@ void free_wp(int NO) {
     }
   }
 
-  if (free_->NO != NO) {
-    Log("watch pointing not exists");
-  }
-  
+  Check(free_->NO == NO, "");
+error:
+  Log("watch pointing not exists");
   return;
 }
 

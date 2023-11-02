@@ -82,7 +82,7 @@ void free_wp(int NO) {
     }
   }
 
-  if (wp->next == NULL) {
+  if (free_->NO != NO) {
     Log("watch pointing not exists");
   }
   

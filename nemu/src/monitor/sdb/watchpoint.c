@@ -113,7 +113,7 @@ bool watchpoint_stop()
 
 void watchpoint_display() {
   WP* wp;
-  printf("%10s%10s", "num", "what");
+  printf("%10s%10s\n", "num", "what");
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
     printf("%10d%10s\n", wp->NO, wp->exp);

@@ -65,7 +65,10 @@ int main(int argc, char *argv[]) {
   init_monitor(argc, argv);
 #endif
 
-  sdb_arthimetic_test();
+  // test expresion parser
+  //sdb_arthimetic_test();
+
+  // test watch points
   wp_test_bench();
 
   /* Start engine. */

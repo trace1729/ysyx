@@ -66,7 +66,7 @@ void free_wp(int NO) {
     return;
   } 
 
-  // If thereis only one wp node, and do not match, report an error
+  // If thereis only one wp node, and does not match, report an error
   Check(head->next != NULL, "watchpoint does not exists");
 
   // 2..remaining
@@ -93,7 +93,7 @@ bool watchpoint_stop()
   bool success = true;
   WP* wp;
   for(wp = head; wp != NULL; wp = wp->next) {
-    // what success goes wrong
+    // expr
     unsigned int n = expr(wp->exp, &success);
     if (!success || wp->res != n) {
       Log("triggering watchpoints #%10d%10s%10u", wp->NO, wp->exp, wp->res);
@@ -106,7 +106,7 @@ bool watchpoint_stop()
   if (!success) return true;
   
   // if wp != null, means expression changes
-  if (!wp) return true;
+  if (wp != NULL) return true;
 
   return false;
 }

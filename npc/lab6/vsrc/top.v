@@ -35,12 +35,14 @@ module shift_reg(
   reg [31:0] count;
 
 	// 延时函数
+	// 
   always @(posedge clk) begin
     if (reset) begin q <= 8'b1; count <= 0; end
     else begin
       if (count == 0) q <= {q[4]^q[3]^q[2]^q[0], q[7:1]};
       count <= (count >= 500000 ? 32'b0 : count + 1);
     end
+	// count 延时
   end
 
 endmodule

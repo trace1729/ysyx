@@ -6,12 +6,18 @@ module top(
 );
 
 alu alu1(
+	// 选择信号
 	.sel(sw[10:8]),
+	// 两输入端口
 	.a(sw[7:4]),
 	.b(sw[3:0]),
+	// zero flag
 	.zf(led[6]),
+	// carry flag
 	.cf(led[5]),
+	// overflow flag
 	.of(led[4]),
+	// res
 	.res(led[3:0])
 );
 

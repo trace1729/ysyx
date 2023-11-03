@@ -6,14 +6,20 @@ module top(
 	output reg [7:0] seg0
 );
 
+// 编码器
 enc38 enc381(
+	// 开关表示8个输入
 	.in(sw[7:0]),
+	// en 使能端口
 	.en(sw[8]),
 	.out(led)
 );
 
+// 83译码器 
 bcd7seg bcd7seg1(
+	// 输入编码
 	.in(led),
+	// 输出
 	.seg(seg0)
 );
 

@@ -194,12 +194,18 @@ static int cmd_x(char* args) {
   char* arg2 = args + strlen(arg1) + 1;
   arg2 = strtok(arg2, " ");
 
+  bool success = true;
   // check argument 2
   if (arg2 == NULL) {
     printf("%s", cmd_table[X].description);
     return 0;
   } else {
-    s = strtol(arg2, NULL, 16);
+    s = expr(arg2, &success);
+  }
+
+  if (!success) {
+    Log("expression evaluating error");
+    return 0;
   }
 
   if (!s) {

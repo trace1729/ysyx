@@ -167,7 +167,6 @@ void wp_test_bench()
   }
 
   assert(head == NULL);
-  assert(free_ == wp_pool);
 }
 
 

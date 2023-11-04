@@ -21,7 +21,9 @@ ps2_keyboard keyboard(
 	.seg0(seg0),
 	.seg1(seg1),
 	.seg2(seg2),
-	.seg3(seg3)
+	.seg3(seg3),
+	.seg4(seg4),
+	.seg5(seg5)
 );
 
 endmodule

@@ -11,6 +11,8 @@
 !README.md
 !.gitignore
 !init.sh
+!formatter.py
+!inst-to-impl.txt
 /fceux-am
 /nvboard
 /build

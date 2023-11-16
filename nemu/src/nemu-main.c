@@ -67,7 +67,7 @@ int main(int argc, char *argv[]) {
 #endif
 
   // test expresion parser
-  sdb_arthimetic_test();
+  // sdb_arthimetic_test();
 
   // test watch points
   // wp_test_bench();

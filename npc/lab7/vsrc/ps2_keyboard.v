@@ -20,7 +20,7 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data, seg0, seg1, seg2, seg3, seg4, s
 
     rom rom1(buffer[8:1], ascii);
 
-    assign strokes = counter / 3;
+    assign strokes = counter ;
 
     always @(posedge clk) begin
         ps2_clk_sync <=  {ps2_clk_sync[1:0],ps2_clk};
@@ -28,12 +28,12 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data, seg0, seg1, seg2, seg3, seg4, s
 
     wire sampling = ps2_clk_sync[2] & ~ps2_clk_sync[1]; // 检测由高电平向低电平的下降沿 (1 & ~(0) = 1)
 
-    seg u_seg0(key_received ? buffer[4:1] : 4'b0, seg0);
-    seg u_seg1(key_received ? buffer[8:5] : 4'b0, seg1);
-    seg u_seg2(key_received ? ascii[3:0] : 4'b0, seg2);  // Display ASCII code
-    seg u_seg3(key_received ? ascii[7:4] : 4'b0, seg3);  // Display ASCII code
-    seg u_seg4(strokes[3:0], seg4);
-    seg u_seg5(strokes[7:4], seg5);
+    seg u_seg0(~key_received, buffer[4:1] , seg0);
+    seg u_seg1(~key_received, buffer[8:5] , seg1);
+    seg u_seg2(~key_received, ascii[3:0]  , seg2);  // Display ASCII code
+    seg u_seg3(~key_received, ascii[7:4]  , seg3);  // Display ASCII code
+    seg u_seg4(0, strokes[3:0], seg4);
+    seg u_seg5(0, strokes[7:4], seg5);
 
     always @(posedge clk) begin
         if (resetn == 0) begin // reset
@@ -47,18 +47,20 @@ module ps2_keyboard(clk,resetn,ps2_clk,ps2_data, seg0, seg1, seg2, seg3, seg4, s
                     (ps2_data)       &&  // stop bit
                     (^buffer[9:1])) begin      // odd  parity
                     $display("receive %x", buffer[8:1]);
-                    if (prev_data != buffer[8:1])
+					if (prev_data != buffer[8:1] && buffer[8:1] != 8'hF0) begin
+					  prev_data <= buffer[8:1];
+					  key_received <= 1;
                       counter <= counter + 8'b00000001;
-                    else 
-                      counter <= counter;
-                    key_received <= 1;  // set key_received to 1
-                    prev_data <= buffer[8:1];
+				  end
+				  else begin
+					  if (buffer[8:1] == 8'hF0)
+						  key_received <= 0;
+				  end
                 end
                 count <= 0;     // for next
               end else begin
                 buffer[count] <= ps2_data;  // store ps2_data
                 count <= count + 3'b1;
-                key_received <= 0;  // reset key_received
               end
             end
         end

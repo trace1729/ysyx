@@ -1,11 +1,15 @@
 module seg(
+	input rst,
 	input [3:0] in,
 	output reg [7:0] seg0
 );
 
 reg [7:0] tmp;
+reg [7:0] tmp1;
 
-assign seg0 = ~tmp;
+assign tmp1 = tmp & {8{~rst}};
+assign seg0 = ~tmp1;
+
 
 always @(*) begin
 	casez (in)
@@ -25,7 +29,7 @@ always @(*) begin
 		4'b1101: tmp = 8'b01111010;
 		4'b1110: tmp = 8'b10011110;
 		4'b1111: tmp = 8'b10001110;
-		default:tmp = 8'b00000000;
+		default: tmp = 8'b00000000;
 	endcase
 end
 

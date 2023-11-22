@@ -28,13 +28,27 @@
  */
 #define MAX_INST_TO_PRINT 10
 
+#define MSIZE 16
+#define RING_FULL ((iringbuffer.write + 1) % MSIZE == iringbuffer.read)
+#define ADVANCE(i) (i = (i + 1) % (MSIZE))
+#define RING_WRITE iringbuffer.buffer[iringbuffer.write]
+
+
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
+static struct {
+  char buffer [MSIZE][128];
+  int read; 
+  int write;
+} iringbuffer;
+
 void device_update();
 void sdb_mainloop();
+
+
 
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -78,6 +92,11 @@ static void exec_once(Decode *s, vaddr_t pc) {
 #else
   p[0] = '\0'; // the upstream llvm does not support loongarch32r
 #endif
+  if (RING_FULL) {
+    ADVANCE(iringbuffer.read);
+  }
+  strcpy(RING_WRITE, s->logbuf);
+    ADVANCE(iringbuffer.write);
 #endif
 }
 

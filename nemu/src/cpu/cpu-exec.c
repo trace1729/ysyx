@@ -19,6 +19,7 @@
 #include <locale.h>
 #include "../monitor/sdb/watchpoint.h"
 #include "../monitor/sdb/sdb.h"
+#include "cpu/ifetch.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -28,22 +29,23 @@
  */
 #define MAX_INST_TO_PRINT 10
 
-#define MSIZE 16
-#define RING_FULL ((iringbuffer.write + 1) % MSIZE == iringbuffer.read)
-#define ADVANCE(i) (i = (i + 1) % (MSIZE))
-#define RING_WRITE iringbuffer.buffer[iringbuffer.write]
+// for iringbuffer
+#define RING_SIZE 16
+#define RING_FULL ((iringbuffer.write + 1) % RING_SIZE == iringbuffer.read)
+#define RING (iringbuffer.buffer[iringbuffer.write])
+#define ADVANCE(i) (i = (i + 1) % (RING_SIZE))
 
+static struct {
+  char buffer [RING_SIZE][128];
+  int read; 
+  int write;
+} iringbuffer;
 
 CPU_state cpu = {};
 uint64_t g_nr_guest_inst = 0;
 static uint64_t g_timer = 0; // unit: us
 static bool g_print_step = false;
 
-static struct {
-  char buffer [MSIZE][128];
-  int read; 
-  int write;
-} iringbuffer;
 
 void device_update();
 void sdb_mainloop();
@@ -95,8 +97,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   if (RING_FULL) {
     ADVANCE(iringbuffer.read);
   }
-  strcpy(RING_WRITE, s->logbuf);
-    ADVANCE(iringbuffer.write);
+  strcpy(RING, s->logbuf);
+  ADVANCE(iringbuffer.write);
 #endif
 }
 
@@ -120,8 +122,45 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
+static void decode_last_inst () {
+  char *p = RING;
+  p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
+  int ilen = 4;
+  int i;
+  uint32_t val = inst_fetch(&cpu.pc, 4);
+  uint8_t *inst = (uint8_t *)&val;
+  for (i = ilen - 1; i >= 0; i --) {
+    p += snprintf(p, 4, " %02x", inst[i]);
+  }
+  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
+
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  disassemble(p, RING + sizeof(RING) - p,
+      cpu.pc, (uint8_t *)&val, ilen);
+  
+  printf("------> %s\n", RING);
+}
+
+static void iringbuffer_display() {
+  int front = iringbuffer.read;
+  int end = iringbuffer.write;
+  char (*buffer)[128] = iringbuffer.buffer;
+  printf("Instruction trace back.\n");
+  for (; front != end; ADVANCE(front)) {
+    printf("\t%s\n", buffer[front]);
+  }
+  decode_last_inst();
+
+}
+
 void assert_fail_msg() {
   isa_reg_display();
+  iringbuffer_display();
   statistic();
 }
 

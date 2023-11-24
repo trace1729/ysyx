@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include "local-include/reg.h"
 #include "macro.h"
 #include <cpu/cpu.h>
@@ -39,9 +40,44 @@ enum {
 #define immJ() do { *imm = SEXT((BITS(i, 31, 31) << 19 | BITS(i, 19, 12) << 11 | BITS(i, 20, 20) << 10 | BITS(i, 30, 21)), 20) << 1;} while(0)
 #define immB() do {*imm = SEXT((BITS(i, 31, 31) << 11 | BITS(i, 7, 7) << 10 | BITS(i, 30, 25) << 4 | BITS(i, 11, 8)), 12) << 1;} while(0)
 
-#ifdef FTRACE
-void get_function_symbol_by_address(uint32_t addr, char *buf);
+#ifdef CONFIG_FTRACE
+#define FTRACE(r, t, s, i) ,ftrace(r, t, s, i)
+#else
+#define FTRACE(r, t, s, i)
 #endif
+
+#if CONFIG_FTRACE
+#define JAL 1
+#define RA 1
+#define ZERO 0
+#define JALR 0
+
+int depth = 0;
+void get_function_symbol_by_address(uint32_t addr, char *buf);
+void ftrace(int rd, int type, Decode* s, word_t src1) {
+  char function[128];
+  //      jalr          x0              x1
+  if (type == JALR && rd == ZERO && src1 == R(RA)) {
+    // if register is x0, and instructio type is jalr
+    // then it is function return
+    get_function_symbol_by_address(s->dnpc, function);
+    printf("0x%x: ", s->pc);
+    for (int i = 0; i < depth; i++) printf("  ");
+    printf("ret[%s]\n", function);
+    depth--;
+  //              jal          ra   ;       jalr            x0      x*(!=x1)  
+  } else if ((type == JAL && rd == RA) || (type == JALR && rd == ZERO && src1 != R(RA))) {
+    // if register is ra, and instruction type is jal
+    // then it is function call
+    get_function_symbol_by_address(s->dnpc, function);
+    printf("0x%x: ", s->pc);
+    for (int i = 0; i < depth; i++) printf("  ");
+    printf("call[%s@0x%x]\n", function, s->dnpc);
+    depth++;
+  }
+}
+#endif
+
 
 static void decode_operand(Decode *s, int *rd, word_t *src1, word_t *src2, word_t *imm, int type) {
   uint32_t i = s->isa.inst.val;
@@ -110,7 +146,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 110 ????? 00100 11", ori    , I, R(rd) = src1 | imm);
   INSTPAT("??????? ????? ????? 111 ????? 00100 11", andi   , I, R(rd) = src1 & imm);
 
-  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4, s->dnpc = src1 + imm);
+  INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4, s->dnpc = src1 + imm FTRACE(rd, JALR, s,src1));
 
   // IS type
   INSTPAT("0000000 ????? ????? 001 ????? 00100 11", slli   , IS, R(rd) = src1 << imm); // 
@@ -131,7 +167,7 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 111 ????? 11000 11", bgeu     , B, if (src1 >= src2) {s->dnpc = s->pc + imm;});
 
   // J type
-  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4, s->dnpc = s->pc + imm);
+  INSTPAT("??????? ????? ????? ??? ????? 11011 11", jal    , J, R(rd) = s->pc + 4, s->dnpc = s->pc + imm FTRACE(rd, JAL, s, 0));
 
   // N type 
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak , N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0

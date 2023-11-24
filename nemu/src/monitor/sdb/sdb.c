@@ -67,9 +67,10 @@ static int cmd_d(char *args) {
 
 static int cmd_p(char *args) {
   bool success = true;
-  unsigned int res = expr(args, &success);
-  printf("%u", res);
-  
+  unsigned int res = 0;
+  if (args != NULL)
+    expr(args, &success);
+  printf("%u\n", res);
   return success? 0: -1;
 }
 
@@ -222,6 +223,8 @@ static int cmd_x(char* args) {
 }
 
 static int cmd_w(char* args) {
+  if (!args) return 0;
+  
   bool success = true;
   char *arg = strtok(NULL, " ");
   WP* wp = new_wp();

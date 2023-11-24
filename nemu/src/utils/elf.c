@@ -50,8 +50,8 @@ void init_elf(const char* elf_file) {
   Check(size == e_shnum, "expected read %u, but %lu", e_shnum, size);
 
   /* find symtab and strtab */
-  uint32_t sym_idx;
-  uint32_t str_idx;
+  uint32_t sym_idx = 0;
+  uint32_t str_idx = 0;
   for (unsigned i = 0; i < e_shnum; i++) {
     if (!sym_idx && e_sections[i].sh_type == SHT_SYMTAB) {
       sym_idx = i;

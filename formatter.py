@@ -37,6 +37,7 @@ def formatter(inst, inst_type):
 def main():
     formatter("02f70733", Instr.R)
     formatter("40850533", Instr.S)
+    formatter("000780e7", Instr.I)
     
 if __name__ == "__main__":
     main()

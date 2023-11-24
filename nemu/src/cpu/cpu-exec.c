@@ -150,12 +150,12 @@ static void iringbuffer_display() {
   int front = iringbuffer.read;
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
-  printf("Instruction trace back.\n");
+  printf("*============ Instruction traceback ===================*\n");
   for (; front != end; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
   decode_last_inst();
-
+  printf("*============ Instruction traceback ===================*\n");
 }
 
 void assert_fail_msg() {

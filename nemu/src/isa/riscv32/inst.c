@@ -56,22 +56,26 @@ int depth = 0;
 void get_function_symbol_by_address(uint32_t addr, char *buf);
 void ftrace(int rd, int type, Decode* s, word_t src1) {
   char function[128];
+
   //      jalr          x0              x1
   if (type == JALR && rd == ZERO && src1 == R(RA)) {
     // if register is x0, and instructio type is jalr
     // then it is function return
-    get_function_symbol_by_address(s->dnpc, function);
+    // return from instead of return to
+    get_function_symbol_by_address(s->pc, function);
     printf("0x%x: ", s->pc);
-    for (int i = 0; i < depth; i++) printf("  ");
+    for (int i = 0; i < depth; i++) printf(" ");
     printf("ret[%s]\n", function);
     depth--;
-  //              jal          ra   ;       jalr            x0      x*(!=x1)  
-  } else if ((type == JAL && rd == RA) || (type == JALR && rd == ZERO && src1 != R(RA))) {
-    // if register is ra, and instruction type is jal
+
+  //              jal(r)          ra   ;       jalr            x0      x*(!=x1)  
+  } else if ((type == JAL && rd == RA) || (type == JALR && rd == ZERO && src1 != R(RA)) \
+          || (type == JALR && rd == RA)) {
+    // if register is ra, and instruction type is jal(r)
     // then it is function call
     get_function_symbol_by_address(s->dnpc, function);
     printf("0x%x: ", s->pc);
-    for (int i = 0; i < depth; i++) printf("  ");
+    for (int i = 0; i < depth; i++) printf(" ");
     printf("call[%s@0x%x]\n", function, s->dnpc);
     depth++;
   }

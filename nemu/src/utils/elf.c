@@ -14,7 +14,8 @@ static int e_symnum;
 
 void get_function_symbol_by_address(uint32_t addr, char *buf) {
 
-  for (int i = 0; i < e_symnum; i++) {
+  unsigned i; 
+  for (i = 0; i < e_symnum; i++) {
     // 类型是 func 的 symbol
     if ((e_symbols[i].st_info & STT_FUNC) == 0) {
       continue;
@@ -22,9 +23,12 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
     if (addr >= e_symbols[i].st_value && addr < (e_symbols[i].st_value + e_symbols[i].st_size)) {
       uint32_t nameoff = e_symbols[i].st_name;
       strcpy(buf, e_strtab + nameoff);
+      break;
       // printf("%s\n", e_strtab + nameoff);
     }
   }
+  if (i == e_symnum)
+    strcpy(buf, "???");
   return;
 }
 

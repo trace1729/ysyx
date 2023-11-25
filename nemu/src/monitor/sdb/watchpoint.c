@@ -123,7 +123,7 @@ void watchpoint_display() {
 
   for(wp = head; wp != NULL; wp = wp->next) {
     // what success goes wrong
-    printf("%10d%10s%10u\n", wp->NO, wp->exp, wp->res);
+    printf("%10d%10s 0x%02x\n", wp->NO, wp->exp, wp->res);
   }
 
   // for testing purpost only

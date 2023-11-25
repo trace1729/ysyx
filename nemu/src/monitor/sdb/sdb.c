@@ -69,7 +69,7 @@ static int cmd_p(char *args) {
   bool success = true;
   unsigned int res = 0;
   if (args != NULL)
-    expr(args, &success);
+    res = expr(args, &success);
   printf("%u\n", res);
   return success? 0: -1;
 }

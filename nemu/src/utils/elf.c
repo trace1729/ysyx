@@ -33,9 +33,9 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
 }
 
 void init_elf(const char* elf_file) {
+  if (!elf_file) return;
   Elf32_Ehdr e_hdr;
   Elf32_Shdr e_sections[256];
-
   fp = fopen(elf_file, "rb");
   Check(fp != NULL, "open %s failed", elf_file);
   size_t size = fread(&e_hdr, sizeof(e_hdr), 1, fp);

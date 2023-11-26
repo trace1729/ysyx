@@ -13,7 +13,16 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   panic("Not implemented");
 }
 
-int dectostr(char *out, int num, int idx) {
+int dectostr(char *out, int n, int idx) {
+  if (n == 0) {
+	  out[idx++] = '0';
+	  return idx;
+  }
+  long num = n;
+  if (n < 0) {
+    out[idx++] = '-';
+    num = -(long)n;
+  }
   int len = -1;
   char buf[32];
   while (num) {

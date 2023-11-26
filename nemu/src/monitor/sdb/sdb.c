@@ -70,7 +70,7 @@ static int cmd_p(char *args) {
   unsigned int res = 0;
   if (args != NULL)
     res = expr(args, &success);
-  printf("%u\n", res);
+  printf("Dec: %u, Hex:0x%x\n", res, res);
   return success? 0: -1;
 }
 

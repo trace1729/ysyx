@@ -114,7 +114,9 @@ void init_monitor(int argc, char *argv[]) {
   init_log(log_file);
 
   /* init the elf file */
+#ifdef CONFIG_ITRACE
   init_elf(elf_file);
+#endif
 
   /* Initialize memory. */
   init_mem();

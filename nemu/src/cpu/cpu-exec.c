@@ -29,6 +29,17 @@
  */
 #define MAX_INST_TO_PRINT 10
 
+CPU_state cpu = {};
+uint64_t g_nr_guest_inst = 0;
+static uint64_t g_timer = 0; // unit: us
+static bool g_print_step = false;
+
+
+void device_update();
+void sdb_mainloop();
+
+
+#ifdef CONFIG_ITRACE
 // for iringbuffer
 #define RING_SIZE 16
 #define RING_FULL ((iringbuffer.write + 1) % RING_SIZE == iringbuffer.read)
@@ -41,16 +52,42 @@ static struct {
   int write;
 } iringbuffer;
 
-CPU_state cpu = {};
-uint64_t g_nr_guest_inst = 0;
-static uint64_t g_timer = 0; // unit: us
-static bool g_print_step = false;
+static void decode_last_inst () {
+  char *p = RING;
+  p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
+  int ilen = 4;
+  int i;
+  uint32_t val = inst_fetch(&cpu.pc, 4);
+  uint8_t *inst = (uint8_t *)&val;
+  for (i = ilen - 1; i >= 0; i --) {
+    p += snprintf(p, 4, " %02x", inst[i]);
+  }
+  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
+  int space_len = ilen_max - ilen;
+  if (space_len < 0) space_len = 0;
+  space_len = space_len * 3 + 1;
+  memset(p, ' ', space_len);
+  p += space_len;
 
+  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
+  disassemble(p, RING + sizeof(RING) - p,
+      cpu.pc, (uint8_t *)&val, ilen);
+  
+  printf("------> %s\n", RING);
+}
 
-void device_update();
-void sdb_mainloop();
-
-
+static void iringbuffer_display() {
+  int front = iringbuffer.read;
+  int end = iringbuffer.write;
+  char (*buffer)[128] = iringbuffer.buffer;
+  printf("*============ Instruction traceback ===================*\n");
+  for (; front != end; ADVANCE(front)) {
+    printf("\t%s\n", buffer[front]);
+  }
+  decode_last_inst();
+  printf("*============ Instruction traceback ===================*\n");
+}
+#endif
 
 
 static void trace_and_difftest(Decode *_this, vaddr_t dnpc) {
@@ -122,45 +159,13 @@ static void statistic() {
   else Log("Finish running in less than 1 us and can not calculate the simulation frequency");
 }
 
-static void decode_last_inst () {
-  char *p = RING;
-  p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
-  int ilen = 4;
-  int i;
-  uint32_t val = inst_fetch(&cpu.pc, 4);
-  uint8_t *inst = (uint8_t *)&val;
-  for (i = ilen - 1; i >= 0; i --) {
-    p += snprintf(p, 4, " %02x", inst[i]);
-  }
-  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
-  int space_len = ilen_max - ilen;
-  if (space_len < 0) space_len = 0;
-  space_len = space_len * 3 + 1;
-  memset(p, ' ', space_len);
-  p += space_len;
-
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-  disassemble(p, RING + sizeof(RING) - p,
-      cpu.pc, (uint8_t *)&val, ilen);
-  
-  printf("------> %s\n", RING);
-}
-
-static void iringbuffer_display() {
-  int front = iringbuffer.read;
-  int end = iringbuffer.write;
-  char (*buffer)[128] = iringbuffer.buffer;
-  printf("*============ Instruction traceback ===================*\n");
-  for (; front != end; ADVANCE(front)) {
-    printf("\t%s\n", buffer[front]);
-  }
-  decode_last_inst();
-  printf("*============ Instruction traceback ===================*\n");
-}
 
 void assert_fail_msg() {
   isa_reg_display();
+#ifdef CONFIG_ITRACE
+  void iringbuffer_display();
   iringbuffer_display();
+#endif
   statistic();
 }
 

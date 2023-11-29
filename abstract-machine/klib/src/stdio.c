@@ -6,11 +6,13 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-  panic("Not implemented");
-}
-
-int vsprintf(char *out, const char *fmt, va_list ap) {
-  panic("Not implemented");
+	char out[128];
+	va_list args;
+	va_start(args, fmt);
+	int size = vsprintf(out, fmt, args);
+	va_end(args);
+    putstr(out);
+	return size;
 }
 
 int dectostr(char *out, int n, int idx) {
@@ -18,11 +20,9 @@ int dectostr(char *out, int n, int idx) {
 	  out[idx++] = '0';
 	  return idx;
   }
-  long num = n;
   long long num = n;
   if (n < 0) {
     out[idx++] = '-';
-    num = -(long)n;
     num = -num;
   }
   int len = -1;
@@ -37,17 +37,17 @@ int dectostr(char *out, int n, int idx) {
   return idx;
 }
 
-int sprintf(char *out, const char *fmt, ...) {
-  va_list ap;
+int vsprintf(char *out, const char *fmt, va_list ap) {
   int cnt = 0;
   bool format = false;
   int d;
   char* s;
-  va_start(ap, fmt);
+  char ch;
   while(*fmt) {
     switch (*fmt) {
       case '%': format = true; break;
       case 'd': if (format) { d = va_arg(ap, int)  ; cnt = dectostr(out, d, cnt);} break;
+      case 'c': if (format) { ch = (char)va_arg(ap, int); out[cnt++] = ch;} break;
       case 's': if (format) { s = va_arg(ap, char*); memcpy(out + cnt, s, strlen(s)) ; cnt += strlen(s);} break;
       default : break;
     }
@@ -62,9 +62,17 @@ int sprintf(char *out, const char *fmt, ...) {
     } 
     fmt++;
   }
-  va_end(ap);
   out[cnt] = '\0';
   return cnt - 1;
+}
+
+
+int sprintf(char *out, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	int size = vsprintf(out, fmt, args);
+	va_end(args);
+	return size;
 }
 
 int snprintf(char *out, size_t n, const char *fmt, ...) {

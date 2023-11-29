@@ -19,9 +19,11 @@ int dectostr(char *out, int n, int idx) {
 	  return idx;
   }
   long num = n;
+  long long num = n;
   if (n < 0) {
     out[idx++] = '-';
     num = -(long)n;
+    num = -num;
   }
   int len = -1;
   char buf[32];

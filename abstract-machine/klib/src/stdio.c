@@ -15,7 +15,12 @@ int printf(const char *fmt, ...) {
 	return size;
 }
 
-int dectostr(char *out, int n, int idx) {
+static char tochar(int num) {
+  if (num >= 0 && num <= 9) return num + '0';
+  else return 'A' + num - 10;
+}
+
+int int2str(char *out, int n, int idx, int base) {
   if (n == 0) {
 	  out[idx++] = '0';
 	  return idx;
@@ -25,11 +30,14 @@ int dectostr(char *out, int n, int idx) {
     out[idx++] = '-';
     num = -num;
   }
+  if (base == 16) {
+    out[idx++] = '0'; out[idx++] = 'x';
+  }
   int len = -1;
   char buf[32];
   while (num) {
-    buf[++len] = '0' + num % 10;
-    num /= 10;
+    buf[++len] = tochar(num % base);
+    num /= base;
   }
   for (; len >= 0; len--, idx++) {
     out[idx] = buf[len];
@@ -46,7 +54,8 @@ int vsprintf(char *out, const char *fmt, va_list ap) {
   while(*fmt) {
     switch (*fmt) {
       case '%': format = true; break;
-      case 'd': if (format) { d = va_arg(ap, int)  ; cnt = dectostr(out, d, cnt);} break;
+      case 'd': if (format) { d = va_arg(ap, int)  ; cnt = int2str(out, d, cnt, 10);} break;
+      case 'x': if (format) { d = va_arg(ap, int)  ; cnt = int2str(out, d, cnt, 16);} break;
       case 'c': if (format) { ch = (char)va_arg(ap, int); out[cnt++] = ch;} break;
       case 's': if (format) { s = va_arg(ap, char*); memcpy(out + cnt, s, strlen(s)) ; cnt += strlen(s);} break;
       default : break;

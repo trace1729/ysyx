@@ -66,7 +66,7 @@ word_t map_read(paddr_t addr, int len, IOMap *map) {
 
 void map_write(paddr_t addr, int len, word_t data, IOMap *map) {
 #ifdef CONFIG_DTRACE
-  printf("write to devcie %s %d bytes\n", map->name, len);
+  printf("write %d (len=%d) to devcie %s\n", data, len, map->name);
 #endif
   assert(len >= 1 && len <= 8);
   check_bound(map, addr);

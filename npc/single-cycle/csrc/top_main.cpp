@@ -1,7 +1,8 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <assert.h>
- 
+#include <cstdio>
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+
 #include "Vtop.h"
 #include "verilated.h"
  
@@ -9,10 +10,9 @@
  
 int main(int argc, char** argv, char** env) {
  
-  VerilatedContext* contextp = new VerilatedContext;
-  contextp->commandArgs(argc, argv);
-  Vtop* top = new Vtop{contextp};
-  
+  Verilated::commandArgs(argc, argv);
+  const auto contextp = std::make_unique<VerilatedContext>();
+  const auto top = std::make_unique<Vtop>(contextp.get());
  
   // VerilatedVcdC* tfp = new VerilatedVcdC; //初始化VCD对象指针
   // contextp->traceEverOn(true); //打开追踪功能
@@ -27,8 +27,5 @@ int main(int argc, char** argv, char** env) {
     top->clk = !top->clk;
   }
   
-  delete top;
-  // tfp->close();
-  delete contextp;
   return 0;
 }

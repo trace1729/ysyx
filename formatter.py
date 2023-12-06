@@ -5,7 +5,7 @@ Instr = Enum('Instr',
              ['R', 'I', 'I_STAR', 'S', 'B', 'U', 'J'])
 
 def formatter(inst, inst_type):
-    binary_format = bin(int(inst, 16))
+    binary_format = bin(inst)
     binary_format = binary_format[2:] # remove 0b
     binary_format = (32 - len(binary_format)) * '0' + binary_format
     assert(len(binary_format) == 32)
@@ -34,10 +34,32 @@ def formatter(inst, inst_type):
         print(binary_format[0:1], binary_format[12:20], binary_format[11:12], binary_format[1:11], "0",
               binary_format[20:25],
               binary_format[25:32])
+
+def gen_I(imm, rs1, rd, name):
+    opcode, funct3 = "", ""
+    if name == "addi":
+        opcode = "0010011"
+        funct3 = "000"
+    
+    rd  = "{:>05s}".format(bin(rd)[2:])
+    rs1 = "{:>05s}".format(bin(rs1)[2:])
+    imm = "{:>012s}".format(bin(imm)[2:])
+
+    inst = imm + rs1 + funct3 + rd + opcode
+
+    return inst        
+
+def inst_gen(inst_type):
+    if inst_type == Instr.I:
+        for i in range (5):
+            inst = gen_I(imm = i, rs1 = 0, rd = i, name = "addi")
+            inst = hex(int(inst, 2))[2:]
+            print(f'0x{inst:>08s}')
+    return ""
+
+
 def main():
-    formatter("02f70733", Instr.R)
-    formatter("40850533", Instr.S)
-    formatter("000780e7", Instr.I)
+    inst_gen(Instr.I)
     
 if __name__ == "__main__":
     main()

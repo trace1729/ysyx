@@ -33,6 +33,7 @@ $(BIN): $(VSRCS) $(CSRCS)
 
 run: $(BIN)
 	@./$(BIN)
+	@gtkwave wave.vcd
 
 clean:
 	-@rm -fr $(BUILD_DIR)

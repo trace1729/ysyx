@@ -1,6 +1,6 @@
 module regfile(/*AUTOARG*/
    // Outputs
-   rs1, rs2, x1, x2, x3, x4, x5,
+   rs1, rs2, x1, x2, x3, x4, x5, writeEnables,
    // Inputs
    clk, rst, readreg1, readreg2, writereg, data, writeEn
    );
@@ -13,11 +13,13 @@ module regfile(/*AUTOARG*/
    input       writeEn;
    output [31:0] rs1;
    output [31:0] rs2;
+   // for testing purpose
    output [31:0] x1;
    output [31:0] x2;
    output [31:0] x3;
    output [31:0] x4;
    output [31:0] x5;
+   output [31:0] writeEnables;
 
    // 需要重复下面3行 32 次
    // 有没有更好的办法？
@@ -27,27 +29,49 @@ module regfile(/*AUTOARG*/
    parameter	 KEY_LEN = 5;
    
    // 寄存器选择
-   wire [WIDTH - 1:0] reg_ins  [REGNUM - 1:0];
    wire [WIDTH - 1:0] reg_outs [REGNUM - 1:0];
    // 设置使能信号
-   wire [REGNUM - 1:0] writeEnables; 
 
-   assign x1 = reg_outs[1];
-   assign x2 = reg_outs[2];
-   assign x3 = reg_outs[3];
-   assign x4 = reg_outs[4];
-   assign x5 = reg_outs[5];
-   
- 
-   generate
-	genvar i;
-    for (i = 0; i < REGNUM; i = i + 1) begin
-		if (i == 0) 
-			Reg #(WIDTH, 0) reg_i (clk, rst, 32'h00000000, reg_outs[i], writeEn & writeEnables[i]);
-		else
-			Reg #(WIDTH, 0) reg_i (clk, rst, data, reg_outs[i], writeEn & writeEnables[i]);
-	end
-   endgenerate
+	assign x1 = reg_outs[1];
+	assign x2 = reg_outs[2];
+	assign x3 = reg_outs[3];
+	assign x4 = reg_outs[4];
+	assign x5 = reg_outs[5];
+
+	Reg #(WIDTH, 0) reg0 (clk, rst, 0, reg_outs[0], writeEn & writeEnables[0]);
+	Reg #(WIDTH, 0) reg1 (clk, rst, data, reg_outs[1], writeEn & writeEnables[1]);
+	Reg #(WIDTH, 0) reg2 (clk, rst, data, reg_outs[2], writeEn & writeEnables[2]);
+	Reg #(WIDTH, 0) reg3 (clk, rst, data, reg_outs[3], writeEn & writeEnables[3]);
+	Reg #(WIDTH, 0) reg4 (clk, rst, data, reg_outs[4], writeEn & writeEnables[4]);
+	Reg #(WIDTH, 0) reg5 (clk, rst, data, reg_outs[5], writeEn & writeEnables[5]);
+	Reg #(WIDTH, 0) reg6 (clk, rst, data, reg_outs[6], writeEn & writeEnables[6]);
+	Reg #(WIDTH, 0) reg7 (clk, rst, data, reg_outs[7], writeEn & writeEnables[7]);
+	Reg #(WIDTH, 0) reg8 (clk, rst, data, reg_outs[8], writeEn & writeEnables[8]);
+	Reg #(WIDTH, 0) reg9 (clk, rst, data, reg_outs[9], writeEn & writeEnables[9]);
+	Reg #(WIDTH, 0) reg10 (clk, rst, data, reg_outs[10], writeEn & writeEnables[10]);
+	Reg #(WIDTH, 0) reg11 (clk, rst, data, reg_outs[11], writeEn & writeEnables[11]);
+	Reg #(WIDTH, 0) reg12 (clk, rst, data, reg_outs[12], writeEn & writeEnables[12]);
+	Reg #(WIDTH, 0) reg13 (clk, rst, data, reg_outs[13], writeEn & writeEnables[13]);
+	Reg #(WIDTH, 0) reg14 (clk, rst, data, reg_outs[14], writeEn & writeEnables[14]);
+	Reg #(WIDTH, 0) reg15 (clk, rst, data, reg_outs[15], writeEn & writeEnables[15]);
+	Reg #(WIDTH, 0) reg16 (clk, rst, data, reg_outs[16], writeEn & writeEnables[16]);
+	Reg #(WIDTH, 0) reg17 (clk, rst, data, reg_outs[17], writeEn & writeEnables[17]);
+	Reg #(WIDTH, 0) reg18 (clk, rst, data, reg_outs[18], writeEn & writeEnables[18]);
+	Reg #(WIDTH, 0) reg19 (clk, rst, data, reg_outs[19], writeEn & writeEnables[19]);
+	Reg #(WIDTH, 0) reg20 (clk, rst, data, reg_outs[20], writeEn & writeEnables[20]);
+	Reg #(WIDTH, 0) reg21 (clk, rst, data, reg_outs[21], writeEn & writeEnables[21]);
+	Reg #(WIDTH, 0) reg22 (clk, rst, data, reg_outs[22], writeEn & writeEnables[22]);
+	Reg #(WIDTH, 0) reg23 (clk, rst, data, reg_outs[23], writeEn & writeEnables[23]);
+	Reg #(WIDTH, 0) reg24 (clk, rst, data, reg_outs[24], writeEn & writeEnables[24]);
+	Reg #(WIDTH, 0) reg25 (clk, rst, data, reg_outs[25], writeEn & writeEnables[25]);
+	Reg #(WIDTH, 0) reg26 (clk, rst, data, reg_outs[26], writeEn & writeEnables[26]);
+	Reg #(WIDTH, 0) reg27 (clk, rst, data, reg_outs[27], writeEn & writeEnables[27]);
+	Reg #(WIDTH, 0) reg28 (clk, rst, data, reg_outs[28], writeEn & writeEnables[28]);
+	Reg #(WIDTH, 0) reg29 (clk, rst, data, reg_outs[29], writeEn & writeEnables[29]);
+	Reg #(WIDTH, 0) reg30 (clk, rst, data, reg_outs[30], writeEn & writeEnables[30]);
+	Reg #(WIDTH, 0) reg31 (clk, rst, data, reg_outs[31], writeEn & writeEnables[31]);
+
+
 
    MuxKey #(REGNUM, KEY_LEN, WIDTH) read1 (rs1, readreg1, {
 	    5'b00000, reg_outs[0],

@@ -42,8 +42,8 @@ int main(int argc, char** argv, char** env) {
     if (top->clk && !top->rst) {
       top->inst = paddr_read(top->pc);
       unsigned int inst = top->inst;
-      printf("PC = 0x%x, x1 = 0x%x, x2 = 0x%x, x3 = 0x%x, x4 = 0x%x, x5 = 0x%x\n", inst
-          ,top->x1, top->x2, top->x3, top->x4,top->x5);
+      printf("PC = 0x%x, x1 = 0x%x, x2 = 0x%x, x3 = 0x%x, x4 = 0x%x, x5 = 0x%x, writeEnables = 0x%x\n", inst
+          ,top->x1, top->x2, top->x3, top->x4,top->x5, top->writeEnables);
     }
 
     // 前3ps 用来重置

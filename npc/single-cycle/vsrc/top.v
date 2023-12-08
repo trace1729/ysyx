@@ -1,6 +1,6 @@
 module top(
    // for testing purposes
-   x1, x2, x3, x4, x5,
+   x1, x2, x3, x4, x5, writeEnables,
    // Outputs
    inst, pc, 
    // Inputs
@@ -55,6 +55,7 @@ module top(
    output [31:0]		x3;			// From regfile0 of regfile.v
    output [31:0]		x4;			// From regfile0 of regfile.v
    output [31:0]		x5;			// From regfile0 of regfile.v
+   output [31:0]		writeEnables;
    // for testing purpose
    
    wire [31:0]		rs1;			// From regfile0 of regfile.v
@@ -81,6 +82,7 @@ module top(
 		    .x3			(x3[31:0]),
 		    .x4			(x4[31:0]),
 		    .x5			(x5[31:0]),
+			.writeEnables(writeEnables[31:0]),
 		    // Inputs
 		    .clk		(clk),
 		    .rst		(rst),

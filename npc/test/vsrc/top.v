@@ -1,47 +1,43 @@
 module top(/*AUTOARG*/
-   writereg,
-writeEnables
+	// output
+   cnt, rs1, rs2, x1, x2, x5, x6, x7, x8, x9, x10, readreg1, readreg2, writereg, writeEn,
+	// intput
+	clk, inst, data
    );
-   input [4:0] writereg;
-   output [31:0] writeEnables;
-   
-   parameter	 REGNUM = 32;
-   parameter	 WIDTH = 32;
-   parameter	 KEY_LEN = 5;
 
-   MuxKey #(REGNUM, KEY_LEN, WIDTH) write (writeEnables, writereg, {
-		5'b00000, 32'h00000001,
-		5'b00001, 32'h00000002,
-		5'b00010, 32'h00000004,
-		5'b00011, 32'h00000008,
-		5'b00100, 32'h00000010,
-		5'b00101, 32'h00000020,
-		5'b00110, 32'h00000040,
-		5'b00111, 32'h00000080,
-		5'b01000, 32'h00000100,
-		5'b01001, 32'h00000200,
-		5'b01010, 32'h00000400,
-		5'b01011, 32'h00000800,
-		5'b01100, 32'h00001000,
-		5'b01101, 32'h00002000,
-		5'b01110, 32'h00004000,
-		5'b01111, 32'h00008000,
-		5'b10000, 32'h00010000,
-		5'b10001, 32'h00020000,
-		5'b10010, 32'h00040000,
-		5'b10011, 32'h00080000,
-		5'b10100, 32'h00100000,
-		5'b10101, 32'h00200000,
-		5'b10110, 32'h00400000,
-		5'b10111, 32'h00800000,
-		5'b11000, 32'h01000000,
-		5'b11001, 32'h02000000,
-		5'b11010, 32'h04000000,
-		5'b11011, 32'h08000000,
-		5'b11100, 32'h10000000,
-		5'b11101, 32'h20000000,
-		5'b11110, 32'h40000000,
-		5'b11111, 32'h80000000
-	   });
-   
-   endmodule
+   input clk;
+   input [15:0] inst;
+   input [31:0] data;
+   output [7:0] cnt;
+   output [31:0] rs1;
+   output [31:0] rs2;
+   // for testing purpose
+   output [31:0] x1;
+   output [31:0] x2;
+   output [31:0] x5;
+   output [31:0] x6;
+   output [31:0] x7;
+   output [31:0] x8;
+   output [31:0] x9;
+   output [31:0] x10;
+
+   output [4:0] readreg1;
+   output [4:0] readreg2;
+   output [4:0] writereg;
+   output       writeEn;
+
+   assign readreg1 = inst[4:0];
+   assign readreg2 = inst[9:5];
+   assign writereg = inst[14:10];
+   assign writeEn  = inst[15];
+
+	Reg #(8, 0) i0 (clk, 0, cnt + 8'h01, cnt, 1'b1);
+
+   regfile regfile0(
+	// output
+	   rs1, rs2, x1, x2, x5, x6, x7, x8, x9, x10,
+   // Inputs
+	   clk, 0, readreg1, readreg2, writereg, data, writeEn
+   );
+
+endmodule

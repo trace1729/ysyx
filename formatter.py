@@ -52,7 +52,7 @@ def gen_I(imm, rs1, rd, name):
 def inst_gen(inst_type):
     if inst_type == Instr.I:
         for i in range (5):
-            inst = gen_I(imm = i, rs1 = 0, rd = i, name = "addi")
+            inst = gen_I(imm = i, rs1 = 0, rd = i + 1, name = "addi")
             inst = hex(int(inst, 2))[2:]
             print(f'0x{inst:>08s}')
     return ""

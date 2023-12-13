@@ -59,7 +59,8 @@ def inst_gen(inst_type):
 
 
 def main():
-    inst_gen(Instr.I)
+    formatter(0x0000006f, Instr.I)
+    
     
 if __name__ == "__main__":
     main()

@@ -8,7 +8,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i __.test.runMain Elaborate -td $(BUILD_DIR)
+	mill -i lab1.test.runMain Elaborate -td $(BUILD_DIR)
 
 help:
 	mill -i __.test.runMain Elaborate --help
@@ -28,10 +28,12 @@ checkformat:
 clean:
 	-rm -rf $(BUILD_DIR)
 
-.PHONY: test verilog help compile bsp reformat checkformat clean
 
-sim:
+sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@echo "Write this Makefile by yourself."
+	@sed -E 's/io_([a-z0-9])/\1/g' $(BUILD_DIR)/top.v > $(NPC_HOME)/lab1/verilog/vsrc/top.v
+	make -C $(NPC_HOME)/lab1/verilog run
+
+.PHONY: test verilog help compile bsp reformat checkformat clean sim
 
 -include ../Makefile

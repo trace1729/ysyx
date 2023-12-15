@@ -6,7 +6,7 @@ import mill.scalalib.TestModule.Utest
 // support BSP
 import mill.bsp._
 
-object playground extends ScalaModule with ScalafmtModule { m =>
+trait config extends ScalaModule with ScalafmtModule { m =>
   val useChisel5 = true
   override def scalaVersion = "2.13.10"
   override def scalacOptions = Seq(
@@ -34,4 +34,12 @@ object playground extends ScalaModule with ScalafmtModule { m =>
     coursier.MavenRepository("https://maven.aliyun.com/repository/central"),
     coursier.MavenRepository("https://repo.scala-sbt.org/scalasbt/maven-releases"),
   ) ++ super.repositoriesTask() }
+}
+
+object playground extends config {
+
+}
+
+object lab1 extends config {
+
 }

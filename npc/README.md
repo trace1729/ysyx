@@ -32,6 +32,9 @@ make verilog
 
 ## Change FIRRTL Compiler
 
+FIRRTL (flexible immeidate representation for RTL) serves as a common ground for representing digital circuits before they are synthesized into actual hardware.
+
+
 You can change the FIRRTL compiler between SFC (Scala-based FIRRTL compiler) and
 MFC (MLIR-based FIRRTL compiler) by modifying the `useMFC` variable in `playground/src/Elaborate.scala`.
 The latter one requires `firtool`, which is included under `utils/`.

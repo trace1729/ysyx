@@ -1,4 +1,5 @@
 import chisel3._
+import chisel3.util._
 
 class top extends Module {
   val io = IO(new Bundle {
@@ -6,37 +7,27 @@ class top extends Module {
     val led = Output(UInt(2.W))
   })
 
-  io.sw.suggestName("sw")
-  io.led.suggestName("led")
-
   val selector = Module(new selector)
-  selector.io.sel := io.sw(1, 0) 
-  selector.io.x0 := io.sw(3, 2)
-  selector.io.x1 := io.sw(5, 4)
-  selector.io.x2 := io.sw(7, 6)
-  selector.io.x3 := io.sw(9, 8)
+  selector.io.in(0) := io.sw(3, 2)
+  selector.io.in(1) := io.sw(5, 4)
+  selector.io.in(2) := io.sw(7, 6)
+  selector.io.in(3) := io.sw(9, 8)
+
+  selector.io.in(4) := io.sw(1, 0)  // sel
   io.led := selector.io.out
 }
 
 class selector extends Module {
   val io = IO(new Bundle {
-    val x0  = Input(UInt(2.W))
-    val x1  = Input(UInt(2.W))
-    val x2  = Input(UInt(2.W))
-    val x3  = Input(UInt(2.W))
-    val sel = Input(UInt(2.W))
+    val in = Input(Vec(5, UInt(2.W)))
     val out = Output(UInt(2.W))
   })
 
-  when(io.sel === 0.U) {
-    io.out := io.x0
-  }.elsewhen(io.sel === 1.U) {
-    io.out := io.x1
-  }.elsewhen(io.sel === 2.U) {
-    io.out := io.x2
-  }.elsewhen(io.sel === 3.U) {
-    io.out := io.x3
-  }.otherwise {
-    io.out := 0.U
-  }
+  io.out := MuxCase(io.in(0), Array(
+    (io.in(4) === 0.U) -> io.in(0),
+    (io.in(4) === 1.U) -> io.in(1),
+    (io.in(4) === 2.U) -> io.in(2),
+    (io.in(4) === 3.U) -> io.in(3)
+    ))
+
 }

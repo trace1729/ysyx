@@ -1,4 +1,5 @@
 BUILD_DIR = ./build
+TARGET = lab6
 
 export PATH := $(PATH):$(abspath ./utils)
 
@@ -8,7 +9,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i lab3.test.runMain Elaborate -td $(BUILD_DIR)
+	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR)
 
 help:
 	mill -i __.test.runMain Elaborate --help
@@ -31,8 +32,8 @@ clean:
 
 sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@sed -E 's/io_([a-z0-9])/\1/g' $(BUILD_DIR)/top.v > $(NPC_HOME)/lab2/verilog/vsrc/top.v
-	make -C $(NPC_HOME)/lab2/verilog run
+	@sed -E 's/io_([a-z0-9])/\1/g' $(BUILD_DIR)/top.v > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
+	make -C $(NPC_HOME)/$(TARGET)/verilog run
 
 .PHONY: test verilog help compile bsp reformat checkformat clean sim
 

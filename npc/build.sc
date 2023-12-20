@@ -50,3 +50,6 @@ object lab2 extends config {
 object lab3 extends config {
 
 }
+object lab6 extends config {
+
+}

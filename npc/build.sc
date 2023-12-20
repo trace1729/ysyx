@@ -43,3 +43,10 @@ object playground extends config {
 object lab1 extends config {
 
 }
+
+object lab2 extends config {
+
+}
+object lab3 extends config {
+
+}

@@ -51,48 +51,48 @@
 `endif // not def SYNTHESIS
 
 module Seg(	// @[<stdin>:3:10, :45:10]
-  input  [3:0] seg_in,	// @[lab6/src/top.scala:29:14]
-  output [7:0] seg_out	// @[lab6/src/top.scala:29:14]
+  input  [3:0] seg_in,	// @[lab6/src/top.scala:44:14]
+  output [7:0] seg_out	// @[lab6/src/top.scala:44:14]
 );
 
   reg [7:0] casez_tmp;	// @[src/main/scala/chisel3/util/Mux.scala:141:16]
-  always_comb begin	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
-    casez (seg_in)	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+  always_comb begin	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+    casez (seg_in)	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0000:
-        casez_tmp = 8'hFD;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hFD;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0001:
-        casez_tmp = 8'h60;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h60;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0010:
-        casez_tmp = 8'hDA;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hDA;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0011:
-        casez_tmp = 8'hF2;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hF2;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0100:
-        casez_tmp = 8'h66;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h66;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0101:
-        casez_tmp = 8'hB6;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hB6;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0110:
-        casez_tmp = 8'hBE;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hBE;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0111:
-        casez_tmp = 8'hE0;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hE0;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1000:
-        casez_tmp = 8'hFE;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hFE;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1001:
-        casez_tmp = 8'hE6;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hE6;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1010:
-        casez_tmp = 8'hEF;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hEF;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1011:
-        casez_tmp = 8'h3E;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h3E;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1100:
-        casez_tmp = 8'h9C;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h9C;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1101:
-        casez_tmp = 8'h7A;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h7A;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1110:
-        casez_tmp = 8'h9E;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h9E;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       default:
-        casez_tmp = 8'h8E;	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
-    endcase	// @[lab6/src/top.scala:61:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h8E;	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+    endcase	// @[lab6/src/top.scala:76:22, src/main/scala/chisel3/util/Mux.scala:141:16]
   end // always_comb
-  assign seg_out = ~casez_tmp;	// @[<stdin>:3:10, :45:10, lab6/src/top.scala:57:5, src/main/scala/chisel3/util/Mux.scala:141:16]
+  assign seg_out = ~casez_tmp;	// @[<stdin>:3:10, :45:10, lab6/src/top.scala:72:5, src/main/scala/chisel3/util/Mux.scala:141:16]
 endmodule
 
 module top(	// @[<stdin>:87:10]
@@ -102,23 +102,51 @@ module top(	// @[<stdin>:87:10]
                seg1	// @[lab6/src/top.scala:6:16]
 );
 
-  reg [31:0] timer;	// @[lab6/src/top.scala:8:22]
-  reg [31:0] timer_REG;	// @[lab6/src/top.scala:9:48]
-  reg [7:0]  lsfr;	// @[lab6/src/top.scala:11:26]
+  reg  [31:0] timer;	// @[lab6/src/top.scala:8:22]
+  reg  [31:0] timer_REG;	// @[lab6/src/top.scala:9:48]
+  reg  [7:0]  lsfr;	// @[lab6/src/top.scala:11:22]
+  reg         taps_0;	// @[lab6/src/top.scala:12:34]
+  reg         taps_1;	// @[lab6/src/top.scala:12:34]
+  reg         taps_2;	// @[lab6/src/top.scala:12:34]
+  reg         taps_3;	// @[lab6/src/top.scala:12:34]
+  reg         taps_4;	// @[lab6/src/top.scala:12:34]
+  reg         taps_5;	// @[lab6/src/top.scala:12:34]
+  reg         taps_6;	// @[lab6/src/top.scala:12:34]
+  reg         taps_7;	// @[lab6/src/top.scala:12:34]
+  wire        _GEN = timer == 32'h0;	// @[lab6/src/top.scala:8:22, :16:18]
+  wire        _GEN_0 =
+    taps_0 + taps_1 + taps_2 + taps_3 + taps_4 + taps_5 + taps_6 + taps_7;	// @[lab6/src/top.scala:12:34, :18:39]
+  wire        _GEN_1 = _GEN & _GEN_0;	// @[lab6/src/top.scala:16:18, :18:{22,39}]
   always @(posedge clock) begin	// @[<stdin>:88:11]
     if (reset) begin	// @[<stdin>:88:11]
       timer <= 32'h0;	// @[lab6/src/top.scala:8:22]
-      lsfr <= 8'h0;	// @[lab6/src/top.scala:11:26]
+      lsfr <= 8'h0;	// @[lab6/src/top.scala:11:22]
+      taps_0 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_1 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_2 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_3 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_4 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_5 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_6 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
+      taps_7 <= 1'h0;	// @[lab6/src/top.scala:9:48, :12:34]
     end
     else begin	// @[<stdin>:88:11]
       if (timer == 32'h7A120)	// @[lab6/src/top.scala:8:22, :9:22]
         timer <= 32'h0;	// @[lab6/src/top.scala:8:22]
       else	// @[lab6/src/top.scala:9:22]
         timer <= timer_REG;	// @[lab6/src/top.scala:8:22, :9:48]
-      if ((|lsfr) & timer == 32'h0)	// @[lab6/src/top.scala:8:22, :11:26, :14:{35,43,52}]
-        lsfr <= {lsfr[4] ^ lsfr[3] ^ lsfr[2] ^ lsfr[0], lsfr[7:1]};	// @[lab6/src/top.scala:11:26, :12:{28,37,46,55,69,80,88}]
-      else if (lsfr == 8'h0)	// @[lab6/src/top.scala:11:26, :14:81]
-        lsfr <= 8'h1;	// @[lab6/src/top.scala:11:26, src/main/scala/chisel3/util/Mux.scala:141:16]
+      lsfr <= {taps_7, taps_6, taps_5, taps_4, taps_3, taps_2, taps_1, taps_0};	// @[lab6/src/top.scala:11:22, :12:34, :29:14]
+      taps_0 <= ~_GEN_1 & ~_GEN_0 | (_GEN ? taps_1 : taps_0);	// @[lab6/src/top.scala:12:34, :16:{18,27,31}, :18:{22,39,53}, :25:{33,42}]
+      if (_GEN) begin	// @[lab6/src/top.scala:16:18]
+        taps_1 <= taps_2;	// @[lab6/src/top.scala:12:34]
+        taps_2 <= taps_3;	// @[lab6/src/top.scala:12:34]
+        taps_3 <= taps_4;	// @[lab6/src/top.scala:12:34]
+        taps_4 <= taps_5;	// @[lab6/src/top.scala:12:34]
+        taps_5 <= taps_6;	// @[lab6/src/top.scala:12:34]
+        taps_6 <= taps_7;	// @[lab6/src/top.scala:12:34]
+      end
+      if (_GEN_1)	// @[lab6/src/top.scala:18:22]
+        taps_7 <= taps_0 ^ taps_2 ^ taps_3 ^ taps_4;	// @[lab6/src/top.scala:12:34, :24:17]
     end
     timer_REG <= timer + 32'h1;	// @[lab6/src/top.scala:8:22, :9:{48,55}]
   end // always @(posedge)
@@ -137,19 +165,27 @@ module top(	// @[<stdin>:87:10]
         end	// @[<stdin>:87:10]
         timer = _RANDOM[2'h0];	// @[<stdin>:87:10, lab6/src/top.scala:8:22]
         timer_REG = _RANDOM[2'h1];	// @[<stdin>:87:10, lab6/src/top.scala:9:48]
-        lsfr = _RANDOM[2'h2][7:0];	// @[<stdin>:87:10, lab6/src/top.scala:11:26]
+        lsfr = _RANDOM[2'h2][7:0];	// @[<stdin>:87:10, lab6/src/top.scala:11:22]
+        taps_0 = _RANDOM[2'h2][8];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_1 = _RANDOM[2'h2][9];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_2 = _RANDOM[2'h2][10];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_3 = _RANDOM[2'h2][11];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_4 = _RANDOM[2'h2][12];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_5 = _RANDOM[2'h2][13];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_6 = _RANDOM[2'h2][14];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
+        taps_7 = _RANDOM[2'h2][15];	// @[<stdin>:87:10, lab6/src/top.scala:11:22, :12:34]
       `endif // RANDOMIZE_REG_INIT
     end // initial
     `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:87:10]
       `FIRRTL_AFTER_INITIAL	// @[<stdin>:87:10]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  Seg s0 (	// @[lab6/src/top.scala:16:18]
-    .seg_in  (lsfr[3:0]),	// @[lab6/src/top.scala:11:26, :20:23]
+  Seg s0 (	// @[lab6/src/top.scala:31:18]
+    .seg_in  (lsfr[3:0]),	// @[lab6/src/top.scala:11:22, :35:23]
     .seg_out (seg0)
   );
-  Seg s1 (	// @[lab6/src/top.scala:17:18]
-    .seg_in  (lsfr[7:4]),	// @[lab6/src/top.scala:11:26, :24:23]
+  Seg s1 (	// @[lab6/src/top.scala:32:18]
+    .seg_in  (lsfr[7:4]),	// @[lab6/src/top.scala:11:22, :39:23]
     .seg_out (seg1)
   );
 endmodule

@@ -8,20 +8,38 @@ class top extends Module {
   val timer = RegInit(0.U(32.W))
   timer := Mux(timer === 500000.U, 0.U, RegNext(timer + 1.U))
 
-  val lsfr      = RegInit(0.U(8.W))
-  val nextstate = (Seq(lsfr(4), lsfr(3), lsfr(2), lsfr(0)).reduce(_ ^ _) << 7) | (lsfr >> 1)
-  // val nextstate = Cat(Seq(lsfr(4), lsfr(3), lsfr(2), lsfr(0)).reduce(_ ^ _), lsfr >> 1)
-  lsfr := MuxCase(lsfr, Seq((lsfr =/= 0.U && timer === 0.U) -> nextstate, (lsfr === 0.U) -> 1.U))
+  val out  = RegInit(0.U(8.W))
+  val taps  = Seq.fill(8)(RegInit(0.U(1.W)))
+  val const = Seq(1.U, 0.U, 1.U, 1.U, 1.U, 0.U, 0.U, 0.U)
+  // 7 -> 6 - > 5 ... 
+  taps.tail.zip(taps).foreach {
+    case (a, b) =>
+      when(timer === 0.U) { b := a }
+  }
+
+  // 每次都更新最高位
+  when(timer === 0.U && taps.reduce(_ + _) =/= 0.U) {
+    taps(7) := taps
+      .zip(const)
+      .map {
+        case (a, b) => a * b
+      }
+      .reduce(_ ^ _)
+  }.elsewhen(taps.reduce(_ + _) === 0.U) {
+    taps(0) := 1.U
+  }
+
+  out := Cat(taps.reverse)
 
   val s0 = Module(new Seg())
   val s1 = Module(new Seg())
 
   s0.io.enable := true.B
-  s0.io.seg_in := lsfr(3, 0)
+  s0.io.seg_in := out(3, 0)
   seg0         := s0.io.seg_out
 
   s1.io.enable := true.B
-  s1.io.seg_in := lsfr(7, 4)
+  s1.io.seg_in := out(7, 4)
   seg1         := s1.io.seg_out
 }
 

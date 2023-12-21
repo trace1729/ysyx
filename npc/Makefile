@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = lab6
+TARGET = lab7
 
 export PATH := $(PATH):$(abspath ./utils)
 

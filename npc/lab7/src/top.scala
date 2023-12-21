@@ -17,7 +17,7 @@ class top extends Module {
   val buffer         = RegInit(0.U(10.W))
   val prev_data      = RegInit(0.U(8.W))
   val keystroke      = RegInit(0.U(8.W))
-  val collected_data = RegInit(0.U(4.W))
+  val nbit = RegInit(0.U(4.W))
   val count          = RegInit(0.U(8.W))
   val ps2_clk_sync   = RegInit(0.U(3.W))
   val ready          = RegInit(0.U(1.W))
@@ -62,8 +62,8 @@ class top extends Module {
   io.seg5      := s5.io.seg_out
 
   when(sampling) {
-    when(collected_data === 10.U) {
-      collected_data := 0.U
+    when(nbit === 10.U) {
+      nbit := 0.U
       when(
         (buffer(0) === 0.U) &&
           (io.ps2_data === 1.U) &&
@@ -84,9 +84,9 @@ class top extends Module {
       }
     }.otherwise {
       val bools = VecInit(buffer.asBools)
-      bools(collected_data) := io.ps2_data
+      bools(nbit) := io.ps2_data
       buffer := bools.asUInt
-      collected_data := collected_data + 1.U
+      nbit := nbit + 1.U
     }
   }
 

@@ -59,50 +59,50 @@
   `endif // not def ENABLE_INITIAL_MEM_
 `endif // not def SYNTHESIS
 
-module Seg(	// @[<stdin>:3:10, :45:10, :87:10, :129:10, :171:10, :213:10]
-  input        enable,	// @[lab7/src/top.scala:142:14]
-  input  [3:0] seg_in,	// @[lab7/src/top.scala:142:14]
-  output [7:0] seg_out	// @[lab7/src/top.scala:142:14]
+module seg(	// @[<stdin>:3:10, :45:10, :87:10, :129:10, :171:10, :213:10]
+  input        enable,	// @[lab7/src/seg.scala:6:14]
+  input  [3:0] seg_in,	// @[lab7/src/seg.scala:6:14]
+  output [7:0] seg_out	// @[lab7/src/seg.scala:6:14]
 );
 
   reg [7:0] casez_tmp;	// @[src/main/scala/chisel3/util/Mux.scala:141:16]
-  always_comb begin	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
-    casez (seg_in)	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+  always_comb begin	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+    casez (seg_in)	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0000:
-        casez_tmp = 8'hFD;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hFD;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0001:
-        casez_tmp = 8'h60;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h60;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0010:
-        casez_tmp = 8'hDA;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hDA;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0011:
-        casez_tmp = 8'hF2;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hF2;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0100:
-        casez_tmp = 8'h66;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h66;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0101:
-        casez_tmp = 8'hB6;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hB6;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0110:
-        casez_tmp = 8'hBE;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hBE;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b0111:
-        casez_tmp = 8'hE0;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hE0;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1000:
-        casez_tmp = 8'hFE;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hFE;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1001:
-        casez_tmp = 8'hE6;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hE6;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1010:
-        casez_tmp = 8'hEF;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'hEF;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1011:
-        casez_tmp = 8'h3E;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h3E;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1100:
-        casez_tmp = 8'h9C;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h9C;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1101:
-        casez_tmp = 8'h7A;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h7A;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       4'b1110:
-        casez_tmp = 8'h9E;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h9E;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
       default:
-        casez_tmp = 8'h8E;	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
-    endcase	// @[lab7/src/top.scala:174:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+        casez_tmp = 8'h8E;	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
+    endcase	// @[lab7/src/seg.scala:38:22, src/main/scala/chisel3/util/Mux.scala:141:16]
   end // always_comb
-  assign seg_out = ~({8{enable}} & casez_tmp);	// @[<stdin>:3:10, :45:10, :87:10, :129:10, :171:10, :213:10, lab7/src/top.scala:167:20, src/main/scala/chisel3/util/Mux.scala:141:16]
+  assign seg_out = ~({8{enable}} & casez_tmp);	// @[<stdin>:3:10, :45:10, :87:10, :129:10, :171:10, :213:10, lab7/src/seg.scala:31:20, src/main/scala/chisel3/util/Mux.scala:141:16]
 endmodule
 
 module top(	// @[<stdin>:255:10]
@@ -120,94 +120,94 @@ module top(	// @[<stdin>:255:10]
 
   reg  [9:0] buffer;	// @[lab7/src/top.scala:17:31]
   reg  [7:0] prev_data;	// @[lab7/src/top.scala:18:31]
-  reg  [3:0] collected_data;	// @[lab7/src/top.scala:20:31]
+  reg  [3:0] nbit;	// @[lab7/src/top.scala:20:21]
   reg  [7:0] count;	// @[lab7/src/top.scala:21:31]
   reg  [2:0] ps2_clk_sync;	// @[lab7/src/top.scala:22:31]
   reg        key_received;	// @[lab7/src/top.scala:24:31]
   wire       sampling = ps2_clk_sync[2] & ~(ps2_clk_sync[1]);	// @[lab7/src/top.scala:22:31, :28:{27,31,34,47}]
   wire [6:0] _ascii_T_72 =
-    buffer[8:1] == 8'h8
+    buffer[8:1] == 8'h1C
       ? 7'h41
       : buffer[8:1] == 8'h32
           ? 7'h42
-          : buffer[8:1] == 8'h33
+          : buffer[8:1] == 8'h21
               ? 7'h43
-              : buffer[8:1] == 8'h35
+              : buffer[8:1] == 8'h23
                   ? 7'h44
-                  : buffer[8:1] == 8'h36
+                  : buffer[8:1] == 8'h24
                       ? 7'h45
-                      : buffer[8:1] == 8'h43
+                      : buffer[8:1] == 8'h2B
                           ? 7'h46
-                          : buffer[8:1] == 8'h52
+                          : buffer[8:1] == 8'h34
                               ? 7'h47
-                              : buffer[8:1] == 8'h51
+                              : buffer[8:1] == 8'h33
                                   ? 7'h48
-                                  : buffer[8:1] == 8'h67
+                                  : buffer[8:1] == 8'h43
                                       ? 7'h49
-                                      : buffer[8:1] == 8'h59
+                                      : buffer[8:1] == 8'h3B
                                           ? 7'h4A
-                                          : buffer[8:1] == 8'h66
+                                          : buffer[8:1] == 8'h42
                                               ? 7'h4B
-                                              : buffer[8:1] == 8'h75
+                                              : buffer[8:1] == 8'h4B
                                                   ? 7'h4C
-                                                  : buffer[8:1] == 8'h58
+                                                  : buffer[8:1] == 8'h3A
                                                       ? 7'h4D
-                                                      : buffer[8:1] == 8'h49
+                                                      : buffer[8:1] == 8'h31
                                                           ? 7'h4E
-                                                          : buffer[8:1] == 8'h68
+                                                          : buffer[8:1] == 8'h44
                                                               ? 7'h4F
-                                                              : buffer[8:1] == 8'h77
+                                                              : buffer[8:1] == 8'h4D
                                                                   ? 7'h50
-                                                                  : buffer[8:1] == 8'h21
+                                                                  : buffer[8:1] == 8'h15
                                                                       ? 7'h51
-                                                                      : buffer[8:1] == 8'h45
+                                                                      : buffer[8:1] == 8'h2D
                                                                           ? 7'h52
-                                                                          : buffer[8:1] == 8'h27
+                                                                          : buffer[8:1] == 8'h1B
                                                                               ? 7'h53
-                                                                              : buffer[8:1] == 8'h44
+                                                                              : buffer[8:1] == 8'h2C
                                                                                   ? 7'h54
-                                                                                  : buffer[8:1] == 8'h60
+                                                                                  : buffer[8:1] == 8'h3C
                                                                                       ? 7'h55
-                                                                                      : buffer[8:1] == 8'h42
+                                                                                      : buffer[8:1] == 8'h2A
                                                                                           ? 7'h56
-                                                                                          : buffer[8:1] == 8'h29
+                                                                                          : buffer[8:1] == 8'h1D
                                                                                               ? 7'h57
-                                                                                              : buffer[8:1] == 8'h34
+                                                                                              : buffer[8:1] == 8'h22
                                                                                                   ? 7'h58
-                                                                                                  : buffer[8:1] == 8'h53
+                                                                                                  : buffer[8:1] == 8'h35
                                                                                                       ? 7'h59
-                                                                                                      : buffer[8:1] == 8'h26
+                                                                                                      : buffer[8:1] == 8'h1A
                                                                                                           ? 7'h5A
                                                                                                           : {1'h0,
-                                                                                                             buffer[8:1] == 8'h69
+                                                                                                             buffer[8:1] == 8'h45
                                                                                                                ? 6'h30
-                                                                                                               : buffer[8:1] == 8'h22
+                                                                                                               : buffer[8:1] == 8'h16
                                                                                                                    ? 6'h31
-                                                                                                                   : buffer[8:1] == 8'h30
+                                                                                                                   : buffer[8:1] == 8'h1E
                                                                                                                        ? 6'h32
-                                                                                                                       : buffer[8:1] == 8'h38
+                                                                                                                       : buffer[8:1] == 8'h26
                                                                                                                            ? 6'h33
-                                                                                                                           : buffer[8:1] == 8'h37
+                                                                                                                           : buffer[8:1] == 8'h25
                                                                                                                                ? 6'h34
-                                                                                                                               : buffer[8:1] == 8'h46
+                                                                                                                               : buffer[8:1] == 8'h2E
                                                                                                                                    ? 6'h35
-                                                                                                                                   : buffer[8:1] == 8'h54
+                                                                                                                                   : buffer[8:1] == 8'h36
                                                                                                                                        ? 6'h36
-                                                                                                                                       : buffer[8:1] == 8'h61
+                                                                                                                                       : buffer[8:1] == 8'h3D
                                                                                                                                            ? 6'h37
-                                                                                                                                           : buffer[8:1] == 8'h62
+                                                                                                                                           : buffer[8:1] == 8'h3E
                                                                                                                                                ? 6'h38
-                                                                                                                                               : buffer[8:1] == 8'h70
+                                                                                                                                               : buffer[8:1] == 8'h46
                                                                                                                                                    ? 6'h39
                                                                                                                                                    : 6'h0};	// @[<stdin>:255:10, lab7/src/top.scala:17:31, :38:33, :100:15, :101:15, :102:15, :103:15, :104:15, :105:15, :106:15, :107:15, :108:15, :109:15, :110:15, :111:15, :112:15, :113:15, :114:15, :115:15, :116:15, :117:15, :118:15, :119:15, :120:15, :121:15, :122:15, :123:15, :124:15, :125:15, :126:15, :127:15, :128:15, :129:15, :130:15, :131:15, :132:15, :133:15, :134:15, :135:15, src/main/scala/chisel3/util/Mux.scala:141:16]
-  wire       _GEN = collected_data == 4'hA;	// @[lab7/src/top.scala:20:31, :65:25]
+  wire       _GEN = nbit == 4'hA;	// @[lab7/src/top.scala:20:21, :65:15]
   wire       _GEN_0 =
     ~(buffer[0]) & ps2_data
     & (buffer[1] ^ buffer[2] ^ buffer[3] ^ buffer[4] ^ buffer[5] ^ buffer[6] ^ buffer[7]
        ^ buffer[8] ^ buffer[9]);	// @[lab7/src/top.scala:17:31, :68:{16,20}, :69:33, :70:{18,25,42}]
   `ifndef SYNTHESIS	// @[lab7/src/top.scala:72:15]
     always @(posedge clock) begin	// @[lab7/src/top.scala:72:15]
-      if ((`PRINTF_COND_) & sampling & _GEN & _GEN_0 & ~reset) begin	// @[lab7/src/top.scala:28:31, :65:25, :69:33, :72:15, :73:15]
+      if ((`PRINTF_COND_) & sampling & _GEN & _GEN_0 & ~reset) begin	// @[lab7/src/top.scala:28:31, :65:15, :69:33, :72:15, :73:15]
         $fwrite(32'h80000002, "buffer = 0x%x\n", buffer[8:1]);	// @[lab7/src/top.scala:17:31, :38:33, :72:15]
         $fwrite(32'h80000002, "ascii = 0x%x\n", buffer[8:1]);	// @[lab7/src/top.scala:17:31, :38:33, :72:15, :73:15]
       end
@@ -219,38 +219,38 @@ module top(	// @[<stdin>:255:10]
     if (reset) begin	// @[<stdin>:256:11]
       buffer <= 10'h0;	// @[lab7/src/top.scala:17:31]
       prev_data <= 8'h0;	// @[lab7/src/top.scala:18:31]
-      collected_data <= 4'h0;	// @[lab7/src/top.scala:20:31]
+      nbit <= 4'h0;	// @[lab7/src/top.scala:20:21]
       count <= 8'h0;	// @[lab7/src/top.scala:18:31, :21:31]
       ps2_clk_sync <= 3'h0;	// @[lab7/src/top.scala:22:31]
       key_received <= 1'h0;	// @[<stdin>:255:10, lab7/src/top.scala:24:31]
     end
     else begin	// @[<stdin>:256:11]
-      if (~sampling | _GEN) begin	// @[lab7/src/top.scala:17:31, :28:31, :64:18, :65:{25,35}]
+      if (~sampling | _GEN) begin	// @[lab7/src/top.scala:17:31, :28:31, :64:18, :65:{15,25}]
       end
-      else	// @[lab7/src/top.scala:17:31, :64:18, :65:35]
+      else	// @[lab7/src/top.scala:17:31, :64:18, :65:25]
         buffer <=
-          {collected_data == 4'h9 ? ps2_data : buffer[9],
-           collected_data == 4'h8 ? ps2_data : buffer[8],
-           collected_data == 4'h7 ? ps2_data : buffer[7],
-           collected_data == 4'h6 ? ps2_data : buffer[6],
-           collected_data == 4'h5 ? ps2_data : buffer[5],
-           collected_data == 4'h4 ? ps2_data : buffer[4],
-           collected_data == 4'h3 ? ps2_data : buffer[3],
-           collected_data == 4'h2 ? ps2_data : buffer[2],
-           collected_data == 4'h1 ? ps2_data : buffer[1],
-           collected_data == 4'h0 ? ps2_data : buffer[0]};	// @[lab7/src/top.scala:17:31, :20:31, :86:{26,34}, :87:29, :88:23]
-      if (sampling & _GEN & _GEN_0 & _GEN_2) begin	// @[lab7/src/top.scala:18:31, :28:31, :64:18, :65:{25,35}, :69:33, :71:9, :74:{43,73}, :75:24]
+          {nbit == 4'h9 ? ps2_data : buffer[9],
+           nbit == 4'h8 ? ps2_data : buffer[8],
+           nbit == 4'h7 ? ps2_data : buffer[7],
+           nbit == 4'h6 ? ps2_data : buffer[6],
+           nbit == 4'h5 ? ps2_data : buffer[5],
+           nbit == 4'h4 ? ps2_data : buffer[4],
+           nbit == 4'h3 ? ps2_data : buffer[3],
+           nbit == 4'h2 ? ps2_data : buffer[2],
+           nbit == 4'h1 ? ps2_data : buffer[1],
+           nbit == 4'h0 ? ps2_data : buffer[0]};	// @[lab7/src/top.scala:17:31, :20:21, :86:{26,34}, :87:19, :88:23]
+      if (sampling & _GEN & _GEN_0 & _GEN_2) begin	// @[lab7/src/top.scala:18:31, :28:31, :64:18, :65:{15,25}, :69:33, :71:9, :74:{43,73}, :75:24]
         prev_data <= buffer[8:1];	// @[lab7/src/top.scala:17:31, :18:31, :38:33]
         count <= count + 8'h1;	// @[lab7/src/top.scala:21:31, :78:33]
       end
       if (sampling) begin	// @[lab7/src/top.scala:28:31]
-        if (_GEN)	// @[lab7/src/top.scala:65:25]
-          collected_data <= 4'h0;	// @[lab7/src/top.scala:20:31]
-        else	// @[lab7/src/top.scala:65:25]
-          collected_data <= collected_data + 4'h1;	// @[lab7/src/top.scala:20:31, :87:29, :89:40]
+        if (_GEN)	// @[lab7/src/top.scala:65:15]
+          nbit <= 4'h0;	// @[lab7/src/top.scala:20:21]
+        else	// @[lab7/src/top.scala:65:15]
+          nbit <= nbit + 4'h1;	// @[lab7/src/top.scala:20:21, :87:19, :89:20]
       end
       ps2_clk_sync <= {ps2_clk_sync[1:0], ps2_clk};	// @[lab7/src/top.scala:22:31, :26:{22,35}]
-      if (sampling & _GEN & _GEN_0)	// @[lab7/src/top.scala:24:31, :28:31, :64:18, :65:{25,35}, :69:33, :71:9, :74:73]
+      if (sampling & _GEN & _GEN_0)	// @[lab7/src/top.scala:24:31, :28:31, :64:18, :65:{15,25}, :69:33, :71:9, :74:73]
         key_received <= _GEN_2 | _GEN_1 & key_received;	// @[lab7/src/top.scala:24:31, :74:{43,60,73}, :76:24, :80:41, :81:26]
     end
   end // always @(posedge)
@@ -269,7 +269,7 @@ module top(	// @[<stdin>:255:10]
         end	// @[<stdin>:255:10]
         buffer = _RANDOM[1'h0][9:0];	// @[<stdin>:255:10, lab7/src/top.scala:17:31]
         prev_data = _RANDOM[1'h0][17:10];	// @[<stdin>:255:10, lab7/src/top.scala:17:31, :18:31]
-        collected_data = _RANDOM[1'h0][29:26];	// @[<stdin>:255:10, lab7/src/top.scala:17:31, :20:31]
+        nbit = _RANDOM[1'h0][29:26];	// @[<stdin>:255:10, lab7/src/top.scala:17:31, :20:21]
         count = {_RANDOM[1'h0][31:30], _RANDOM[1'h1][5:0]};	// @[<stdin>:255:10, lab7/src/top.scala:17:31, :21:31]
         ps2_clk_sync = _RANDOM[1'h1][8:6];	// @[<stdin>:255:10, lab7/src/top.scala:21:31, :22:31]
         key_received = _RANDOM[1'h1][10];	// @[<stdin>:255:10, lab7/src/top.scala:21:31, :24:31]
@@ -279,32 +279,32 @@ module top(	// @[<stdin>:255:10]
       `FIRRTL_AFTER_INITIAL	// @[<stdin>:255:10]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  Seg s0 (	// @[lab7/src/top.scala:30:18]
+  seg s0 (	// @[lab7/src/top.scala:30:18]
     .enable  (key_received),	// @[lab7/src/top.scala:24:31]
     .seg_in  (buffer[4:1]),	// @[lab7/src/top.scala:17:31, :41:25]
     .seg_out (seg0)
   );
-  Seg s1 (	// @[lab7/src/top.scala:31:18]
+  seg s1 (	// @[lab7/src/top.scala:31:18]
     .enable  (key_received),	// @[lab7/src/top.scala:24:31]
     .seg_in  (buffer[7:4]),	// @[lab7/src/top.scala:17:31, :45:25]
     .seg_out (seg1)
   );
-  Seg s2 (	// @[lab7/src/top.scala:32:18]
+  seg s2 (	// @[lab7/src/top.scala:32:18]
     .enable  (key_received),	// @[lab7/src/top.scala:24:31]
     .seg_in  (_ascii_T_72[3:0]),	// @[lab7/src/top.scala:49:24, src/main/scala/chisel3/util/Mux.scala:141:16]
     .seg_out (seg2)
   );
-  Seg s3 (	// @[lab7/src/top.scala:33:18]
+  seg s3 (	// @[lab7/src/top.scala:33:18]
     .enable  (key_received),	// @[lab7/src/top.scala:24:31]
     .seg_in  ({1'h0, _ascii_T_72[6:4]}),	// @[<stdin>:255:10, lab7/src/top.scala:53:24, src/main/scala/chisel3/util/Mux.scala:141:16]
     .seg_out (seg3)
   );
-  Seg s4 (	// @[lab7/src/top.scala:34:18]
+  seg s4 (	// @[lab7/src/top.scala:34:18]
     .enable  (1'h1),	// @[<stdin>:255:10]
     .seg_in  (count[3:0]),	// @[lab7/src/top.scala:21:31, :57:24]
     .seg_out (seg4)
   );
-  Seg s5 (	// @[lab7/src/top.scala:35:18]
+  seg s5 (	// @[lab7/src/top.scala:35:18]
     .enable  (1'h1),	// @[<stdin>:255:10]
     .seg_in  (count[7:4]),	// @[lab7/src/top.scala:21:31, :61:24]
     .seg_out (seg5)

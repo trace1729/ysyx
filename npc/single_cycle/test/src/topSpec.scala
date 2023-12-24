@@ -149,7 +149,7 @@ object topSpec extends ChiselUtestTester {
         }
       }
       test("data-path-addi") {
-        testCircuit(new CPU) {
+        testCircuit(new top) {
           dut =>
             dut.io.inst.poke("b00000000000100000000001010010011".asUInt)
             dut.io.test_alu_res.expect(1)

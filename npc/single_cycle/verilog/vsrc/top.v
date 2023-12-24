@@ -50,38 +50,383 @@
   `endif // not def ENABLE_INITIAL_MEM_
 `endif // not def SYNTHESIS
 
-module top(	// @[<stdin>:3:10]
-  input         clock,	// @[<stdin>:4:11]
-                reset,	// @[<stdin>:5:11]
-  input  [31:0] inst,	// @[single_cycle/src/top.scala:5:14]
-  output [31:0] pc	// @[single_cycle/src/top.scala:5:14]
+module Regfile(	// @[<stdin>:13:10]
+  input         clock,	// @[<stdin>:14:11]
+                reset,	// @[<stdin>:15:11]
+  input  [4:0]  readreg1,	// @[single_cycle/src/Regfile.scala:5:14]
+                writereg,	// @[single_cycle/src/Regfile.scala:5:14]
+  input  [31:0] data,	// @[single_cycle/src/Regfile.scala:5:14]
+  output [31:0] rs1,	// @[single_cycle/src/Regfile.scala:5:14]
+                x1,	// @[single_cycle/src/Regfile.scala:5:14]
+                x2,	// @[single_cycle/src/Regfile.scala:5:14]
+                x5,	// @[single_cycle/src/Regfile.scala:5:14]
+                x6,	// @[single_cycle/src/Regfile.scala:5:14]
+                x7,	// @[single_cycle/src/Regfile.scala:5:14]
+                x8,	// @[single_cycle/src/Regfile.scala:5:14]
+                x9,	// @[single_cycle/src/Regfile.scala:5:14]
+                x10	// @[single_cycle/src/Regfile.scala:5:14]
 );
 
-  reg [31:0] pc_REG;	// @[single_cycle/src/top.scala:10:19]
-  always @(posedge clock) begin	// @[<stdin>:4:11]
-    if (reset)	// @[<stdin>:4:11]
-      pc_REG <= 32'h80000000;	// @[single_cycle/src/top.scala:10:19]
-    else	// @[<stdin>:4:11]
-      pc_REG <= pc_REG + 32'h4;	// @[single_cycle/src/top.scala:10:{19,26}]
+  reg [31:0] casez_tmp;	// @[single_cycle/src/Regfile.scala:35:{35,44}]
+  reg [31:0] regs_1;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_2;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_3;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_4;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_5;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_6;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_7;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_8;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_9;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_10;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_11;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_12;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_13;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_14;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_15;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_16;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_17;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_18;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_19;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_20;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_21;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_22;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_23;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_24;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_25;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_26;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_27;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_28;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_29;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_30;	// @[single_cycle/src/Regfile.scala:27:21]
+  reg [31:0] regs_31;	// @[single_cycle/src/Regfile.scala:27:21]
+  always_comb begin	// @[single_cycle/src/Regfile.scala:35:{18,35,44}]
+    casez (readreg1)	// @[single_cycle/src/Regfile.scala:35:{18,35,44}]
+      5'b00000:
+        casez_tmp = 32'h0;	// @[single_cycle/src/Regfile.scala:27:29, :35:{18,35,44}]
+      5'b00001:
+        casez_tmp = regs_1;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00010:
+        casez_tmp = regs_2;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00011:
+        casez_tmp = regs_3;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00100:
+        casez_tmp = regs_4;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00101:
+        casez_tmp = regs_5;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00110:
+        casez_tmp = regs_6;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b00111:
+        casez_tmp = regs_7;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01000:
+        casez_tmp = regs_8;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01001:
+        casez_tmp = regs_9;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01010:
+        casez_tmp = regs_10;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01011:
+        casez_tmp = regs_11;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01100:
+        casez_tmp = regs_12;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01101:
+        casez_tmp = regs_13;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01110:
+        casez_tmp = regs_14;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b01111:
+        casez_tmp = regs_15;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10000:
+        casez_tmp = regs_16;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10001:
+        casez_tmp = regs_17;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10010:
+        casez_tmp = regs_18;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10011:
+        casez_tmp = regs_19;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10100:
+        casez_tmp = regs_20;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10101:
+        casez_tmp = regs_21;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10110:
+        casez_tmp = regs_22;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b10111:
+        casez_tmp = regs_23;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11000:
+        casez_tmp = regs_24;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11001:
+        casez_tmp = regs_25;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11010:
+        casez_tmp = regs_26;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11011:
+        casez_tmp = regs_27;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11100:
+        casez_tmp = regs_28;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11101:
+        casez_tmp = regs_29;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      5'b11110:
+        casez_tmp = regs_30;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+      default:
+        casez_tmp = regs_31;	// @[single_cycle/src/Regfile.scala:27:21, :35:{18,35,44}]
+    endcase	// @[single_cycle/src/Regfile.scala:35:{18,35,44}]
+  end // always_comb
+  always @(posedge clock) begin	// @[<stdin>:14:11]
+    if (reset) begin	// @[<stdin>:14:11]
+      regs_1 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_2 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_3 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_4 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_5 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_6 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_7 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_8 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_9 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_10 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_11 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_12 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_13 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_14 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_15 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_16 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_17 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_18 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_19 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_20 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_21 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_22 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_23 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_24 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_25 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_26 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_27 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_28 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_29 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_30 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+      regs_31 <= 32'h0;	// @[single_cycle/src/Regfile.scala:27:{21,29}]
+    end
+    else begin	// @[<stdin>:14:11]
+      if (writereg == 5'h1)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_1 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h2)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_2 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h3)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_3 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h4)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_4 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h5)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_5 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h6)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_6 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h7)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_7 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h8)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_8 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h9)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_9 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hA)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_10 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hB)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_11 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hC)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_12 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hD)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_13 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hE)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_14 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'hF)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_15 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h10)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_16 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h11)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_17 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h12)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_18 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h13)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_19 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h14)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_20 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h15)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_21 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h16)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_22 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h17)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_23 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h18)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_24 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h19)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_25 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h1A)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_26 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h1B)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_27 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h1C)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_28 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h1D)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_29 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (writereg == 5'h1E)	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:33:32]
+        regs_30 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+      if (&writereg)	// @[single_cycle/src/Regfile.scala:33:32]
+        regs_31 <= data;	// @[single_cycle/src/Regfile.scala:27:21]
+    end
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// @[<stdin>:3:10]
-    `ifdef FIRRTL_BEFORE_INITIAL	// @[<stdin>:3:10]
-      `FIRRTL_BEFORE_INITIAL	// @[<stdin>:3:10]
+  `ifdef ENABLE_INITIAL_REG_	// @[<stdin>:13:10]
+    `ifdef FIRRTL_BEFORE_INITIAL	// @[<stdin>:13:10]
+      `FIRRTL_BEFORE_INITIAL	// @[<stdin>:13:10]
     `endif // FIRRTL_BEFORE_INITIAL
-    logic [31:0] _RANDOM[0:0];	// @[<stdin>:3:10]
-    initial begin	// @[<stdin>:3:10]
-      `ifdef INIT_RANDOM_PROLOG_	// @[<stdin>:3:10]
-        `INIT_RANDOM_PROLOG_	// @[<stdin>:3:10]
+    logic [31:0] _RANDOM[0:31];	// @[<stdin>:13:10]
+    initial begin	// @[<stdin>:13:10]
+      `ifdef INIT_RANDOM_PROLOG_	// @[<stdin>:13:10]
+        `INIT_RANDOM_PROLOG_	// @[<stdin>:13:10]
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// @[<stdin>:3:10]
-        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// @[<stdin>:3:10]
-        pc_REG = _RANDOM[/*Zero width*/ 1'b0];	// @[<stdin>:3:10, single_cycle/src/top.scala:10:19]
+      `ifdef RANDOMIZE_REG_INIT	// @[<stdin>:13:10]
+        for (logic [5:0] i = 6'h0; i < 6'h20; i += 6'h1) begin
+          _RANDOM[i[4:0]] = `RANDOM;	// @[<stdin>:13:10]
+        end	// @[<stdin>:13:10]
+        regs_1 = _RANDOM[5'h1];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_2 = _RANDOM[5'h2];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_3 = _RANDOM[5'h3];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_4 = _RANDOM[5'h4];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_5 = _RANDOM[5'h5];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_6 = _RANDOM[5'h6];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_7 = _RANDOM[5'h7];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_8 = _RANDOM[5'h8];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_9 = _RANDOM[5'h9];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_10 = _RANDOM[5'hA];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_11 = _RANDOM[5'hB];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_12 = _RANDOM[5'hC];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_13 = _RANDOM[5'hD];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_14 = _RANDOM[5'hE];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_15 = _RANDOM[5'hF];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_16 = _RANDOM[5'h10];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_17 = _RANDOM[5'h11];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_18 = _RANDOM[5'h12];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_19 = _RANDOM[5'h13];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_20 = _RANDOM[5'h14];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_21 = _RANDOM[5'h15];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_22 = _RANDOM[5'h16];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_23 = _RANDOM[5'h17];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_24 = _RANDOM[5'h18];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_25 = _RANDOM[5'h19];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_26 = _RANDOM[5'h1A];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_27 = _RANDOM[5'h1B];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_28 = _RANDOM[5'h1C];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_29 = _RANDOM[5'h1D];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_30 = _RANDOM[5'h1E];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+        regs_31 = _RANDOM[5'h1F];	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:3:10]
-      `FIRRTL_AFTER_INITIAL	// @[<stdin>:3:10]
+    `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:13:10]
+      `FIRRTL_AFTER_INITIAL	// @[<stdin>:13:10]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
-  assign pc = pc_REG;	// @[<stdin>:3:10, single_cycle/src/top.scala:10:19]
+  assign rs1 = casez_tmp;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:35:{35,44}]
+  assign x1 = regs_1;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x2 = regs_2;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x5 = regs_5;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x6 = regs_6;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x7 = regs_7;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x8 = regs_8;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x9 = regs_9;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+  assign x10 = regs_10;	// @[<stdin>:13:10, single_cycle/src/Regfile.scala:27:21]
+endmodule
+
+module adder(	// @[<stdin>:448:10]
+  input  [31:0] io_A,	// @[single_cycle/src/ALU.scala:72:14]
+                io_B,	// @[single_cycle/src/ALU.scala:72:14]
+  output [31:0] result	// @[single_cycle/src/ALU.scala:72:14]
+);
+
+  assign result = io_A + io_B;	// @[<stdin>:448:10, single_cycle/src/ALU.scala:85:68]
+endmodule
+
+module ALU(	// @[<stdin>:520:10]
+  input  [31:0] io_A,	// @[single_cycle/src/ALU.scala:6:14]
+                io_B,	// @[single_cycle/src/ALU.scala:6:14]
+  output [31:0] res	// @[single_cycle/src/ALU.scala:6:14]
+);
+
+  adder add (	// @[single_cycle/src/ALU.scala:18:25]
+    .io_A      (io_A),
+    .io_B      (io_B),
+    .result (res)
+  );
+endmodule
+
+module ImmGen(	// @[<stdin>:683:10]
+  input  [31:0] inst,	// @[single_cycle/src/ImmGen.scala:5:16]
+  output [31:0] imm	// @[single_cycle/src/ImmGen.scala:5:16]
+);
+
+  assign imm = {20'h0, inst[31:20]};	// @[<stdin>:683:10, single_cycle/src/ImmGen.scala:11:12, :12:39]
+endmodule
+
+module top(	// @[<stdin>:693:10]
+  input         clock,	// @[<stdin>:694:11]
+                reset,	// @[<stdin>:695:11]
+  input  [31:0] inst,	// @[single_cycle/src/CPU.scala:5:14]
+  output [31:0] pc,	// @[single_cycle/src/CPU.scala:5:14]
+                x1,	// @[single_cycle/src/CPU.scala:5:14]
+                x2,	// @[single_cycle/src/CPU.scala:5:14]
+                x5,	// @[single_cycle/src/CPU.scala:5:14]
+                x6,	// @[single_cycle/src/CPU.scala:5:14]
+                x7,	// @[single_cycle/src/CPU.scala:5:14]
+                x8,	// @[single_cycle/src/CPU.scala:5:14]
+                x9,	// @[single_cycle/src/CPU.scala:5:14]
+                x10,	// @[single_cycle/src/CPU.scala:5:14]
+                test_alu_res	// @[single_cycle/src/CPU.scala:5:14]
+);
+
+  wire [31:0] _immgen_imm;	// @[single_cycle/src/CPU.scala:25:25]
+  wire [31:0] _alu_res;	// @[single_cycle/src/CPU.scala:24:25]
+  wire [31:0] _regfile_rs1;	// @[single_cycle/src/CPU.scala:23:25]
+  reg  [31:0] pc_REG;	// @[single_cycle/src/CPU.scala:21:19]
+  always @(posedge clock) begin	// @[<stdin>:694:11]
+    if (reset)	// @[<stdin>:694:11]
+      pc_REG <= 32'h80000000;	// @[single_cycle/src/CPU.scala:21:19]
+    else	// @[<stdin>:694:11]
+      pc_REG <= pc_REG + 32'h4;	// @[single_cycle/src/CPU.scala:21:{19,26}]
+  end // always @(posedge)
+  `ifdef ENABLE_INITIAL_REG_	// @[<stdin>:693:10]
+    `ifdef FIRRTL_BEFORE_INITIAL	// @[<stdin>:693:10]
+      `FIRRTL_BEFORE_INITIAL	// @[<stdin>:693:10]
+    `endif // FIRRTL_BEFORE_INITIAL
+    logic [31:0] _RANDOM[0:0];	// @[<stdin>:693:10]
+    initial begin	// @[<stdin>:693:10]
+      `ifdef INIT_RANDOM_PROLOG_	// @[<stdin>:693:10]
+        `INIT_RANDOM_PROLOG_	// @[<stdin>:693:10]
+      `endif // INIT_RANDOM_PROLOG_
+      `ifdef RANDOMIZE_REG_INIT	// @[<stdin>:693:10]
+        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// @[<stdin>:693:10]
+        pc_REG = _RANDOM[/*Zero width*/ 1'b0];	// @[<stdin>:693:10, single_cycle/src/CPU.scala:21:19]
+      `endif // RANDOMIZE_REG_INIT
+    end // initial
+    `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:693:10]
+      `FIRRTL_AFTER_INITIAL	// @[<stdin>:693:10]
+    `endif // FIRRTL_AFTER_INITIAL
+  `endif // ENABLE_INITIAL_REG_
+  Regfile regfile (	// @[single_cycle/src/CPU.scala:23:25]
+    .clock       (clock),
+    .reset       (reset),
+    .readreg1 (inst[19:15]),	// @[single_cycle/src/CPU.scala:29:33]
+    .writereg (inst[11:7]),	// @[single_cycle/src/CPU.scala:31:33]
+    .data     (_alu_res),	// @[single_cycle/src/CPU.scala:24:25]
+    .rs1      (_regfile_rs1),
+    .x1       (x1),
+    .x2       (x2),
+    .x5       (x5),
+    .x6       (x6),
+    .x7       (x7),
+    .x8       (x8),
+    .x9       (x9),
+    .x10      (x10)
+  );
+  ALU alu (	// @[single_cycle/src/CPU.scala:24:25]
+    .io_A   (_regfile_rs1),	// @[single_cycle/src/CPU.scala:23:25]
+    .io_B   (_immgen_imm),	// @[single_cycle/src/CPU.scala:25:25]
+    .res (_alu_res)
+  );
+  ImmGen immgen (	// @[single_cycle/src/CPU.scala:25:25]
+    .inst (inst),
+    .imm  (_immgen_imm)
+  );
+  assign pc = pc_REG;	// @[<stdin>:693:10, single_cycle/src/CPU.scala:21:19]
+  assign test_alu_res = _alu_res;	// @[<stdin>:693:10, single_cycle/src/CPU.scala:24:25]
 endmodule
 

@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class CPU(width: Int = 32) extends Module {
+class top(width: Int = 32) extends Module {
   val io = IO(new Bundle {
     val pc   = Output(UInt(width.W))
     val inst = Input(UInt(width.W))

@@ -1,8 +1,7 @@
-
 import chisel3._
 import chisel3.util._
 
-class ImmGen(width: Int) extends Module {
+class ImmGen(width: Int = 32) extends Module {
     val io = IO(new Bundle {
         val inst = Input(UInt(width.W))
         val immsel = Input(UInt(6.W))

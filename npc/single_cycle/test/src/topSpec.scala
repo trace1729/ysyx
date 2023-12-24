@@ -134,6 +134,38 @@ object topSpec extends ChiselUtestTester {
             dut.io.res.expect(0.U)
         }
       }
+      test("immGen") {
+        testCircuit(new ImmGen(32)) {
+          dut =>
+            dut.io.immsel.poke(0)
+            dut.io.inst.poke("b00000000000100000000001010010011".asUInt)
+            dut.io.imm.expect(1)
+            dut.io.inst.poke("b00000010101000000000001010010011".asUInt)
+            dut.io.imm.expect(42)
+            dut.io.inst.poke("b00010000000000000000001010010011".asUInt)
+            dut.io.imm.expect(256)
+            dut.io.inst.poke("b01111111111100000000001010010011".asUInt)
+            dut.io.imm.expect(2047)
+        }
+      }
+      test("data-path-addi") {
+        testCircuit(new CPU) {
+          dut =>
+            dut.io.inst.poke("b00000000000100000000001010010011".asUInt)
+            dut.io.test_alu_res.expect(1)
+            dut.clock.step(1)
+            dut.io.x5.expect(1)
+            dut.io.inst.poke("b00000010101000000000001010010011".asUInt)
+            dut.clock.step(1)
+            dut.io.x5.expect(42)
+            dut.io.inst.poke("b00010000000000000000001010010011".asUInt)
+            dut.clock.step(1)
+            dut.io.x5.expect(256)
+            dut.io.inst.poke("b01111111111100000000001010010011".asUInt)
+            dut.clock.step(1)
+            dut.io.x5.expect(2047)
+        }
+      }
     }
   }
 }

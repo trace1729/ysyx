@@ -1,7 +1,7 @@
 import chisel3._
 import chisel3.util._
 
-class ALU(width: Int) extends Module {
+class ALU(width: Int = 32) extends Module {
 
   val io = IO(new Bundle {
     val alusel   = Input(UInt(4.W))
@@ -68,7 +68,7 @@ class ALU(width: Int) extends Module {
 
 }
 
-class adder(width: Int) extends Module {
+class adder(width: Int = 32) extends Module {
   val io = IO(new Bundle {
     val A        = Input(UInt(width.W))
     val B        = Input(UInt(width.W))

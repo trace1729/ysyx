@@ -56,3 +56,6 @@ object lab6 extends config {
 object lab7 extends config {
 
 }
+object single_cycle extends config {
+
+}

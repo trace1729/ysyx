@@ -357,9 +357,11 @@ module ImmGen(	// @[<stdin>:683:10]
   assign imm = {20'h0, inst[31:20]};	// @[<stdin>:683:10, single_cycle/src/ImmGen.scala:11:12, :12:39]
 endmodule
 
-module top(	// @[<stdin>:693:10]
-  input         clock,	// @[<stdin>:694:11]
-                reset,	// @[<stdin>:695:11]
+// external module BlackBoxRealAdd
+
+module top(	// @[<stdin>:697:10]
+  input         clock,	// @[<stdin>:698:11]
+                reset,	// @[<stdin>:699:11]
   input  [31:0] inst,	// @[single_cycle/src/CPU.scala:5:14]
   output [31:0] pc,	// @[single_cycle/src/CPU.scala:5:14]
                 x1,	// @[single_cycle/src/CPU.scala:5:14]
@@ -377,28 +379,28 @@ module top(	// @[<stdin>:693:10]
   wire [31:0] _alu_res;	// @[single_cycle/src/CPU.scala:24:25]
   wire [31:0] _regfile_rs1;	// @[single_cycle/src/CPU.scala:23:25]
   reg  [31:0] pc_REG;	// @[single_cycle/src/CPU.scala:21:19]
-  always @(posedge clock) begin	// @[<stdin>:694:11]
-    if (reset)	// @[<stdin>:694:11]
+  always @(posedge clock) begin	// @[<stdin>:698:11]
+    if (reset)	// @[<stdin>:698:11]
       pc_REG <= 32'h80000000;	// @[single_cycle/src/CPU.scala:21:19]
-    else	// @[<stdin>:694:11]
+    else	// @[<stdin>:698:11]
       pc_REG <= pc_REG + 32'h4;	// @[single_cycle/src/CPU.scala:21:{19,26}]
   end // always @(posedge)
-  `ifdef ENABLE_INITIAL_REG_	// @[<stdin>:693:10]
-    `ifdef FIRRTL_BEFORE_INITIAL	// @[<stdin>:693:10]
-      `FIRRTL_BEFORE_INITIAL	// @[<stdin>:693:10]
+  `ifdef ENABLE_INITIAL_REG_	// @[<stdin>:697:10]
+    `ifdef FIRRTL_BEFORE_INITIAL	// @[<stdin>:697:10]
+      `FIRRTL_BEFORE_INITIAL	// @[<stdin>:697:10]
     `endif // FIRRTL_BEFORE_INITIAL
-    logic [31:0] _RANDOM[0:0];	// @[<stdin>:693:10]
-    initial begin	// @[<stdin>:693:10]
-      `ifdef INIT_RANDOM_PROLOG_	// @[<stdin>:693:10]
-        `INIT_RANDOM_PROLOG_	// @[<stdin>:693:10]
+    logic [31:0] _RANDOM[0:0];	// @[<stdin>:697:10]
+    initial begin	// @[<stdin>:697:10]
+      `ifdef INIT_RANDOM_PROLOG_	// @[<stdin>:697:10]
+        `INIT_RANDOM_PROLOG_	// @[<stdin>:697:10]
       `endif // INIT_RANDOM_PROLOG_
-      `ifdef RANDOMIZE_REG_INIT	// @[<stdin>:693:10]
-        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// @[<stdin>:693:10]
-        pc_REG = _RANDOM[/*Zero width*/ 1'b0];	// @[<stdin>:693:10, single_cycle/src/CPU.scala:21:19]
+      `ifdef RANDOMIZE_REG_INIT	// @[<stdin>:697:10]
+        _RANDOM[/*Zero width*/ 1'b0] = `RANDOM;	// @[<stdin>:697:10]
+        pc_REG = _RANDOM[/*Zero width*/ 1'b0];	// @[<stdin>:697:10, single_cycle/src/CPU.scala:21:19]
       `endif // RANDOMIZE_REG_INIT
     end // initial
-    `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:693:10]
-      `FIRRTL_AFTER_INITIAL	// @[<stdin>:693:10]
+    `ifdef FIRRTL_AFTER_INITIAL	// @[<stdin>:697:10]
+      `FIRRTL_AFTER_INITIAL	// @[<stdin>:697:10]
     `endif // FIRRTL_AFTER_INITIAL
   `endif // ENABLE_INITIAL_REG_
   Regfile regfile (	// @[single_cycle/src/CPU.scala:23:25]
@@ -426,7 +428,29 @@ module top(	// @[<stdin>:693:10]
     .inst (inst),
     .imm  (_immgen_imm)
   );
-  assign pc = pc_REG;	// @[<stdin>:693:10, single_cycle/src/CPU.scala:21:19]
-  assign test_alu_res = _alu_res;	// @[<stdin>:693:10, single_cycle/src/CPU.scala:24:25]
+  BlackBoxRealAdd stop (	// @[single_cycle/src/CPU.scala:53:20]
+    .inst (inst)
+  );
+  assign pc = pc_REG;	// @[<stdin>:697:10, single_cycle/src/CPU.scala:21:19]
+  assign test_alu_res = _alu_res;	// @[<stdin>:697:10, single_cycle/src/CPU.scala:24:25]
 endmodule
 
+
+// ----- 8< ----- FILE "./halt_handler.v" ----- 8< -----
+
+import "DPI-C" function void stop();
+
+module BlackBoxRealAdd(
+    input  [31:0] inst
+);
+  always @(*) begin
+    if (inst == 32'h00100073) begin
+      stop();
+    end
+
+  end
+endmodule
+
+// ----- 8< ----- FILE "firrtl_black_box_resource_files.f" ----- 8< -----
+
+//halt_handler.v

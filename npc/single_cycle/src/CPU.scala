@@ -50,6 +50,15 @@ class top(width: Int = 32) extends Module {
   immgen.io.inst   := io.inst
   immgen.io.immsel := cntlLogic.io.immsel
 
+  val stop = Module(new BlackBoxRealAdd)
+  stop.io.inst := io.inst
+}
+
+class BlackBoxRealAdd extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val inst = Input(UInt(32.W))
+  })
+  addResource("/halt_handler.v")
 }
 
 object top {

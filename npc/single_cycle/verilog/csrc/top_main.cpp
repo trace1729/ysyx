@@ -4,7 +4,7 @@
 #include <memory>
 
 #include "Vtop.h"
-#include "memory/paddr.h"
+#include "memory/vaddr.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h" //可选，如果要导出vcd则需要加上
 
@@ -42,7 +42,7 @@ int main(int argc, char** argv, char** env) {
 
     if (!top->clock) {
       printf("0x%x", top->pc);
-      top->inst = paddr_read(top->pc, 4);
+      top->inst = vaddr_ifetch(top->pc, 4);
       printf(" 0x%x\n", top->inst);
     }
 

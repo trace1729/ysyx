@@ -146,6 +146,8 @@ object topSpec extends ChiselUtestTester {
             dut.io.imm.expect(256)
             dut.io.inst.poke("b01111111111100000000001010010011".asUInt)
             dut.io.imm.expect(2047)
+            dut.io.inst.poke("b11111111111100000000001010010011".asUInt)
+            dut.io.imm.expect(int2uint(-1))
         }
       }
       test("data-path-addi") {

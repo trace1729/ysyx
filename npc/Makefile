@@ -2,6 +2,7 @@ BUILD_DIR = ./build
 TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
+IMG ?=
 
 test:
 	mill -i __.test
@@ -33,7 +34,7 @@ clean:
 sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	@sed -E -e 's/io_([A-Za-z0-9])/\1/g' -e '$$s+(.*)+// \1+g' $(BUILD_DIR)/top.v > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
-	make -C $(NPC_HOME)/$(TARGET)/verilog run
+	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
 
 debug:
 	echo '$2'

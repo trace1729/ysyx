@@ -40,8 +40,13 @@ $(BIN): $(VSRCS) $(CSRCS)
 
 build: $(BIN)
 
+override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
+override ARGS += $(ARGS_DIFF)
+
+NPC_EXEC := $(BIN) $(ARGS) $(IMG)
+
 run: build
-	@$(BIN)
+	$(NPC_EXEC)
 #    @gtkwave wave.vcd
 
 clean:

@@ -4,52 +4,22 @@
 #include <memory>
 
 #include "Vtop.h"
+#include "memory/paddr.h"
 #include "verilated.h"
 #include "verilated_vcd_c.h" //可选，如果要导出vcd则需要加上
 
 #define BASE 0x80000000
 
-uint8_t program[4000] = {};
-
+void init_monitor();
 volatile bool end = false;
-
 extern "C" void stop() 
 {
   end = true;
 }
 
-// uint32_t paddr_read(uint32_t pc) {
-//   return npc_mem[(pc - BASE) / 4];
-// } 
-
-const char* img_file;
-
-static long load_img() {
-  img_file = getenv("IMG");
-  if (img_file == NULL) {
-    printf("No image is given. Use the default build-in image.\n");
-    return 4096; // built-in image size
-  }
-
-  FILE *fp = fopen(img_file, "rb");
-  // Assert(fp, "Can not open '%s'", img_file);
-
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
-
-  printf("The image is %s, size = %ld\n", img_file, size);
-
-  fseek(fp, 0, SEEK_SET);
-  int ret = fread(program, size, 1, fp);
-  assert(ret == 1);
-
-  fclose(fp);
-  return size;
-}
-
 int main(int argc, char** argv, char** env) {
  
-  load_img();
+  init_monitor();
   Verilated::commandArgs(argc, argv);
   const auto contextp = std::make_unique<VerilatedContext>();
   const auto top = std::make_unique<Vtop>(contextp.get());
@@ -72,7 +42,7 @@ int main(int argc, char** argv, char** env) {
 
     if (!top->clock) {
       printf("0x%x", top->pc);
-      top->inst = *(uint32_t *)(program + top->pc - BASE);
+      top->inst = paddr_read(top->pc, 4);
       printf(" 0x%x\n", top->inst);
     }
 

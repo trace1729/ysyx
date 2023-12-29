@@ -1,3 +1,4 @@
+# version control
 include ../../../../ysyx-workbench/Makefile
 
 TOPNAME = top
@@ -13,12 +14,14 @@ VERILATOR_CFLAGS += -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace
 
 # build
-BUILD_DIR = ./build
+WORK_DIR = $(shell pwd)
+BUILD_DIR = $(WORK_DIR)/build
 OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(OBJ_DIR)/$(TOPNAME)
 $(shell mkdir -p $(BUILD_DIR))
 
 # for cpp header files
+INC_PATH += $(WORK_DIR)/include
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
@@ -38,7 +41,7 @@ $(BIN): $(VSRCS) $(CSRCS)
 build: $(BIN)
 
 run: build
-	@./$(BIN)
+	@$(BIN)
 #    @gtkwave wave.vcd
 
 clean:

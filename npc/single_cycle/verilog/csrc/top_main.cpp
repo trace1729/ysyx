@@ -10,7 +10,7 @@
 
 #define BASE 0x80000000
 
-void init_monitor();
+void init_monitor(int argc, char* argv[]);
 volatile bool end = false;
 extern "C" void stop() 
 {
@@ -19,7 +19,7 @@ extern "C" void stop()
 
 int main(int argc, char** argv, char** env) {
  
-  init_monitor();
+  init_monitor(argc, argv);
   Verilated::commandArgs(argc, argv);
   const auto contextp = std::make_unique<VerilatedContext>();
   const auto top = std::make_unique<Vtop>(contextp.get());

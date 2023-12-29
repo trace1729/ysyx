@@ -22,6 +22,10 @@ $(shell mkdir -p $(BUILD_DIR))
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
+# for debugging
+CXXFLAGS += -ggdb -DVL_DEBUG=1 -D_GLIBCXX_DEBUG
+LDFLAGS += -ggdb
+
 # default: run
 $(BIN): $(VSRCS) $(CSRCS)
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
@@ -31,7 +35,9 @@ $(BIN): $(VSRCS) $(CSRCS)
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
 
-run: $(BIN)
+build: $(BIN)
+
+run: build
 	@./$(BIN)
 #    @gtkwave wave.vcd
 

@@ -13,3 +13,7 @@ void assert_fail_msg() {
   statistic();
 }
 
+void cpu_exec(uint64_t n) {
+  printf("n=%lu, Sorry, instruction exection not implemented yet\n", n);
+}
+

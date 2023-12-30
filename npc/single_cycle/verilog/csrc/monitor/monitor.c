@@ -24,7 +24,7 @@ void init_log(const char *log_file);
 /* void init_elf(const char *elf_file); */
 /* void init_mem(); */
 /* void init_difftest(char *ref_so_file, long img_size, int port); */
-/* void init_sdb(); */
+void init_sdb();
 /* void init_disasm(const char *triple); */
 
 static long load_img() {
@@ -87,5 +87,6 @@ void init_monitor(int argc, char* argv[])
   parse_args(argc, argv);
   init_log(log_file);
   load_img();
+  init_sdb();
   welcome();
 }

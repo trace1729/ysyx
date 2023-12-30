@@ -8,9 +8,9 @@
 #include "verilated.h"
 #include "verilated_vcd_c.h" //可选，如果要导出vcd则需要加上
 
-#define BASE 0x80000000
 
 void init_monitor(int argc, char* argv[]);
+void sdb_mainloop();
 volatile bool end = false;
 extern "C" void stop() 
 {
@@ -20,6 +20,7 @@ extern "C" void stop()
 int main(int argc, char** argv, char** env) {
  
   init_monitor(argc, argv);
+  sdb_mainloop();
   Verilated::commandArgs(argc, argv);
   const auto contextp = std::make_unique<VerilatedContext>();
   const auto top = std::make_unique<Vtop>(contextp.get());

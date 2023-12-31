@@ -20,6 +20,24 @@
 // #include <isa-def.h>
 #include <common.h>
 
+typedef struct {
+  union {
+    uint32_t val;
+  } inst;
+} ISADecodeInfo;
+
+typedef struct Decode {
+  vaddr_t pc;
+  vaddr_t snpc; // static next pc
+  vaddr_t dnpc; // dynamic next pc
+  ISADecodeInfo isa;
+  IFDEF(CONFIG_ITRACE, char logbuf[128]);
+} Decode;
+typedef struct {
+  word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
+  vaddr_t pc;
+} CPU_state;
+
 // The macro `__GUEST_ISA__` is defined in $(CFLAGS).
 // It will be expanded as "x86" or "mips32" ...
 // typedef concat(__GUEST_ISA__, _CPU_state) CPU_state;
@@ -30,13 +48,13 @@ extern unsigned char isa_logo[];
 void init_isa();
 
 // reg
-// extern CPU_state cpu;
+extern CPU_state cpu; // define in cpu-exec.c
 void isa_reg_display();
 word_t isa_reg_str2val(const char *name, bool *success);
 
 // // exec
 // struct Decode;
-// int isa_exec_once(struct Decode *s);
+int isa_exec_once(struct Decode *s);
 //
 // // memory
 // enum { MMU_DIRECT, MMU_TRANSLATE, MMU_FAIL };

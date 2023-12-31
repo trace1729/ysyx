@@ -1,4 +1,5 @@
 #include <memory/paddr.h>
+#include <isa.h>
 #include <getopt.h>
 #include <common.h>
 
@@ -86,6 +87,7 @@ void init_monitor(int argc, char* argv[])
 {
   parse_args(argc, argv);
   init_log(log_file);
+  init_isa();
   load_img();
   init_sdb();
   welcome();

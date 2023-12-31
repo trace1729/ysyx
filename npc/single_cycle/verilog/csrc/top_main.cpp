@@ -12,6 +12,7 @@
 
 void init_monitor(int argc, char* argv[]);
 void sdb_mainloop();
+int is_exit_status_bad();
 volatile bool end = false;
 
 extern "C" void stop() 
@@ -75,12 +76,8 @@ int main(int argc, char** argv, char** env) {
   init_monitor(argc, argv);
   sdb_mainloop();
 
-  if (top->x10 == 0) {
-    printf("Hit Good Trap!\n");
-  } else {
-    printf("Hit bad Trap!\n");
-  }
+  
   top->final();
   
-  return 0;
+  return is_exit_status_bad();
 }

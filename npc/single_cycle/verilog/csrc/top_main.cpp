@@ -17,6 +17,18 @@ extern "C" void stop()
   end = true;
 }
 
+void reset(Vtop* top) {
+  top->reset = 1;
+  top->clock = 0;
+  top->eval();
+  top->clock = 1;
+  top->eval();
+  // 上升沿触发，将初始值赋值给 pc
+  top->reset = 0;
+  top->clock = 0;
+
+}
+
 int main(int argc, char** argv, char** env) {
  
   init_monitor(argc, argv);
@@ -29,15 +41,7 @@ int main(int argc, char** argv, char** env) {
   // top->trace(tfp.get(), 99);
   // tfp->open("wave.vcd");
 
-  top->reset = 1;
-  top->clock = 0;
-  top->eval();
-  top->clock = 1;
-  top->eval();
-  // 上升沿触发，将初始值赋值给 pc
-  top->reset = 0;
-  top->clock = 0;
-
+  reset(top.get());
   while (end == false) {
     contextp->timeInc(1);
 

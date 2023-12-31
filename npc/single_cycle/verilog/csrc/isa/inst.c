@@ -1,27 +1,12 @@
 #include <common.h>
 #include <isa.h>
-#include <verilated.h>
-#include <Vtop.h>
-#include <memory/vaddr.h>
 
+void verilator_exec_once(Decode* s);
 
-extern std::unique_ptr<VerilatedContext> contextp;
-extern std::unique_ptr<Vtop> top;
 
 int isa_exec_once(struct Decode *s) {
-    // printf("Executing instruction not implemented\n");
-    contextp->timeInc(1);
+    verilator_exec_once(s);
 
-    top->clock = 0;
-    printf("0x%x", top->pc);
-    top->inst = vaddr_ifetch(top->pc, 4);
-    printf(" 0x%x\n", top->inst);
-    top->eval();
-    top->clock = 1;
-    top->eval();
-    
-    s->dnpc = top->pc;
-    
     // if (top->clock) {
     //   printf("ra, sp, t0, t1, t2, s0, s1, a0,\
     //   rs1, rs2, \

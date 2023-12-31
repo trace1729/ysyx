@@ -21,7 +21,8 @@ CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(C
 
 # source files
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
+CSRCS = /home/trace/trace/learning/ysyx/ysyx-workbench/npc/single_cycle/verilog/csrc/utils/disasm.cc
+CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 
 # verilator
 VERILATOR = verilator
@@ -40,15 +41,19 @@ INC_PATH += $(WORK_DIR)/include
 INCFLAGS = $(addprefix -I, $(INC_PATH))
 CXXFLAGS += $(INCFLAGS) -DTOP_NAME="\"V$(TOPNAME)\""
 
-# for debugging
-CXXFLAGS += -ggdb -DVL_DEBUG=1 -D_GLIBCXX_DEBUG
-LDFLAGS += -ggdb
+# # for debugging
+# CXXFLAGS += -ggdb -DVL_DEBUG=1 -D_GLIBCXX_DEBUG
+# LDFLAGS += -ggdb
 
 # for itrace
 CXXFLAGS += $(CFLAGS_BUILD) $(CFLAGS_TRACE) -D__GUEST_ISA__=$(GUEST_ISA)
 
+# for llvm disassemble
+CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+
 # for additional lib
 LDFLAGS += -lreadline -ldl -lSDL2
+LDFLAGS += $(shell llvm-config --libs)
 
 # default: run
 $(BIN): $(VSRCS) $(CSRCS)

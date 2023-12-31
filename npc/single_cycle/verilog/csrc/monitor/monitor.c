@@ -26,7 +26,7 @@ void init_log(const char *log_file);
 /* void init_mem(); */
 /* void init_difftest(char *ref_so_file, long img_size, int port); */
 void init_sdb();
-/* void init_disasm(const char *triple); */
+void init_disasm(const char *triple);
 
 static long load_img() {
   if (img_file == NULL) {
@@ -90,5 +90,6 @@ void init_monitor(int argc, char* argv[])
   init_isa();
   load_img();
   init_sdb();
+  init_disasm("riscv32-pc-linux-gnu");
   welcome();
 }

@@ -13,7 +13,6 @@ class ALU(width: Int = 32) extends Module {
     val zero     = Output(Bool())
   })
 
-
   /* 加法器 */
   val add       = Module(new adder(width))
   val adder_res = Wire(UInt(width.W))
@@ -54,7 +53,7 @@ class ALU(width: Int = 32) extends Module {
       (io.alusel === "b0100".asUInt) -> 0.U, // unused
       (io.alusel === "b0101".asUInt) -> shifter_res, // logical r
       (io.alusel === "b0110".asUInt) -> (io.A | io.B),
-      (io.alusel === "b0111".asUInt) -> (io.A & io.B) ,
+      (io.alusel === "b0111".asUInt) -> (io.A & io.B),
       // (io.alusel === "b1000".asUInt) -> ,
       // (io.alusel === "b1001".asUInt) -> ,
       // (io.alusel === "b1010".asUInt) -> ,
@@ -62,7 +61,7 @@ class ALU(width: Int = 32) extends Module {
       (io.alusel === "b1100".asUInt) -> adder_res, // sub
       (io.alusel === "b1101".asUInt) -> shifter_res, // arithmetic r
       (io.alusel === "b1110".asUInt) -> 0.U, // unused
-      (io.alusel === "b1111".asUInt) -> io.B,
+      (io.alusel === "b1111".asUInt) -> io.B
     )
   )
 
@@ -111,5 +110,4 @@ class Shifter(width: Int) extends Module {
 
 }
 
-object ALU {
-}
+object ALU {}

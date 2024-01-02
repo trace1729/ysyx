@@ -21,7 +21,7 @@ CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(C
 
 # source files
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
-CSRCS = /home/trace/trace/learning/ysyx/ysyx-workbench/npc/single_cycle/verilog/csrc/utils/disasm.cc
+CSRCS = $(NPC_HOME)/single_cycle/verilog/csrc/utils/disasm.cc
 CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 
 # verilator

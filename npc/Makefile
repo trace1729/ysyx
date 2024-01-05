@@ -2,7 +2,7 @@ BUILD_DIR = ./build
 TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
-IMG ?=
+IMG ?= /home/trace/trace/learning/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests/build/dummy-riscv32e-npc.mem
 
 test:
 	mill -i __.test
@@ -10,7 +10,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR)
+	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(IMG)
 
 help:
 	mill -i __.test.runMain Elaborate --help
@@ -33,11 +33,10 @@ clean:
 
 sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	@sed -E -e 's/io_([A-Za-z0-9])/\1/g' -e '$$s+(.*)+// \1+g' $(BUILD_DIR)/top.v > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
+	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc/*
+	@tac $(BUILD_DIR)/top.v | sed -E '1,3s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
+	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
-
-debug:
-	echo '$2'
 
 .PHONY: test verilog help compile bsp reformat checkformat clean sim
 

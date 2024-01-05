@@ -110,4 +110,4 @@ class Shifter(width: Int) extends Module {
 
 }
 
-object ALU {}
+

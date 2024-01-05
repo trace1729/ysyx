@@ -20,7 +20,9 @@ image: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
+	@echo + MEMCOPY "->" $(IMAGE_REL).mem
+	@xxd -b $(IMAGE).bin | cut -d ' ' -f 2-7 > $(IMAGE).mem
 
 run: image
-	$(MAKE) -C $(NPC_HOME)/single_cycle/verilog run ARGS="$(NPCFLAGS)" IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" IMG=$(IMAGE).mem
 	

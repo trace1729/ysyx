@@ -1,10 +1,10 @@
 import chisel3._
 import chisel3.util._
 
-class top(width: Int = 32) extends Module {
+class top(width: Int = 32, memoryFile: String="") extends Module {
   val io = IO(new Bundle {
     val pc   = Output(UInt(width.W))
-    val inst = Input(UInt(width.W))
+    val inst = Output(UInt(width.W))
 
     // for testing purpose
     val x1           = Output(UInt(width.W))
@@ -18,16 +18,26 @@ class top(width: Int = 32) extends Module {
     val test_alu_res = Output(UInt(width.W))
   })
 
+  val instMem = Module (new InstMem(memoryFile = memoryFile))
   val cntlLogic = Module(new controlLogic(width))
   val regfile   = Module(new Regfile(width = width))
   val alu       = Module(new ALU(width))
   val immgen    = Module(new ImmGen(width))
+  
 
   val pcvalue = Wire(UInt(32.W))
   pcvalue := Mux(!cntlLogic.io.pcsel, io.pc + top.inst_len, alu.io.res)
   io.pc := RegNext(pcvalue, top.base)
+  
+  instMem.io.pc := io.pc
+  cntlLogic.io.inst := Cat(instMem.io.inst)
+  io.inst := Cat(instMem.io.inst)
 
-  cntlLogic.io.inst := io.inst
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc := io.pc
+  itrace.io.inst := io.inst
+
+  // getInstruction.io.inst := instMem.io.inst
 
   regfile.io.readreg1 := io.inst(19, 15)
   regfile.io.readreg2 := io.inst(24, 20)
@@ -68,4 +78,12 @@ class top(width: Int = 32) extends Module {
 object top {
   val inst_len = 4.U
   val base     = "h80000000".asUInt
+}
+
+class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val pc = Input(UInt(32.W))
+    val inst = Input(UInt(32.W))
+  })
+  addResource("/Dpi_itrace.v")
 }

@@ -33,7 +33,8 @@ clean:
 
 sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
-	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc/*
+	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc
+	mkdir -p $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	@tac $(BUILD_DIR)/top.v | sed -E '1,3s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)

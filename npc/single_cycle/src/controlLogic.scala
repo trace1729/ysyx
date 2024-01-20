@@ -1,6 +1,5 @@
 import chisel3._
 import chisel3.util._
-
 class controlLogic(width: Int = 32) extends Module {
 
   val io = IO(new Bundle {
@@ -15,6 +14,7 @@ class controlLogic(width: Int = 32) extends Module {
     // selecting alu operand1 (readreg2 or imm)
     val bsel   = Output(Bool())
     val alusel = Output(UInt(4.W))
+    val memRW = Output(Bool())
     val WBsel = Output(UInt(3.W))
   })
   // io.writeEn := 1.U
@@ -30,6 +30,8 @@ class controlLogic(width: Int = 32) extends Module {
     (io.inst(6, 0) ===  "b0010011".asUInt) -> type_I,
     // jalr
     (io.inst(6, 0) ===  "b1100111".asUInt) -> type_I,
+    // load 
+    // (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
     (io.inst(6, 0) ===  "b0010111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0110111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0100011".asUInt) -> type_S,
@@ -43,6 +45,7 @@ class controlLogic(width: Int = 32) extends Module {
   io.asel := 0.U
   io.bsel := 0.U
   io.alusel := 0.U
+  io.memRW := 0.U
   io.WBsel := 0.U
 
   // output control logic based on instruction type
@@ -56,8 +59,20 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 0.U
       io.bsel := 1.U
       io.alusel := io.inst(14, 12)  // func3
+      io.memRW := 0.U
       io.WBsel := io.inst(5)
-    }
+    } 
+    // // (lw) alures = rs1 (0) + imm (1); R[rd] = Mr(alures) (1); pc = pc + 4 (0)
+    // is (type_IL) {
+    //   io.pcsel := 0.U
+    //   io.writeEn := 1.U
+    //   io.immsel := 0.U
+    //   io.asel := 0.U
+    //   io.bsel := 1.U
+    //   io.alusel := 0.U
+    //   io.memRW := 0.U
+    //   io.WBsel := 2.U
+    // }
     // auipc: alures = pc + imm << 12; R[rd] = alusel
     // lui:   alures = imm << 12; R[rd] = alusel
     is (type_U) {
@@ -67,10 +82,19 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 1.U
       io.bsel := 1.U
       io.alusel := 0.U(4.W) ^ Cat(Seq.fill(4)(io.inst(5)))
+      io.memRW := 0.U
       io.WBsel := 0.U
     }
+    // sw: alures = rs1 (0) + imm (1); Mr[alures] = rs2 (2); pc = pc + 4
     is (type_S) {
-      
+      io.pcsel := 0.U
+      io.writeEn := 0.U
+      io.immsel := 2.U
+      io.asel := 0.U
+      io.bsel := 1.U
+      io.alusel := 0.U
+      io.memRW := 1.U
+      io.WBsel := 0.U
     }
     // alures = pc (1) + imm (1); R[rd] = pc + 4; pc = alures (1)
     is(type_J) {
@@ -79,7 +103,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.immsel := 3.U
       io.asel := 1.U 
       io.bsel := 1.U 
-      io.alusel := 0.U 
+      io.alusel := 0.U
+      io.memRW := 0.U
       io.WBsel := 1.U 
     }
   }

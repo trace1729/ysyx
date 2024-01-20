@@ -26,17 +26,16 @@ void set_nemu_state(int state, vaddr_t pc, int halt_ret) {
 }
 
 __attribute__((noinline))
-void invalid_inst(vaddr_t thispc) {
-  uint32_t temp[2];
+void invalid_inst(vaddr_t thispc, uint32_t inst) {
+  uint32_t temp[1];
   vaddr_t pc = thispc;
-  temp[0] = inst_fetch(&pc, 4);
-  temp[1] = inst_fetch(&pc, 4);
+  temp[0] = inst;
 
   uint8_t *p = (uint8_t *)temp;
   printf("invalid opcode(PC = " FMT_WORD "):\n"
-      "\t%02x %02x %02x %02x %02x %02x %02x %02x ...\n"
-      "\t%08x %08x...\n",
-      thispc, p[0], p[1], p[2], p[3], p[4], p[5], p[6], p[7], temp[0], temp[1]);
+      "\tbyte: %02x %02x %02x %02x...\n"
+      "\thex : %08x...\n",
+      thispc, p[0], p[1], p[2], p[3], temp[0]);
 
   printf("There are two cases which will trigger this unexpected exception:\n"
       "1. The instruction at PC = " FMT_WORD " is not implemented.\n"

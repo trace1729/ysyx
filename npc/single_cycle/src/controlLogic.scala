@@ -1,5 +1,7 @@
 import chisel3._
 import chisel3.util._
+import config.Config._
+
 class controlLogic(width: Int = 32) extends Module {
 
   val io = IO(new Bundle {
@@ -22,16 +24,15 @@ class controlLogic(width: Int = 32) extends Module {
   // io.bsel    := 0.U
   // io.alusel  := 0.U
   
-  val optype = Wire(UInt(3.W))
+  val optype = Wire(UInt(4.W))
   // 定义指令类型
-  val type_I :: type_IS :: type_U :: type_S :: type_J :: type_R :: type_B :: type_N :: Nil = Enum(8)
 
   optype := MuxCase(type_N, Seq(
     (io.inst(6, 0) ===  "b0010011".asUInt) -> type_I,
     // jalr
     (io.inst(6, 0) ===  "b1100111".asUInt) -> type_I,
     // load 
-    // (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
+    (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
     (io.inst(6, 0) ===  "b0010111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0110111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0100011".asUInt) -> type_S,
@@ -55,7 +56,7 @@ class controlLogic(width: Int = 32) extends Module {
     is (type_I) { 
       io.pcsel := io.inst(5)
       io.writeEn := 1.U
-      io.immsel := 0.U
+      io.immsel := type_I
       io.asel := 0.U
       io.bsel := 1.U
       io.alusel := io.inst(14, 12)  // func3
@@ -63,22 +64,22 @@ class controlLogic(width: Int = 32) extends Module {
       io.WBsel := io.inst(5)
     } 
     // // (lw) alures = rs1 (0) + imm (1); R[rd] = Mr(alures) (1); pc = pc + 4 (0)
-    // is (type_IL) {
-    //   io.pcsel := 0.U
-    //   io.writeEn := 1.U
-    //   io.immsel := 0.U
-    //   io.asel := 0.U
-    //   io.bsel := 1.U
-    //   io.alusel := 0.U
-    //   io.memRW := 0.U
-    //   io.WBsel := 2.U
-    // }
+    is (type_IL) {
+      io.pcsel := 0.U
+      io.writeEn := 1.U
+      io.immsel := type_I
+      io.asel := 0.U
+      io.bsel := 1.U
+      io.alusel := 0.U
+      io.memRW := 0.U
+      io.WBsel := 2.U
+    }
     // auipc: alures = pc + imm << 12; R[rd] = alusel
     // lui:   alures = imm << 12; R[rd] = alusel
     is (type_U) {
       io.pcsel := 0.U
       io.writeEn := 1.U
-      io.immsel  := 1.U
+      io.immsel  := type_U
       io.asel := 1.U
       io.bsel := 1.U
       io.alusel := 0.U(4.W) ^ Cat(Seq.fill(4)(io.inst(5)))
@@ -89,7 +90,7 @@ class controlLogic(width: Int = 32) extends Module {
     is (type_S) {
       io.pcsel := 0.U
       io.writeEn := 0.U
-      io.immsel := 2.U
+      io.immsel := type_S
       io.asel := 0.U
       io.bsel := 1.U
       io.alusel := 0.U
@@ -100,7 +101,7 @@ class controlLogic(width: Int = 32) extends Module {
     is(type_J) {
       io.pcsel := 1.U
       io.writeEn := 1.U 
-      io.immsel := 3.U
+      io.immsel := type_J
       io.asel := 1.U 
       io.bsel := 1.U 
       io.alusel := 0.U

@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import config.Config._
 
 class ImmGen(width: Int = 32) extends Module {
 
@@ -16,13 +17,13 @@ class ImmGen(width: Int = 32) extends Module {
     // sign-extending
     sign_imm := MuxCase(0.S, Seq(
         // I
-        (io.immsel === 0.U) -> io.inst(31, 20).asSInt,
+        (io.immsel === type_I) -> io.inst(31, 20).asSInt,
         // U
-        (io.immsel === 1.U) -> Cat(io.inst(31, 12), padding(12)).asSInt,
+        (io.immsel === type_U) -> Cat(io.inst(31, 12), padding(12)).asSInt,
         // S
-        (io.immsel === 2.U) -> Cat(io.inst(31, 25), io.inst(11, 7)).asSInt,
+        (io.immsel === type_S) -> Cat(io.inst(31, 25), io.inst(11, 7)).asSInt,
         // J
-        (io.immsel === 3.U) -> Cat(io.inst(31), io.inst(19, 12), io.inst(20), io.inst(30, 21), padding(1)).asSInt,
+        (io.immsel === type_J) -> Cat(io.inst(31), io.inst(19, 12), io.inst(20), io.inst(30, 21), padding(1)).asSInt,
     ))
 
     io.imm := sign_imm.asUInt

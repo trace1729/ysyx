@@ -6,6 +6,8 @@ class controlLogic(width: Int = 32) extends Module {
 
   val io = IO(new Bundle {
     val inst = Input(UInt(width.W))
+    val rs1 = Input(UInt(width.W))
+    val rs2 = Input(UInt(width.W))
     // selecting pc + 4 (0) or pc + imm (1)
     val pcsel   = Output(Bool())
     val writeEn = Output(Bool())
@@ -24,8 +26,14 @@ class controlLogic(width: Int = 32) extends Module {
   // io.bsel    := 0.U
   // io.alusel  := 0.U
   
-  val optype = Wire(UInt(4.W))
   // 定义指令类型
+  val optype = Wire(UInt(4.W))
+
+  // func3 7
+  val func3 = Wire(UInt(3.W))
+  func3 := io.inst(14,12)
+  val func7 = Wire(UInt(7.W))
+  func7 := io.inst(31, 25)
 
   optype := MuxCase(type_N, Seq(
     (io.inst(6, 0) ===  "b0010011".asUInt) -> type_I,
@@ -33,10 +41,12 @@ class controlLogic(width: Int = 32) extends Module {
     (io.inst(6, 0) ===  "b1100111".asUInt) -> type_I,
     // load 
     (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
+    (io.inst(6, 0) ===  "b0110011".asUInt) -> type_R,
     (io.inst(6, 0) ===  "b0010111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0110111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0100011".asUInt) -> type_S,
     (io.inst(6, 0) ===  "b1101111".asUInt) -> type_J,
+    (io.inst(6, 0) ===  "b1100011".asUInt) -> type_B,
   ))  
 
   // default value
@@ -48,6 +58,12 @@ class controlLogic(width: Int = 32) extends Module {
   io.alusel := 0.U
   io.memRW := 0.U
   io.WBsel := 0.U
+
+  // 比较器
+  val comparator = Module(new Comparator)
+  comparator.io.BrUn := func3(1)
+  comparator.io.rs1 := io.rs1
+  comparator.io.rs2 := io.rs2
 
   // output control logic based on instruction type
   switch(optype) {
@@ -63,7 +79,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.memRW := 0.U
       io.WBsel := io.inst(5)
     } 
-    // // (lw) alures = rs1 (0) + imm (1); R[rd] = Mr(alures) (1); pc = pc + 4 (0)
+    // (lw) alures = rs1 (0) + imm (1); R[rd] = Mr(alures) (2); pc = pc + 4 (0)
     is (type_IL) {
       io.pcsel := 0.U
       io.writeEn := 1.U
@@ -73,6 +89,29 @@ class controlLogic(width: Int = 32) extends Module {
       io.alusel := 0.U
       io.memRW := 0.U
       io.WBsel := 2.U
+    }
+    is (type_IS) {
+      io.pcsel := 0.U
+      io.writeEn := 1.U
+      io.immsel := type_IS
+      io.asel := 0.U
+      io.bsel := 1.U
+      io.alusel := Cat(func7(5), func3)
+      io.memRW := 0.U
+      io.WBsel := 2.U
+    }
+    // (add) alures = rs1(asel=0) operator(func3, func7) rs2(bsel=0); R[rd] = alures (wbsel=0)
+    //   pc = pc + 4 (pcsle = 0)
+    is (type_R) {
+      io.pcsel := 0.U
+      io.writeEn := 1.U
+      io.asel := 0.U
+      io.bsel := 0.U
+      // 指令的 func 域 如果可以和 alu 的选择信号相对应，那么便是极好的
+      // 只有 sub 是特殊的，其他的指令alu选择信号都可以用 func7 和 func3 拼接成
+      io.alusel := Mux((func3 === 0.U) && (func7(5) === 0.U) ,"b1100".U, Cat(func7(0) | func7(5), func3)) // func3
+      io.memRW := 0.U
+      io.WBsel := 0.U
     }
     // auipc: alures = pc + imm << 12; R[rd] = alusel
     // lui:   alures = imm << 12; R[rd] = alusel
@@ -108,6 +147,18 @@ class controlLogic(width: Int = 32) extends Module {
       io.memRW := 0.U
       io.WBsel := 1.U 
     }
+    // Beq alures = pc (1) + imm (1); pc = alures(1) / 4 (0)
+    is (type_B) {
+      // 首先区分是判断 相等还是大小 func3(2) = 0 比较相等
+      io.pcsel := Mux(!func3(2), func3(0) ^ comparator.io.BrEq, func3(0) ^ comparator.io.BrLt)
+      io.writeEn := 0.U 
+      io.immsel := type_B
+      io.asel := 1.U 
+      io.bsel := 1.U 
+      io.alusel := 0.U
+      io.memRW := 0.U
+      io.WBsel := 1.U 
+    }
   }
 
 
@@ -117,6 +168,20 @@ class controlLogic(width: Int = 32) extends Module {
   // 找规律
 
 }
+
+class Comparator extends Module {
+  val io = IO(new Bundle {
+    val BrUn = Input(Bool())
+    val rs1 = Input(UInt(32.W))
+    val rs2 = Input(UInt(32.W))
+    val BrEq = Output(Bool())
+    val BrLt = Output(Bool())
+  })
+  // func3(1) 这一位表示 是无符号比较还是有符号比较
+  io.BrEq := (io.rs1 === io.rs2)
+  // io.BrUn (1 means unsigned) 
+  io.BrLt := Mux(io.BrUn, (io.rs1 < io.rs2), (io.rs1.asSInt < io.rs2.asSInt))
+} 
 
 class BlackBoxRealAdd extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {

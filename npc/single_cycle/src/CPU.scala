@@ -35,6 +35,8 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
   
   instMem.io.pc := io.pc
   cntlLogic.io.inst := Cat(instMem.io.inst)
+  cntlLogic.io.rs1 := regfile.io.rs1
+  cntlLogic.io.rs2 := regfile.io.rs2
   io.inst := Cat(instMem.io.inst)
 
   val itrace = Module(new Dpi_itrace)

@@ -110,14 +110,14 @@ void verilator_exec_once(Decode* s) {
     top->clock = 1;
     top->eval();
     s->dnpc = itrace.pc;
-    s->isa.inst.val = itrace.isa.inst.val;
+    unsigned next_inst = itrace.isa.inst.val;
     // ebreak
-    if (end && s->isa.inst.val == 0x00100073) {
+    if (end && next_inst == 0x00100073) {
         printf("debuging\n");
         NEMUTRAP(s->dnpc, top->io_x10);
     // 没实现的指令
-    } else if (end && s->isa.inst.val != 0x00100073) {
-        INV(s->dnpc, s->isa.inst.val);
+    } else if (end && next_inst != 0x00100073) {
+        INV(s->dnpc, next_inst);
     }
 }
 

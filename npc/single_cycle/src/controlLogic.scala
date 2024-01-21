@@ -19,6 +19,7 @@ class controlLogic(width: Int = 32) extends Module {
     val bsel   = Output(Bool())
     val alusel = Output(UInt(4.W))
     val memRW = Output(Bool())
+    val memEnable = Output(Bool())
     val WBsel = Output(UInt(3.W))
   })
   // io.writeEn := 1.U
@@ -57,6 +58,7 @@ class controlLogic(width: Int = 32) extends Module {
   io.bsel := 0.U
   io.alusel := 0.U
   io.memRW := 0.U
+  io.memEnable := 0.U
   io.WBsel := 0.U
 
   // 比较器
@@ -76,7 +78,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 0.U
       io.bsel := 1.U
       io.alusel := io.inst(14, 12)  // func3
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := io.inst(5)
     } 
     // (lw) alures = rs1 (0) + imm (1); R[rd] = Mr(alures) (2); pc = pc + 4 (0)
@@ -88,6 +91,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.bsel := 1.U
       io.alusel := 0.U
       io.memRW := 0.U
+      io.memEnable := 1.U
       io.WBsel := 2.U
     }
     is (type_IS) {
@@ -97,7 +101,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 0.U
       io.bsel := 1.U
       io.alusel := Cat(func7(5), func3)
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := 2.U
     }
     // (add) alures = rs1(asel=0) operator(func3, func7) rs2(bsel=0); R[rd] = alures (wbsel=0)
@@ -110,7 +115,8 @@ class controlLogic(width: Int = 32) extends Module {
       // 指令的 func 域 如果可以和 alu 的选择信号相对应，那么便是极好的
       // 只有 sub 是特殊的，其他的指令alu选择信号都可以用 func7 和 func3 拼接成
       io.alusel := Mux((func3 === 0.U) && (func7(5) === 0.U) ,"b1100".U, Cat(func7(0) | func7(5), func3)) // func3
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := 0.U
     }
     // auipc: alures = pc + imm << 12; R[rd] = alusel
@@ -122,7 +128,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 1.U
       io.bsel := 1.U
       io.alusel := 0.U(4.W) ^ Cat(Seq.fill(4)(io.inst(5)))
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := 0.U
     }
     // sw: alures = rs1 (0) + imm (1); Mr[alures] = rs2 (2); pc = pc + 4
@@ -134,6 +141,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.bsel := 1.U
       io.alusel := 0.U
       io.memRW := 1.U
+      io.memEnable := 1.U
       io.WBsel := 0.U
     }
     // alures = pc (1) + imm (1); R[rd] = pc + 4; pc = alures (1)
@@ -144,7 +152,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 1.U 
       io.bsel := 1.U 
       io.alusel := 0.U
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := 1.U 
     }
     // Beq alures = pc (1) + imm (1); pc = alures(1) / 4 (0)
@@ -156,7 +165,8 @@ class controlLogic(width: Int = 32) extends Module {
       io.asel := 1.U 
       io.bsel := 1.U 
       io.alusel := 0.U
-      io.memRW := 0.U
+      io.memRW := DontCare
+      io.memEnable := 0.U
       io.WBsel := 1.U 
     }
   }

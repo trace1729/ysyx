@@ -2,7 +2,6 @@ BUILD_DIR = ./build
 TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
-IMG ?= /home/trace/trace/learning/ysyx/ysyx-workbench/am-kernels/tests/cpu-tests/build/dummy-riscv32e-npc.mem
 
 test:
 	mill -i __.test
@@ -10,7 +9,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(IMG)
+	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM)
 
 help:
 	mill -i __.test.runMain Elaborate --help
@@ -35,7 +34,7 @@ sim: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	mkdir -p $(NPC_HOME)/$(TARGET)/verilog/vsrc
-	@tac $(BUILD_DIR)/top.v | sed -E '1,3s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
+	@tac $(BUILD_DIR)/top.v | sed -E '1,4s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
 

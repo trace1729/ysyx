@@ -1,3 +1,5 @@
+#include "utils.h"
+#include <cstdio>
 #include <memory/paddr.h>
 #include <isa.h>
 #include <getopt.h>
@@ -33,7 +35,7 @@ static long load_img() {
     Log("No image is given. Use the default build-in image.");
     return 4096; // built-in image size
   }
-
+  printf(ANSI_FMT("Using img", ANSI_BG_GREEN)" %s\n", img_file);
   FILE *fp = fopen(img_file, "rb");
   Assert(fp, "Can not open '%s'", img_file);
 

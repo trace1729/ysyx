@@ -18,6 +18,7 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
     val x8           = Output(UInt(width.W))
     val x9           = Output(UInt(width.W))
     val x10          = Output(UInt(width.W))
+    val writereg = Output(UInt(5.W))
     val test_alu_res = Output(UInt(width.W))
   })
 
@@ -42,12 +43,14 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc := io.pc
   itrace.io.inst := io.inst
+  itrace.io.nextpc := pcvalue
 
   // getInstruction.io.inst := instMem.io.inst
 
   regfile.io.readreg1 := io.inst(19, 15)
   regfile.io.readreg2 := io.inst(24, 20)
   regfile.io.writereg := io.inst(11, 7)
+  io.writereg := regfile.io.writereg
   regfile.io.writeEn  := cntlLogic.io.writeEn
 
   val rmemdata = Wire(UInt(width.W))
@@ -83,6 +86,7 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
   // mem
   mem.io.addr := alu.io.res
   // determined by control logic
+  mem.io.memEnable := cntlLogic.io.memEnable
   mem.io.memRW := cntlLogic.io.memRW
   mem.io.wdata := regfile.io.readreg2
   mem.io.wmask := io.inst(14, 12)
@@ -109,6 +113,7 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val pc = Input(UInt(32.W))
     val inst = Input(UInt(32.W))
+    val nextpc = Input(UInt(32.W))
   })
   addResource("/Dpi_itrace.v")
 }
@@ -120,6 +125,7 @@ class Mem(val width: Int = 32) extends BlackBox with HasBlackBoxResource {
     val rdata = Output(UInt(width.W))
     val wdata = Input(UInt(width.W))
     val wmask = Input(UInt(8.W))
+    val memEnable = Input(Bool())
     val memRW = Input(Bool())
     // val waddr = Input(UInt(width.W))
   })

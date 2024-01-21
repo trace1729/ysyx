@@ -88,7 +88,7 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
   // determined by control logic
   mem.io.memEnable := cntlLogic.io.memEnable
   mem.io.memRW := cntlLogic.io.memRW
-  mem.io.wdata := regfile.io.readreg2
+  mem.io.wdata := regfile.io.rs2
   mem.io.wmask := io.inst(14, 12)
   // io.inst(14) == 1 means unsigned
   rmemdata := Mux(!io.inst(14), MuxCase(mem.io.rdata, Seq(

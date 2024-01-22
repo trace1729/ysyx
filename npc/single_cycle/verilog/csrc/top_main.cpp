@@ -50,14 +50,14 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   // printf("write waddr %x, wdata %x\n", waddr, wdata);
   switch (wmask) {
     case 0:
-      printf("save byte\n");
       host_write(guest_to_host(waddr & ~0x3u), 1, wdata);
+      break;
     case 1:
-      printf("save half\n");
       host_write(guest_to_host(waddr & ~0x3u), 2, wdata);
+      break;
     case 2:
-      printf("save word\n");
       host_write(guest_to_host(waddr & ~0x3u), 4, wdata);
+      break;
   }
 }
 

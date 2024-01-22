@@ -114,7 +114,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.bsel := 0.U
       // 指令的 func 域 如果可以和 alu 的选择信号相对应，那么便是极好的
       // 只有 sub 是特殊的，其他的指令alu选择信号都可以用 func7 和 func3 拼接成
-      io.alusel := Mux((func3 === 0.U) && (func7(5) === 0.U) ,"b1100".U, Cat(func7(0) | func7(5), func3)) // func3
+      io.alusel := Mux((func3 === 0.U) && (func7(5) === 1.U) ,"b1100".U, Cat(func7(0) | func7(5), func3)) // func3
       io.memRW := DontCare
       io.memEnable := 0.U
       io.WBsel := 0.U

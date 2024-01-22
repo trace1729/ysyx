@@ -1,3 +1,4 @@
+#include "svdpi.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -41,12 +42,12 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
-  printf("read addr %x, rdata %x\n", raddr, rdata);
+  // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;
 }
 
 extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
-  printf("write waddr %x, wdata %x\n", waddr, wdata);
+  // printf("write waddr %x, wdata %x\n", waddr, wdata);
   switch (wmask) {
     case 0:
       host_write(guest_to_host(waddr & ~0x3u), 1, wdata);
@@ -58,10 +59,10 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 }
 
 
-extern "C" void Regs_display(int regs[]) 
+extern "C" void Regs_display(const svLogicVecVal* regs) 
 {
   for (int i = 0; i < 32; i++) {
-    cpu.gpr[i] = regs[i];
+    cpu.gpr[i] = regs[i].aval;
   }
 }
 
@@ -116,28 +117,28 @@ void verilator_exec_once(Decode* s) {
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
     s->snpc = s->pc + 4;
-    printf("Before exec inst\n");
-    printf("0x%x", s->pc);
-    printf(" 0x%x\n", s->isa.inst.val);
+    // printf("Before exec inst\n");
+    // printf("0x%x", s->pc);
+    // printf(" 0x%x\n", s->isa.inst.val);
     top->clock = 1;
+    // printf("After exec instruction.\n");
     top->eval();
     contextp->timeInc(1);
     // tfp->dump(contextp->time());
-    printf("After exec instruction.\n");
-    printf("ra = 0x%x\n", top->io_x1);
-    printf("sp = 0x%x\n", top->io_x2);
-    printf("t0 = 0x%x\n", top->io_x5);
-    printf("t1 = 0x%x\n", top->io_x6);
-    printf("t2 = 0x%x\n", top->io_x7);
-    printf("fp = 0x%x\n", top->io_x8);
-    printf("s1 = 0x%x\n", top->io_x9);
-    printf("a0 = 0x%x\n", top->io_x10);
+    // printf("ra = 0x%x\n", top->io_x1);
+    // printf("sp = 0x%x\n", top->io_x2);
+    // printf("t0 = 0x%x\n", top->io_x5);
+    // printf("t1 = 0x%x\n", top->io_x6);
+    // printf("t2 = 0x%x\n", top->io_x7);
+    // printf("fp = 0x%x\n", top->io_x8);
+    // printf("s1 = 0x%x\n", top->io_x9);
+    // printf("a0 = 0x%x\n", top->io_x10);
 
     // tfp->dump(contextp->time());
     s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
-    printf("nextpc 0x%x", s->dnpc);
-    printf(" next inst 0x%x\n", next_inst);
+    // printf("nextpc 0x%x", s->dnpc);
+    // printf(" next inst 0x%x\n", next_inst);
 
     // ebreak 因为 end 的值是由组合逻辑确定的，所以可以提前判断
     if (end && next_inst == 0x00100073) {

@@ -51,10 +51,13 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   switch (wmask) {
     case 0:
       host_write(guest_to_host(waddr & ~0x3u), 1, wdata);
+      break;
     case 1:
       host_write(guest_to_host(waddr & ~0x3u), 2, wdata);
+      break;
     case 2:
       host_write(guest_to_host(waddr & ~0x3u), 4, wdata);
+      break;
   }
 }
 

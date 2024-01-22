@@ -215,7 +215,13 @@ static int cmd_x(char* args) {
   }
   
   for (int i = 0; i < N; i ++, s += sizeof(vaddr_t)) {
-    printf("0x%x ",vaddr_read(s, sizeof(vaddr_t)));
+    uint32_t temp[1];
+    word_t mem = vaddr_read(s, sizeof(vaddr_t));
+    temp[0] = mem;
+    uint8_t *p = (uint8_t *)temp;
+    printf("\tbyte: %02x %02x %02x %02x\n"
+            "\thex : %08x\n",
+          p[0], p[1], p[2], p[3], mem);
   }
   printf("\n");
   

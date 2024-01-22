@@ -31,7 +31,7 @@ void isa_reg_display() {
   uint i;
 
   for (i = 0; i < NR_REG; i ++) {
-    // printf("%12s%16x%16u\n", regs[i], gpr(i), gpr(i));
+    printf("%12s%16x%16u\n", regs[i], gpr(i), gpr(i));
   }
 }
 
@@ -42,7 +42,7 @@ word_t isa_reg_str2val(const char *s, bool *success) {
     if (strcmp(s, regs[i]) == 0) {
       // for debugging purpose
       // Log("match reg %s", regs[i]);
- //     return gpr(i);
+      return gpr(i);
       return 0;
     }
   }

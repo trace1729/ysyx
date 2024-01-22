@@ -59,12 +59,10 @@ def inst_gen(inst_type):
 
 
 def main():
-    formatter(0x0000006f, Instr.I)
+    formatter(0x00009117, Instr.U)
     
     
 if __name__ == "__main__":
     main()
-    a = int("00000000000100000000000001110011", 2)
-    print(f"0x{hex(a)[2:]:>08s}")
 
 # 524264

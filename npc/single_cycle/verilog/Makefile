@@ -72,7 +72,6 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 run: build
 	$(NPC_EXEC)
-#    @gtkwave wave.vcd
 
 clean:
 	-@rm -fr $(BUILD_DIR)

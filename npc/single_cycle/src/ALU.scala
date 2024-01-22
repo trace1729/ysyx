@@ -39,7 +39,7 @@ class ALU(width: Int = 32) extends Module {
   shifter.io.left_right            := io.alusel(2)
   shifter.io.logical_or_arthimetic := io.alusel(3)
   shifter.io.in                    := io.A
-  shifter.io.shamt                 := io.B
+  shifter.io.shamt                 := io.B(5, 0)
   shifter_res                      := shifter.io.out
 
   // 选择器
@@ -95,12 +95,14 @@ class Shifter(width: Int) extends Module {
     val logical_or_arthimetic = Input(Bool())
     val left_right            = Input(Bool())
     val in                    = Input(UInt(width.W))
-    val shamt                 = Input(UInt(5.W))
+    val shamt                 = Input(UInt(6.W))
     val out                   = Output(UInt(width.W))
   })
   // 实现一个高效的移位器
   // 先做一个 dumby version, 之后可以和使用桶形移位器的做法对比一下，看下
   // 综合出来的电路有无区别
+
+  // rv32I 移位数的最高位需要为 0
 
   io.out := Mux(
     !io.left_right,

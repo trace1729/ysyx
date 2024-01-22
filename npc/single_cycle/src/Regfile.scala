@@ -45,4 +45,17 @@ class Regfile (num: Int = 32, width: Int = 32) extends Module {
   io.x9 := regs(9)
   io.x10 := regs(10)
 
+  val regs_display = Module(new Regs_display)
+  regs.zipWithIndex.foreach {
+    case (reg, idx) =>
+      regs_display.io.regs(idx) := reg
+  }
+
+}
+
+class Regs_display extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val regs = Input(Vec(32, UInt(32.W)))
+  })
+  addResource("/Regs_display.v")
 }

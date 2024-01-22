@@ -11,7 +11,7 @@ import firrtl.annotations.MemoryLoadFileType
 class InstMem(val width:Int = 32, val memoryFile: String = "") extends Module {
     val byte_len = 8
     val ilen = width / byte_len
-    val memSize = 1024
+    val memSize = 4096 * 4
 
     val io = IO(new Bundle{
         val pc = Input(UInt(width.W))

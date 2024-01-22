@@ -41,7 +41,7 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 // paddr_t dpi_host_to_guest(uint8_t *haddr) { return haddr - dmem + CONFIG_MBASE; }
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
-  unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
+  unsigned rdata = host_read(guest_to_host(raddr ), 4);
   // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;
 }
@@ -50,13 +50,13 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   // printf("write waddr %x, wdata %x\n", waddr, wdata);
   switch (wmask) {
     case 0:
-      host_write(guest_to_host(waddr & ~0x3u), 1, wdata);
+      host_write(guest_to_host(waddr ), 1, wdata);
       break;
     case 1:
-      host_write(guest_to_host(waddr & ~0x3u), 2, wdata);
+      host_write(guest_to_host(waddr ), 2, wdata);
       break;
     case 2:
-      host_write(guest_to_host(waddr & ~0x3u), 4, wdata);
+      host_write(guest_to_host(waddr ), 4, wdata);
       break;
   }
 }

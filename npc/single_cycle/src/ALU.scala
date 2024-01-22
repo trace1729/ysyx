@@ -50,7 +50,7 @@ class ALU(width: Int = 32) extends Module {
       (io.alusel === "b0001".asUInt) -> shifter_res, // left shift
       (io.alusel === "b0010".asUInt) -> less,
       (io.alusel === "b0011".asUInt) -> less,
-      (io.alusel === "b0100".asUInt) -> 0.U, // unused
+      (io.alusel === "b0100".asUInt) -> (io.A ^ io.B), // unused
       (io.alusel === "b0101".asUInt) -> shifter_res, // logical r
       (io.alusel === "b0110".asUInt) -> (io.A | io.B),
       (io.alusel === "b0111".asUInt) -> (io.A & io.B),

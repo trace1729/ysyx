@@ -91,7 +91,7 @@ class top(width: Int = 32, memoryFile: String="") extends Module {
   mem.io.wdata := regfile.io.rs2
   mem.io.wmask := io.inst(14, 12)
   // io.inst(14) == 1 means unsigned
-  rmemdata := Mux(!io.inst(14), MuxCase(mem.io.rdata, Seq(
+  rmemdata := Mux(io.inst(14), MuxCase(mem.io.rdata, Seq(
     // io.inst(14) == 1, unsigned 直接截断就好
     (io.inst(13,12) === 0.U) -> (mem.io.rdata(7, 0)),
     (io.inst(13,12) === 1.U) -> (mem.io.rdata(15, 0))

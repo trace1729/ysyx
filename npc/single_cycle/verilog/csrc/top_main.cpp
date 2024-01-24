@@ -42,7 +42,7 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
-  printf("read addr %x, rdata %x\n", raddr, rdata);
+  // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;
 }
 
@@ -59,7 +59,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
      MEM: 0000 0001 1010 1010 1010 1010 1002 1002
   */
   // 不过使用这种方法的效果和下面的 switch 语句是等效的。
-  printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
+  // printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
   switch (wmask) {
     case 1:
       host_write(guest_to_host((waddr & ~0x3u) ), 1, wdata);

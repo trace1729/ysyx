@@ -41,23 +41,51 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 // paddr_t dpi_host_to_guest(uint8_t *haddr) { return haddr - dmem + CONFIG_MBASE; }
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
-  unsigned rdata = host_read(guest_to_host(raddr ), 4);
+  unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
   // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;
 }
 
 extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
+  // 偷个懒，这里应该使用位操作写入数据，比如
+  /* wmask: 0110
+  // 根据 wmask 生成
+          0000 0000 1111 1111 1111 1111 0000 0000
+     MEM: 0000 0001 1100 1100 1100 1001 1002 1002
+     做或运算
+          0000 0001 1111 1111 1111 1111 1002 1002
+     数据：1111 1111 1010 1010 1010 1010 1111 1111
+     做与运算
+     MEM: 0000 0001 1010 1010 1010 1010 1002 1002
+  */
+  // 不过使用这种方法的效果和下面的 switch 语句是等效的。
   // printf("write waddr %x, wdata %x\n", waddr, wdata);
   switch (wmask) {
-    case 0:
-      host_write(guest_to_host(waddr ), 1, wdata);
-      break;
     case 1:
-      host_write(guest_to_host(waddr ), 2, wdata);
+      host_write(guest_to_host((waddr & ~0x3u) ), 1, wdata);
       break;
     case 2:
-      host_write(guest_to_host(waddr ), 4, wdata);
+      host_write(guest_to_host((waddr & ~0x3u) + 1 ), 1, wdata);
       break;
+    case 4:
+      host_write(guest_to_host((waddr & ~0x3u) + 2 ), 1, wdata);
+      break;
+    case 8:
+      host_write(guest_to_host((waddr & ~0x3u) + 3), 1, wdata);
+      break;
+    case 3:
+      host_write(guest_to_host((waddr & ~0x3u) ), 2, wdata);
+      break;
+    case 6:
+      host_write(guest_to_host((waddr & ~0x3u) + 1), 2, wdata);
+      break;
+    case 12:
+      host_write(guest_to_host((waddr & ~0x3u) + 2), 2, wdata);
+      break;
+    case 15:
+      host_write(guest_to_host((waddr & ~0x3u) ), 4, wdata);
+      break;
+    default:break;
   }
 }
 

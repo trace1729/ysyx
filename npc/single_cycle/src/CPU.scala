@@ -14,11 +14,6 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
       (start === "b10".asUInt) -> data((2 + len) * 8 - 1, 16)
     )
   )
-  def wirteDataGen(wmask: UInt, data:UInt): UInt = {
-    val out = Wire(UInt(32.W))
-
-    return out;
-  }
 
   def wmaskGen(func3: UInt, addr: UInt): UInt = MuxCase(
     "b1111".asUInt,

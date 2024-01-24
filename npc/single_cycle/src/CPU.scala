@@ -106,7 +106,8 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   mem.io.memEnable := cntlLogic.io.memEnable
   mem.io.memRW     := cntlLogic.io.memRW
   // if (mem.io.memRW) set wmask to 0b0000
-  mem.io.wmask     := Mux(mem.io.memRW, 0.U, wmaskGen(io.inst(14, 12), mem.io.addr(1, 0)))
+  // mem.io.memRW = 0, read, set to 0
+  mem.io.wmask     := Mux(!mem.io.memRW, 0.U, wmaskGen(io.inst(14, 12), mem.io.addr(1, 0)))
   mem.io.wdata     := regfile.io.rs2
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))

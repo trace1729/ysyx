@@ -59,7 +59,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
      MEM: 0000 0001 1010 1010 1010 1010 1002 1002
   */
   // 不过使用这种方法的效果和下面的 switch 语句是等效的。
-  printf("write waddr %x, wdata %x, wmask %ux\n", waddr, wdata, wmask);
+  printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
   switch (wmask) {
     case 1:
       host_write(guest_to_host((waddr & ~0x3u) ), 1, wdata);

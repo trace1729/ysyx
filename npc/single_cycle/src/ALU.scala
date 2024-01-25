@@ -111,7 +111,7 @@ class Shifter(width: Int) extends Module {
     // 0 -> logical
     // 1 -> arthimetic
     when (io.logical_or_arthimetic) {
-      io.out := (io.in.asSInt) >> io.shamt
+      io.out := ((io.in.asSInt) >> io.shamt).asUInt
     }.otherwise {
       io.out := io.in >> io.shamt
     }

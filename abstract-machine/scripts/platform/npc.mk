@@ -24,5 +24,9 @@ image: $(IMAGE).elf
 	@xxd -b $(IMAGE).bin | cut -d ' ' -f 2-7 > $(IMAGE).mem
 
 run: image
-	$(MAKE) -C $(NPC_HOME) sim ARGS="$(NPCFLAGS)" MEM=$(IMAGE).mem IMG=$(IMAGE).bin
+	$(MAKE) -C $(NPC_HOME) run ARGS="$(NPCFLAGS)" MEM=$(IMAGE).mem IMG=$(IMAGE).bin
 	
+gdb: image
+	$(MAKE) -C $(NPC_HOME) gdb ARGS="$(NPCFLAGS)" MEM=$(IMAGE).mem IMG=$(IMAGE).bin
+	
+

@@ -94,7 +94,6 @@ void init_monitor(int argc, char* argv[])
   init_log(log_file);
   init_isa();
   long img_size = load_img();
-  printf("img size = %ld\n", img_size);
   init_difftest(diff_so_file, img_size, difftest_port);
   init_sdb();
   init_disasm("riscv32-pc-linux-gnu");

@@ -51,6 +51,7 @@ CXXFLAGS += $(CFLAGS_BUILD) $(CFLAGS_TRACE) -D__GUEST_ISA__=$(GUEST_ISA)
 # for llvm disassemble
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
 
+
 # for additional lib
 LDFLAGS += -lreadline -ldl -lSDL2
 LDFLAGS += $(shell llvm-config --libs)
@@ -73,6 +74,10 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 run: build
 	$(NPC_EXEC)
 
+gdb: CXXFLAGS+= -g
+gdb: build
+	echo $(BIN)
+	gdb -s $(BIN) --args $(NPC_EXEC)
 clean:
 	-@rm -fr $(BUILD_DIR)
 	-@rm -fr wave.vcd

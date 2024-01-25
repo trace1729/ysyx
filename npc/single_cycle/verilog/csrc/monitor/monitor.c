@@ -4,8 +4,9 @@
 #include <isa.h>
 #include <getopt.h>
 #include <common.h>
+#include <cpu/difftest.h>
 
-void sdb_set_batch_mode();
+
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
@@ -29,6 +30,8 @@ void init_log(const char *log_file);
 /* void init_difftest(char *ref_so_file, long img_size, int port); */
 void init_sdb();
 void init_disasm(const char *triple);
+void sdb_set_batch_mode();
+void init_difftest(char *ref_so_file, long img_size, int port);
 
 static long load_img() {
   if (img_file == NULL) {
@@ -90,7 +93,8 @@ void init_monitor(int argc, char* argv[])
   parse_args(argc, argv);
   init_log(log_file);
   init_isa();
-  load_img();
+  long img_size = load_img();
+  init_difftest(diff_so_file, img_size, difftest_port);
   init_sdb();
   init_disasm("riscv32-pc-linux-gnu");
   welcome();

@@ -50,6 +50,7 @@ CXXFLAGS += $(CFLAGS_BUILD) $(CFLAGS_TRACE) -D__GUEST_ISA__=$(GUEST_ISA)
 
 # for llvm disassemble
 CXXFLAGS += $(shell llvm-config --cxxflags) -fPIE
+CXXFLAGS += -g
 
 # for additional lib
 LDFLAGS += -lreadline -ldl -lSDL2

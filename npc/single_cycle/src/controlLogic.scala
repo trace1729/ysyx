@@ -37,14 +37,14 @@ class controlLogic(width: Int = 32) extends Module {
   func7 := io.inst(31, 25)
 
   optype := MuxCase(type_N, Seq(
-    (io.inst(6, 0) ===  "b0010011".asUInt 
-      && func3 =/= "b001".asUInt
-      && func3 =/= "b101".asUInt) -> type_I,
     // load 
     (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
     // jalr
     (io.inst(6, 0) ===  "b1100111".asUInt) -> type_I,
-    (io.inst(6, 0) ===  "b0010011".asUInt) -> type_IS,
+    (io.inst(6, 0) ===  "b0010011".asUInt) -> type_I,
+    (io.inst(6, 0) ===  "b0010011".asUInt 
+      && func3 === "b001".asUInt
+      && func3 === "b101".asUInt) -> type_IS,
     (io.inst(6, 0) ===  "b0110011".asUInt) -> type_R,
     (io.inst(6, 0) ===  "b0010111".asUInt) -> type_U,
     (io.inst(6, 0) ===  "b0110111".asUInt) -> type_U,

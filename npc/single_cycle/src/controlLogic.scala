@@ -104,7 +104,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.alusel := Cat(func7(5), func3)
       io.memRW := DontCare
       io.memEnable := 0.U
-      io.WBsel := 2.U
+      io.WBsel := 0.U
     }
     // (add) alures = rs1(asel=0) operator(func3, func7) rs2(bsel=0); R[rd] = alures (wbsel=0)
     //   pc = pc + 4 (pcsle = 0)

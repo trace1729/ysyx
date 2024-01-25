@@ -7,10 +7,10 @@
 
 void sdb_set_batch_mode();
 static char *log_file = NULL;
-// static char *diff_so_file = NULL;
+static char *diff_so_file = NULL;
 static char *img_file = NULL;
 // static char *elf_file = NULL;
-// static int difftest_port = 1234;
+static int difftest_port = 1234;
 
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
@@ -68,7 +68,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'b': sdb_set_batch_mode(); break;
       case 'p': printf("difftest not implemented yet\n"); break;
       case 'l': log_file = optarg; break;
-      // case 'd': diff_so_file = optarg; break;
+      case 'd': diff_so_file = optarg; break;
       // case 'e': elf_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:

@@ -72,8 +72,7 @@ override ARGS += $(ARGS_DIFF)
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 
 run: build
-	echo $(NPC_EXEC)
-#	$(NPC_EXEC)
+	$(NPC_EXEC)
 
 gdb: CXXFLAGS+= -g
 gdb: build

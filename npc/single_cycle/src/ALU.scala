@@ -107,7 +107,7 @@ class Shifter(width: Int) extends Module {
   io.out := Mux(
     !io.left_right,
     io.in << io.shamt,
-    Mux(!io.logical_or_arthimetic, io.in >> io.shamt, (io.in.asSInt >> io.shamt).asUInt)
+    Mux(io.logical_or_arthimetic, io.in >> io.shamt, (io.in.asSInt >> io.shamt).asUInt)
   )
 
 }

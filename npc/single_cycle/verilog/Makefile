@@ -76,7 +76,7 @@ run: build
 
 gdb: build
 	echo $(BIN)
-#	gdb -s $(BIN) --args $(NPC_EXEC)
+	gdb -s $(BIN) --args $(NPC_EXEC)
 clean:
 	-@rm -fr $(BUILD_DIR)
 	-@rm -fr wave.vcd

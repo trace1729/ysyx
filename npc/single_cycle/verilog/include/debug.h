@@ -30,6 +30,7 @@
         __FILE__, __LINE__, __func__, ## __VA_ARGS__)
 
 #define Check(cond, format, ...) if(!(cond)) { _Check(format, ##__VA_ARGS__);  goto error; }
+#define Abort(cond, format, ...) if(!(cond)) { _Check(format, ##__VA_ARGS__);  return; }
 
 #define Assert(cond, format, ...) \
   do { \

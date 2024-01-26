@@ -1,5 +1,6 @@
 import chisel3._
 import chisel3.util._
+import config.Config._
 
 class top(width: Int = 32, memoryFile: String = "") extends Module {
 
@@ -62,6 +63,13 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   itrace.io.inst   := io.inst
   itrace.io.nextpc := pcvalue
 
+  val ftrace = Module(new Dpi_ftrace)
+  ftrace.io.optype := cntlLogic.io.optype
+  ftrace.io.rd := io.inst(11, 7)
+  ftrace.io.ref_jalr := type_IJ
+  ftrace.io.ref_jal := type_J
+  ftrace.io.src1 := regfile.io.rs1
+
   // getInstruction.io.inst := instMem.io.inst
 
   regfile.io.readreg1 := io.inst(19, 15)
@@ -107,8 +115,8 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   mem.io.memRW     := cntlLogic.io.memRW
   // if (mem.io.memRW) set wmask to 0b0000
   // mem.io.memRW = 0, read, set to 0
-  mem.io.wmask     := Mux(!mem.io.memRW, 0.U, wmaskGen(io.inst(14, 12), mem.io.addr(1, 0)))
-  mem.io.wdata     := regfile.io.rs2
+  mem.io.wmask := Mux(!mem.io.memRW, 0.U, wmaskGen(io.inst(14, 12), mem.io.addr(1, 0)))
+  mem.io.wdata := regfile.io.rs2
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))
   imm_byte := readDataGen(mem.io.addr(1, 0), 1, mem.io.rdata)
@@ -147,6 +155,17 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
     val nextpc = Input(UInt(32.W))
   })
   addResource("/Dpi_itrace.v")
+}
+
+class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val optype   = Input(UInt(4.W))
+    val ref_jal  = Input(UInt(4.W))
+    val ref_jalr = Input(UInt(4.W))
+    val rd       = Input(UInt(5.W))
+    val src1     = Input(UInt(32.W))
+  })
+  addResource("/Dpi_ftrace.v")
 }
 
 class Mem(val width: Int = 32) extends BlackBox with HasBlackBoxResource {

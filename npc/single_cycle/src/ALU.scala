@@ -104,20 +104,6 @@ class Shifter(width: Int) extends Module {
 
   // rv32I 移位数的最高位需要为 0
 
-  // io.out := DontCare
-  // // 0 -> left
-  // // 1 -> right
-  // when (io.left_right) {
-  //   // 0 -> logical
-  //   // 1 -> arthimetic
-  //   when (io.logical_or_arthimetic) {
-  //     io.out := ((io.in.asSInt) >> io.shamt).asUInt
-  //   }.otherwise {
-  //     io.out := io.in >> io.shamt
-  //   }
-  // }.otherwise {
-  //   io.out := io.in << io.shamt
-  // }
   io.out := Mux(
     !io.left_right,
     io.in << io.shamt,
@@ -126,4 +112,17 @@ class Shifter(width: Int) extends Module {
 
 }
 
-
+// io.out := DontCare
+// // 0 -> left
+// // 1 -> right
+// when (io.left_right) {
+//   // 0 -> logical
+//   // 1 -> arthimetic
+//   when (io.logical_or_arthimetic) {
+//     io.out := ((io.in.asSInt) >> io.shamt).asUInt
+//   }.otherwise {
+//     io.out := io.in >> io.shamt
+//   }
+// }.otherwise {
+//   io.out := io.in << io.shamt
+// }

@@ -66,10 +66,9 @@ int main(int argc, char** argv, char** env) {
 }
 void verilator_exec_once(Decode* s) {
     ftrace_block.is_next_ins_j = false;
-    // printf("Executing instruction not implemented\n");
-
-    // top->inst = vaddr_ifetch(top->pc, 4);
-    // 只要是打印出来的指令，一定是成功执行的
+    // current instruction state
+    /* ======================================================================  */
+    /* ======================================================================  */
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -79,23 +78,30 @@ void verilator_exec_once(Decode* s) {
     s->snpc = s->pc + 4;
     // for ftrace
     s->dnpc = itrace.dnpc;
+#if CONFIG_FTRACE
     if (ftrace_block.ftrace_flag) {
       ftrace(ftrace_block.rd, ftrace_block.optype, s, ftrace_block.src1);
       ftrace_block.ftrace_flag = false;
     }
-
+#endif
     top->clock = 1;
-    // printf("After exec instruction.\n");
     top->eval();
     contextp->timeInc(1);
+    /* ======================================================================  */
+    /* ======================================================================  */
+
+    // next instruction state
+    // printf("After exec instruction.\n");
 
     // tfp->dump(contextp->time());
     s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
+#if CONFIG_FTRACE
     // ftrace
     if (ftrace_block.is_next_ins_j) {
       ftrace_block.ftrace_flag = true;
     }
+#endif
     // ebreak 因为 end 的值是由组合逻辑确定的，所以可以提前判断
     if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
         NEMUTRAP(s->dnpc, top->io_x10);

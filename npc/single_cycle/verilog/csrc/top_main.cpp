@@ -72,7 +72,7 @@ void verilator_exec_once(Decode* s) {
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
-    printf("current state\n");
+    printf("================= current state =====================\n");
     // tfp->dump(contextp->time());
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
@@ -91,7 +91,7 @@ void verilator_exec_once(Decode* s) {
     top->clock = 1;
     top->eval();
     contextp->timeInc(1);
-    printf("next state\n");
+    printf("============ next state ===================\n");
 
     // tfp->dump(contextp->time());
     // s->dnpc = itrace.pc;

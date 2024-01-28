@@ -101,6 +101,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 
 extern "C" void Regs_display(const svLogicVecVal* regs) 
 {
+  printf("setting regs\n");
   for (int i = 0; i < 32; i++) {
     cpu.gpr[i] = regs[i].aval;
   }

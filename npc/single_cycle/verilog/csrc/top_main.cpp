@@ -94,7 +94,7 @@ void verilator_exec_once(Decode* s) {
     // printf("After exec instruction.\n");
 
     // tfp->dump(contextp->time());
-    s->dnpc = itrace.pc;
+    // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
 #if CONFIG_FTRACE
     // ftrace

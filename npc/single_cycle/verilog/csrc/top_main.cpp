@@ -96,6 +96,8 @@ void verilator_exec_once(Decode* s) {
     // tfp->dump(contextp->time());
     // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
+    top->clock = 1;
+    top->eval();
 #if CONFIG_FTRACE
     // ftrace
     if (ftrace_block.is_next_ins_j) {

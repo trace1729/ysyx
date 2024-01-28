@@ -15,7 +15,7 @@ extern "C" void stop()
 // called by verilog / not cpp
 
 extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int nextpc) {
-  printf("itrace\n");
+  // printf("itrace\n");
   itrace.pc = pc;
   itrace.isa.inst.val = inst;
   itrace.dnpc = nextpc;

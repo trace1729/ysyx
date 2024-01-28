@@ -92,7 +92,9 @@ void init_monitor(int argc, char* argv[])
 {
   parse_args(argc, argv);
   init_log(log_file);
+#if CONFIG_FTRACE
   init_elf(elf_file);
+#endif
   init_isa();
   long img_size = load_img();
   init_difftest(diff_so_file, img_size, difftest_port);

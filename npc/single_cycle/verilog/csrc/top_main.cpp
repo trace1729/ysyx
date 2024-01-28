@@ -66,8 +66,8 @@ int main(int argc, char** argv, char** env) {
 }
 void verilator_exec_once(Decode* s) {
     ftrace_block.is_next_ins_j = false;
-    // current instruction state
     /* ======================================================================  */
+    // ===============   current instruction state =========================
     /* ======================================================================  */
     top->clock = 0;
     top->eval();
@@ -88,9 +88,9 @@ void verilator_exec_once(Decode* s) {
     top->eval();
     contextp->timeInc(1);
     /* ======================================================================  */
+    // ********************  next instruction state ********************
     /* ======================================================================  */
 
-    // next instruction state
     // printf("After exec instruction.\n");
 
     // tfp->dump(contextp->time());
@@ -102,7 +102,6 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = true;
     }
 #endif
-    // ebreak 因为 end 的值是由组合逻辑确定的，所以可以提前判断
     if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
         NEMUTRAP(s->dnpc, top->io_x10);
     // 没实现的指令

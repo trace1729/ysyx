@@ -6,6 +6,7 @@
 #include <memory/paddr.h>
 #include <cpu/cpu.h>
 #include <dpi.h>
+#include <utils.h>
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
@@ -32,6 +33,17 @@ extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int 
 }
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
+#if CONFIG_MTRACE
+  printf("paddr_read: Accessing memory at location %02x\n", raddr);
+#endif
+  if (raddr == CONFIG_RTC_MMIO) {
+    uint32_t us = (get_time() & 0xffffffff);
+    return us;
+  }
+  if (raddr == CONFIG_RTC_MMIO + 4) {
+    uint32_t us = ((get_time() >> 32) & 0xffffffff);
+    return us;
+  }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
   // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;
@@ -51,6 +63,13 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   */
   // 不过使用这种方法的效果和下面的 switch 语句是等效的。
   // printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
+#if CONFIG_MTRACE
+  printf("paddr_write: Accessing memory at location %02x, data %x\n", waddr, wdata);
+#endif
+  if (waddr == CONFIG_SERIAL_MMIO) {
+    putc(wdata, stderr);
+    return; 
+  }
   switch (wmask) {
     case 1:
       host_write(guest_to_host((waddr & ~0x3u) ), 1, wdata);

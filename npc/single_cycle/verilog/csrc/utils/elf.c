@@ -6,10 +6,11 @@ extern uint64_t g_nr_guest_inst;
 #ifndef CONFIG_TARGET_AM
 #include <elf.h>
 
+#define MAX_SYM 8192
 
 static FILE *fp = NULL;
-static char e_strtab[1024];
-static Elf32_Sym e_symbols[256];
+static char e_strtab[MAX_SYM];
+static Elf32_Sym e_symbols[MAX_SYM];
 static int e_symnum;
 
 void get_function_symbol_by_address(uint32_t addr, char *buf) {
@@ -35,7 +36,7 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
 void init_elf(const char* elf_file) {
   if (!elf_file) return;
   Elf32_Ehdr e_hdr;
-  Elf32_Shdr e_sections[256];
+  Elf32_Shdr e_sections[MAX_SYM];
   fp = fopen(elf_file, "rb");
   Abort(fp != NULL, "open %s failed", elf_file);
   size_t size = fread(&e_hdr, sizeof(e_hdr), 1, fp);

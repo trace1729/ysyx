@@ -21,6 +21,7 @@ class controlLogic(width: Int = 32) extends Module {
     val memRW = Output(Bool())
     val memEnable = Output(Bool())
     val WBsel = Output(UInt(3.W))
+    val optype = Output(UInt(4.W))
   })
   // io.writeEn := 1.U
   // io.immsel  := 0.U
@@ -40,7 +41,7 @@ class controlLogic(width: Int = 32) extends Module {
     // load 
     (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
     // jalr
-    (io.inst(6, 0) ===  "b1100111".asUInt) -> type_I,
+    (io.inst(6, 0) ===  "b1100111".asUInt) -> type_IJ,
     // add or sll
     (io.inst(6, 0) ===  "b0010011".asUInt) -> Mux((func3 === "b001".asUInt || func3 === "b101".asUInt), type_IS, type_I),
     (io.inst(6, 0) ===  "b0110011".asUInt) -> type_R,
@@ -51,6 +52,7 @@ class controlLogic(width: Int = 32) extends Module {
     (io.inst(6, 0) ===  "b1100011".asUInt) -> type_B,
   ))  
 
+  io.optype := optype
   // default value
   io.pcsel := 0.U
   io.writeEn := 0.U
@@ -73,6 +75,17 @@ class controlLogic(width: Int = 32) extends Module {
     // normally: alures = rs1 (0) + imm (1); R[rd] = alusel (0); pc = pc + 4 (0)
     // Specially: (jalr) alures = rs1 (0) + imm (1); R[rd] = pc + 4 (1); pc = alures (1)
     is (type_I) { 
+      io.pcsel := io.inst(5)
+      io.writeEn := 1.U
+      io.immsel := type_I
+      io.asel := 0.U
+      io.bsel := 1.U
+      io.alusel := io.inst(14, 12)  // func3
+      io.memRW := DontCare
+      io.memEnable := 0.U
+      io.WBsel := io.inst(5)
+    } 
+    is (type_IJ) {
       io.pcsel := io.inst(5)
       io.writeEn := 1.U
       io.immsel := type_I

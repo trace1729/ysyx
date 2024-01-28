@@ -10,7 +10,7 @@
 static char *log_file = NULL;
 static char *diff_so_file = NULL;
 static char *img_file = NULL;
-// static char *elf_file = NULL;
+static char *elf_file = NULL;
 static int difftest_port = 1234;
 
 static void welcome() {
@@ -25,7 +25,7 @@ static void welcome() {
 
 // void init_rand();
 void init_log(const char *log_file);
-/* void init_elf(const char *elf_file); */
+void init_elf(const char *elf_file);
 /* void init_mem(); */
 /* void init_difftest(char *ref_so_file, long img_size, int port); */
 void init_sdb();
@@ -72,7 +72,7 @@ static int parse_args(int argc, char *argv[]) {
       case 'p': printf("difftest not implemented yet\n"); break;
       case 'l': log_file = optarg; break;
       case 'd': diff_so_file = optarg; break;
-      // case 'e': elf_file = optarg; break;
+      case 'e': elf_file = optarg; break;
       case 1: img_file = optarg; return 0;
       default:
         printf("Usage: %s [OPTION...] IMAGE [args]\n\n", argv[0]);
@@ -92,6 +92,9 @@ void init_monitor(int argc, char* argv[])
 {
   parse_args(argc, argv);
   init_log(log_file);
+#if CONFIG_FTRACE
+  init_elf(elf_file);
+#endif
   init_isa();
   long img_size = load_img();
   init_difftest(diff_so_file, img_size, difftest_port);

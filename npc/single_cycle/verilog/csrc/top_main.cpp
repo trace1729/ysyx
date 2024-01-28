@@ -1,4 +1,5 @@
 #include "svdpi.h"
+#include "utils.h"
 #include <cstdio>
 #include <cstdlib>
 #include <iostream>
@@ -12,90 +13,19 @@
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <cpu/cpu.h>
+#include <dpi.h>
 
 void init_monitor(int argc, char* argv[]);
 void sdb_mainloop();
 int is_exit_status_bad();
-volatile bool end = false;
 
 std::unique_ptr<VerilatedContext> contextp {};
 std::unique_ptr<Vtop> top {};
 std::unique_ptr<VerilatedVcdC> tfp{};
 
-extern "C" void stop() 
-{
-  end = true;
-}
-
-// called by verilog / not cpp
 Decode itrace;
+Ftrace ftrace_block;
 extern CPU_state cpu;
-extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int nextpc) {
-  itrace.pc = pc;
-  itrace.isa.inst.val = inst;
-  itrace.dnpc = nextpc;
-}
-
-// static uint8_t dmem[CONFIG_MSIZE] PG_ALIGN = {};
-// uint8_t* dpi_guest_to_host(paddr_t paddr) { return dmem + paddr - CONFIG_MBASE; }
-// paddr_t dpi_host_to_guest(uint8_t *haddr) { return haddr - dmem + CONFIG_MBASE; }
-
-extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
-  unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
-  // printf("read addr %x, rdata %x\n", raddr, rdata);
-  return rdata;
-}
-
-extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
-  // 偷个懒，这里应该使用位操作写入数据，比如
-  /* wmask: 0110
-  // 根据 wmask 生成
-          00000000 11111111 11111111 00000000
-     MEM: 00000001 11001100 11001001 10021002
-     做或 | 运算
-          00000001 11111111 11111111 10021002
-     数据：11111111 10101010 10101010 11111111
-     做与 & 运算
-     MEM: 00000001 10101010 10101010 10021002
-  */
-  // 不过使用这种方法的效果和下面的 switch 语句是等效的。
-  // printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
-  switch (wmask) {
-    case 1:
-      host_write(guest_to_host((waddr & ~0x3u) ), 1, wdata);
-      break;
-    case 2:
-      host_write(guest_to_host((waddr & ~0x3u) + 1 ), 1, wdata);
-      break;
-    case 4:
-      host_write(guest_to_host((waddr & ~0x3u) + 2 ), 1, wdata);
-      break;
-    case 8:
-      host_write(guest_to_host((waddr & ~0x3u) + 3), 1, wdata);
-      break;
-    case 3:
-      host_write(guest_to_host((waddr & ~0x3u) ), 2, wdata);
-      break;
-    case 6:
-      host_write(guest_to_host((waddr & ~0x3u) + 1), 2, wdata);
-      break;
-    case 12:
-      host_write(guest_to_host((waddr & ~0x3u) + 2), 2, wdata);
-      break;
-    case 15:
-      host_write(guest_to_host((waddr & ~0x3u) ), 4, wdata);
-      break;
-    default:break;
-  }
-}
-
-
-extern "C" void Regs_display(const svLogicVecVal* regs) 
-{
-  for (int i = 0; i < 32; i++) {
-    cpu.gpr[i] = regs[i].aval;
-  }
-}
 
 void sim_init(char argc, char* argv[]) {
   contextp = std::make_unique<VerilatedContext>();
@@ -134,13 +64,11 @@ int main(int argc, char** argv, char** env) {
 
   return is_exit_status_bad();
 }
-
 void verilator_exec_once(Decode* s) {
-    end = false;
-    // printf("Executing instruction not implemented\n");
-
-    // top->inst = vaddr_ifetch(top->pc, 4);
-    // 只要是打印出来的指令，一定是成功执行的
+    ftrace_block.is_next_ins_j = false;
+    /* ======================================================================  */
+    // ===============   current instruction state =========================
+    /* ======================================================================  */
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -148,34 +76,36 @@ void verilator_exec_once(Decode* s) {
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
     s->snpc = s->pc + 4;
-    // printf("Before exec inst\n");
-    // printf("0x%x", s->pc);
-    // printf(" 0x%x\n", s->isa.inst.val);
+    // for ftrace
+    s->dnpc = itrace.dnpc;
+#if CONFIG_FTRACE
+    if (ftrace_block.ftrace_flag) {
+      ftrace(ftrace_block.rd, ftrace_block.optype, s, ftrace_block.src1);
+      ftrace_block.ftrace_flag = false;
+    }
+#endif
     top->clock = 1;
-    // printf("After exec instruction.\n");
     top->eval();
     contextp->timeInc(1);
-    // tfp->dump(contextp->time());
-    // printf("ra = 0x%x\n", top->io_x1);
-    // printf("sp = 0x%x\n", top->io_x2);
-    // printf("t0 = 0x%x\n", top->io_x5);
-    // printf("t1 = 0x%x\n", top->io_x6);
-    // printf("t2 = 0x%x\n", top->io_x7);
-    // printf("fp = 0x%x\n", top->io_x8);
-    // printf("s1 = 0x%x\n", top->io_x9);
-    // printf("a0 = 0x%x\n", top->io_x10);
+    /* ======================================================================  */
+    // ********************  next instruction state ********************
+    /* ======================================================================  */
+
+    // printf("After exec instruction.\n");
 
     // tfp->dump(contextp->time());
     s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
-    // printf("nextpc 0x%x", s->dnpc);
-    // printf(" next inst 0x%x\n", next_inst);
-
-    // ebreak 因为 end 的值是由组合逻辑确定的，所以可以提前判断
-    if (end && next_inst == 0x00100073) {
+#if CONFIG_FTRACE
+    // ftrace
+    if (ftrace_block.is_next_ins_j) {
+      ftrace_block.ftrace_flag = true;
+    }
+#endif
+    if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
         NEMUTRAP(s->dnpc, top->io_x10);
     // 没实现的指令
-    } else if (end && next_inst != 0x00100073) {
+    } else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
         INV(s->dnpc, next_inst);
     }
 }

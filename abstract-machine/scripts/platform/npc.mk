@@ -12,7 +12,7 @@ CFLAGS    += -fdata-sections -ffunction-sections
 LDFLAGS   += -T $(AM_HOME)/scripts/linker.ld \
 						 --defsym=_pmem_start=0x80000000 --defsym=_entry_offset=0x0
 LDFLAGS   += --gc-sections -e _start
-NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so
+NPCFLAGS += -l $(shell dirname $(IMAGE).elf)/npc-log.txt -e $(IMAGE).elf -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/npc/trm.c
 
@@ -21,7 +21,9 @@ image: $(IMAGE).elf
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 	@echo + MEMCOPY "->" $(IMAGE_REL).mem
-	@xxd -b $(IMAGE).bin | cut -d ' ' -f 2-7 > $(IMAGE).mem
+	@$(OBJCOPY) -O binary -j .text $(IMAGE).elf $(IMAGE).bin1
+	@xxd -b $(IMAGE).bin1 | cut -d ' ' -f 2-7 > $(IMAGE).mem
+	@rm $(IMAGE).bin1
 
 run: image
 	$(MAKE) -C $(NPC_HOME) run ARGS="$(NPCFLAGS)" MEM=$(IMAGE).mem IMG=$(IMAGE).bin

@@ -1,12 +1,8 @@
-#include <Vtop.h>
-#include <verilated.h>
-#include <verilated_vcd_c.h> //可选，如果要导出vcd则需要加上
-#include <memory/vaddr.h>
 #include <memory/host.h>
 #include <memory/paddr.h>
-#include <cpu/cpu.h>
 #include <dpi.h>
 #include <utils.h>
+#include <cpu/difftest.h>
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
@@ -37,10 +33,12 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   printf("paddr_read: Accessing memory at location %02x\n", raddr);
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
+    difftest_skip_ref();
     uint32_t us = (get_time() & 0xffffffff);
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
+    difftest_skip_ref();
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
     return us;
   }
@@ -67,6 +65,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   printf("paddr_write: Accessing memory at location %02x, data %x\n", waddr, wdata);
 #endif
   if (waddr == CONFIG_SERIAL_MMIO) {
+    difftest_skip_ref();
     putc(wdata, stderr);
     return; 
   }

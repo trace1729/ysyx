@@ -23,7 +23,7 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 
 
 extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int src1) {
-  printf("ftrace\n");
+  // printf("ftrace\n");
   ftrace_block.optype = optype;
   ftrace_block.rd = rd;
   ftrace_block.src1 = src1;
@@ -32,7 +32,7 @@ extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int 
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #if CONFIG_MTRACE
-  printf("paddr_read: Accessing memory at location %02x\n", raddr);
+  // printf("paddr_read: Accessing memory at location %02x\n", raddr);
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
@@ -103,7 +103,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 
 extern "C" void Regs_display(const svLogicVecVal* regs) 
 {
-  printf("setting regs\n");
+  // printf("setting regs\n");
   for (int i = 0; i < 32; i++) {
     cpu.gpr[i] = regs[i].aval;
   }

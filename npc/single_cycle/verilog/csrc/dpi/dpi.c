@@ -33,13 +33,13 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   printf("paddr_read: Accessing memory at location %02x\n", raddr);
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
-    difftest_skip_ref();
     uint32_t us = (get_time() & 0xffffffff);
+    difftest_skip_ref();
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
-    difftest_skip_ref();
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
+    difftest_skip_ref();
     return us;
   }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
@@ -65,8 +65,8 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   printf("paddr_write: Accessing memory at location %02x, data %x\n", waddr, wdata);
 #endif
   if (waddr == CONFIG_SERIAL_MMIO) {
-    difftest_skip_ref();
     putc(wdata, stderr);
+    difftest_skip_ref();
     return; 
   }
   switch (wmask) {

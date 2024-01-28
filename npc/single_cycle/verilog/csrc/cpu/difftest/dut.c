@@ -56,7 +56,7 @@ void isa_difftest_attach() {
 // this is used to let ref skip instructions which
 // can not produce consistent behavior with NEMU
 void difftest_skip_ref() {
-  printf("setting to skip to true\n");
+  printf("setting next skip to true\n");
   is_next_inst_skip = true;
   // If such an instruction is one of the instruction packing in QEMU
   // (see below), we end the process of catching up with QEMU's pc to
@@ -142,6 +142,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     // to skip the checking of an instruction, just copy the reg state to reference design
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
     is_skip_ref = false;
+    printf("skipping\n");
     return;
   }
 

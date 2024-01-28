@@ -84,6 +84,8 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = false;
     }
 #endif
+    top->clock = 1;
+    top->eval();
     contextp->timeInc(1);
     /* ======================================================================  */
     // ********************  next instruction state ********************
@@ -94,8 +96,6 @@ void verilator_exec_once(Decode* s) {
     // tfp->dump(contextp->time());
     // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
-    top->clock = 0;
-    top->eval();
 #if CONFIG_FTRACE
     // ftrace
     if (ftrace_block.is_next_ins_j) {

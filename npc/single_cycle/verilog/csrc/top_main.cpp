@@ -88,10 +88,10 @@ void verilator_exec_once(Decode* s) {
     /* ======================================================================  */
     // ********************  next instruction state ********************
     /* ======================================================================  */
+    printf("============ next state ===================\n");
     top->clock = 1;
     top->eval();
     contextp->timeInc(1);
-    printf("============ next state ===================\n");
 
     // tfp->dump(contextp->time());
     // s->dnpc = itrace.pc;

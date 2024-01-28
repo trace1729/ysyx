@@ -1,12 +1,8 @@
-#include <Vtop.h>
-#include <verilated.h>
-#include <verilated_vcd_c.h> //可选，如果要导出vcd则需要加上
-#include <memory/vaddr.h>
 #include <memory/host.h>
 #include <memory/paddr.h>
-#include <cpu/cpu.h>
 #include <dpi.h>
 #include <utils.h>
+#include <cpu/difftest.h>
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
@@ -19,6 +15,7 @@ extern "C" void stop()
 // called by verilog / not cpp
 
 extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int nextpc) {
+  // printf("itrace\n");
   itrace.pc = pc;
   itrace.isa.inst.val = inst;
   itrace.dnpc = nextpc;
@@ -26,6 +23,7 @@ extern "C" void Dpi_itrace(unsigned int pc, unsigned int inst, unsigned int next
 
 
 extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int src1) {
+  // printf("ftrace\n");
   ftrace_block.optype = optype;
   ftrace_block.rd = rd;
   ftrace_block.src1 = src1;
@@ -34,14 +32,16 @@ extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int 
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #if CONFIG_MTRACE
-  printf("paddr_read: Accessing memory at location %02x\n", raddr);
+  // printf("paddr_read: Accessing memory at location %02x\n", raddr);
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
+    difftest_skip_ref();
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
+    difftest_skip_ref();
     return us;
   }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
@@ -68,6 +68,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 #endif
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
+    difftest_skip_ref();
     return; 
   }
   switch (wmask) {
@@ -102,6 +103,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 
 extern "C" void Regs_display(const svLogicVecVal* regs) 
 {
+  // printf("setting regs\n");
   for (int i = 0; i < 32; i++) {
     cpu.gpr[i] = regs[i].aval;
   }

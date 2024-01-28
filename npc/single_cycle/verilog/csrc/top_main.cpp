@@ -72,6 +72,7 @@ void verilator_exec_once(Decode* s) {
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
+    // printf("================= current state =====================\n");
     // tfp->dump(contextp->time());
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
@@ -84,17 +85,16 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = false;
     }
 #endif
-    top->clock = 1;
-    top->eval();
-    contextp->timeInc(1);
     /* ======================================================================  */
     // ********************  next instruction state ********************
     /* ======================================================================  */
-
-    // printf("After exec instruction.\n");
+    // printf("============ next state ===================\n");
+    top->clock = 1;
+    top->eval();
+    contextp->timeInc(1);
 
     // tfp->dump(contextp->time());
-    s->dnpc = itrace.pc;
+    // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
 #if CONFIG_FTRACE
     // ftrace

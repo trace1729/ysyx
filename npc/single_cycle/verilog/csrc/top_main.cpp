@@ -84,8 +84,6 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = false;
     }
 #endif
-    top->clock = 1;
-    top->eval();
     contextp->timeInc(1);
     /* ======================================================================  */
     // ********************  next instruction state ********************

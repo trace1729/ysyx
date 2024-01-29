@@ -76,7 +76,7 @@ static void decode_last_inst () {
   disassemble(p, RING + sizeof(RING) - p,
       cpu.pc, (uint8_t *)&val, ilen);
   
-  printf("%s\n", RING);
+  printf("\t%s\n", RING);
 }
 
 void iringbuffer_display() {

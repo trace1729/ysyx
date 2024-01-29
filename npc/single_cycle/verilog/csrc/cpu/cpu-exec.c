@@ -76,7 +76,7 @@ static void decode_last_inst () {
   disassemble(p, RING + sizeof(RING) - p,
       cpu.pc, (uint8_t *)&val, ilen);
   
-  printf("------> %s\n", RING);
+  printf("%s\n", RING);
 }
 
 void iringbuffer_display() {
@@ -88,7 +88,7 @@ void iringbuffer_display() {
     printf("\t%s\n", buffer[front]);
   }
   printf("------> %s\n", buffer[front]);
-  // decode_last_inst();
+  decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }
 #endif

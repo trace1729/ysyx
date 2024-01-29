@@ -86,7 +86,7 @@ void iringbuffer_display() {
   for (; front != end; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
-  decode_last_inst();
+  // decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }
 #endif

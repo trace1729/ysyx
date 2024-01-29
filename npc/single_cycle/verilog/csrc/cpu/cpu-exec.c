@@ -84,10 +84,10 @@ void iringbuffer_display() {
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
   printf("*============ Instruction traceback ===================*\n");
-  for (; front != end; ADVANCE(front)) {
-    printf("f=%d, e=%d\n", front, end);
+  for (; ((front + 1) % RING_SIZE) != end; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
+  printf("------> %s\n", buffer[front]);
   // decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }

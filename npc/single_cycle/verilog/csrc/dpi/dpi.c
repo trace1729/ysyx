@@ -36,12 +36,16 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
-    difftest_skip_ref();
+#if CONFIG_DIFFTEST
+    difftest_skip_next_ref();
+#endif
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
-    difftest_skip_ref();
+#if CONFIG_DIFFTEST
+    difftest_skip_next_ref();
+#endif
     return us;
   }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
@@ -68,7 +72,9 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
 #endif
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
-    difftest_skip_ref();
+#if CONFIG_DIFFTEST
+    difftest_skip_next_ref();
+#endif
     return; 
   }
   switch (wmask) {

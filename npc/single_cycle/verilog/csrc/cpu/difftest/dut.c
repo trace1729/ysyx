@@ -147,7 +147,7 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
   }
 
   // 单独为单周期做的 work around
-  if (is_next_inst_skip) {
+  if ( is_next_inst_skip) {
     printf("set skip true\n");
     is_skip_ref = true;
     is_next_inst_skip = false;

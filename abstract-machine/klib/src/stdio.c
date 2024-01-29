@@ -6,13 +6,7 @@
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-	char out[1024];
-	va_list args;
-	va_start(args, fmt);
-	int size = vsprintf(out, fmt, args);
-	va_end(args);
-    putstr(out);
-	return size;
+	return 0;
 }
 
 static char tochar(int num) {

@@ -84,7 +84,7 @@ void iringbuffer_display() {
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
   printf("*============ Instruction traceback ===================*\n");
-  for (; LAST; ADVANCE(front)) {
+  for (; !LAST; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
   ADVANCE(front);

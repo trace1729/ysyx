@@ -64,7 +64,7 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
     // return from instead of return to
     get_function_symbol_by_address(s->pc, function);
     printf("0x%x: ", s->pc);
-    for (int i = 0; i < depth; i++) printf(" ");
+    for (int i = 0; i < depth; i++) printf("-");
     printf("ret[%s]\n", function);
     depth--;
 

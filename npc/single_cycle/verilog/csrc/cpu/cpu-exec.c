@@ -45,6 +45,7 @@ void sdb_mainloop();
 // for iringbuffer
 #define RING_SIZE 16
 #define RING_FULL ((iringbuffer.write + 1) % RING_SIZE == iringbuffer.read)
+#define LAST ((iringbuffer.read + 1) % RING_SIZE == iringbuffer.write)
 #define RING (iringbuffer.buffer[iringbuffer.write])
 #define ADVANCE(i) (i = (i + 1) % (RING_SIZE))
 
@@ -83,9 +84,11 @@ void iringbuffer_display() {
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
   printf("*============ Instruction traceback ===================*\n");
-  for (; front != end; ADVANCE(front)) {
+  for (; LAST; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
+  ADVANCE(front);
+  printf("------> %s\n", buffer[front]);
   // decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }

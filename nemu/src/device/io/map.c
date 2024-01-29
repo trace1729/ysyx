@@ -29,6 +29,9 @@ uint8_t* new_space(int size) {
   size = (size + (PAGE_SIZE - 1)) & ~PAGE_MASK;
   p_space += size;
   assert(p_space - io_space < IO_SPACE_MAX);
+/* #ifdef CONFIG_TARGET_AM */
+/*   printf("new space = %d\n", p); */
+/* #endif */
   return p;
 }
 
@@ -50,6 +53,10 @@ void init_map() {
   io_space = malloc(IO_SPACE_MAX);
   assert(io_space);
   p_space = io_space;
+#ifdef CONFIG_TARGET_AM
+  printf("io space = %d\n", io_space);
+#endif
+
 }
 
 word_t map_read(paddr_t addr, int len, IOMap *map) {

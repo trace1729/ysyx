@@ -25,6 +25,7 @@ void init_device();
 void init_sdb();
 void init_disasm(const char *triple);
 
+#ifndef CONFIG_TARGET_AM
 static void welcome() {
   Log("Trace: %s", MUXDEF(CONFIG_TRACE, ANSI_FMT("ON", ANSI_FG_GREEN), ANSI_FMT("OFF", ANSI_FG_RED)));
   IFDEF(CONFIG_TRACE, Log("If trace is enabled, a log file will be generated "
@@ -34,6 +35,7 @@ static void welcome() {
   printf("Welcome to %s-NEMU!\n", ANSI_FMT(str(__GUEST_ISA__), ANSI_FG_YELLOW ANSI_BG_RED));
   printf("For help, type \"help\"\n");
 }
+#endif
 
 #ifndef CONFIG_TARGET_AM
 #include <getopt.h>
@@ -58,7 +60,9 @@ static long load_img() {
   fseek(fp, 0, SEEK_END);
   long size = ftell(fp);
 
+#ifndef CONFIG_TARGET_AM
   Log("The image is %s, size = %ld", img_file, size);
+#endif
 
   fseek(fp, 0, SEEK_SET);
   int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
@@ -154,7 +158,7 @@ void init_monitor(int argc, char *argv[]) {
 static long load_img() {
   extern char bin_start, bin_end;
   size_t size = &bin_end - &bin_start;
-  Log("img size = %ld", size);
+  // Log("img size = %ld", size);
   memcpy(guest_to_host(RESET_VECTOR), &bin_start, size);
   return size;
 }
@@ -165,6 +169,8 @@ void am_init_monitor() {
   init_isa();
   load_img();
   IFDEF(CONFIG_DEVICE, init_device());
+#ifndef CONFIG_TARGET_AM
   welcome();
+#endif
 }
 #endif

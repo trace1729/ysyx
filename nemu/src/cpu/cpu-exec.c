@@ -201,7 +201,7 @@ void cpu_exec(uint64_t n) {
             ANSI_FMT("HIT BAD TRAP", ANSI_FG_RED))),
           nemu_state.halt_pc);
 #else
-      printf("nemu: %s at pc = %x" ,
+      printf("nemu: %s at pc = %x\n" ,
           (nemu_state.state == NEMU_ABORT ? "abort" :
            (nemu_state.halt_ret == 0 ? "good trap" : "bad trap")),nemu_state.halt_pc);
 #endif
@@ -210,7 +210,7 @@ void cpu_exec(uint64_t n) {
 #ifndef  CONFIG_TARGET_AM
       statistic();
 #else
-      printf("quit!");
+      printf("quit!\n");
 #endif
   }
 }

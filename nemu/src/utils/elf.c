@@ -8,8 +8,8 @@ extern uint64_t g_nr_guest_inst;
 
 
 static FILE *fp = NULL;
-static char e_strtab[81920];
-static Elf32_Sym e_symbols[81920];
+static char e_strtab[1024];
+static Elf32_Sym e_symbols[256];
 static int e_symnum;
 
 void get_function_symbol_by_address(uint32_t addr, char *buf) {
@@ -35,7 +35,7 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
 void init_elf(const char* elf_file) {
   if (!elf_file) return;
   Elf32_Ehdr e_hdr;
-  Elf32_Shdr e_sections[81920];
+  Elf32_Shdr e_sections[256];
   fp = fopen(elf_file, "rb");
   Check(fp != NULL, "open %s failed", elf_file);
   size_t size = fread(&e_hdr, sizeof(e_hdr), 1, fp);

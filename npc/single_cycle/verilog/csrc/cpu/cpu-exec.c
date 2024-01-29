@@ -78,7 +78,7 @@ static void decode_last_inst () {
   printf("------> %s\n", RING);
 }
 
-static void iringbuffer_display() {
+void iringbuffer_display() {
   int front = iringbuffer.read;
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;

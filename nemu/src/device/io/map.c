@@ -29,9 +29,9 @@ uint8_t* new_space(int size) {
   size = (size + (PAGE_SIZE - 1)) & ~PAGE_MASK;
   p_space += size;
   assert(p_space - io_space < IO_SPACE_MAX);
-#ifdef CONFIG_TARGET_AM
-  printf("new space = %d\n", p);
-#endif
+/* #ifdef CONFIG_TARGET_AM */
+/*   printf("new space = %d\n", p); */
+/* #endif */
   return p;
 }
 

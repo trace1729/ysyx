@@ -143,6 +143,13 @@ void difftest_step(vaddr_t pc, vaddr_t npc) {
     printf("skipping, next inst is %x\n", cpu.pc);
     ref_difftest_regcpy(&cpu, DIFFTEST_TO_REF);
     is_skip_ref = false;
+    // 必须保证 is_skip_ref 在 is_next_inst_skip 之前进行处理。 
+    // 单独为单周期做的 work around
+    if ( is_next_inst_skip) {
+      printf("set skip true, next inst is %x\n", cpu.pc);
+      is_skip_ref = true;
+      is_next_inst_skip = false;
+    }
     return;
   }
 

@@ -43,7 +43,7 @@
 #define CONFIG_ISA "riscv32"
 #define CONFIG_VGA_CTL_MMIO 0xa0000100
 #define CONFIG_PMEM_GARRAY 1
-#define CONFIG_ITRACE_COND "false"
+// #define CONFIG_ITRACE_COND "false"
 // #define CONFIG_ITRACE 1
 // #define CONFIG_FTRACE 1
 // #define CONFIG_MTRACE 1

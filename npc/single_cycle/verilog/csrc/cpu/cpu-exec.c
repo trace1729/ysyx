@@ -45,6 +45,7 @@ void sdb_mainloop();
 // for iringbuffer
 #define RING_SIZE 16
 #define RING_FULL ((iringbuffer.write + 1) % RING_SIZE == iringbuffer.read)
+#define LAST ((iringbuffer.read + 1) % RING_SIZE != iringbuffer.write)
 #define RING (iringbuffer.buffer[iringbuffer.write])
 #define ADVANCE(i) (i = (i + 1) % (RING_SIZE))
 
@@ -75,17 +76,18 @@ static void decode_last_inst () {
   disassemble(p, RING + sizeof(RING) - p,
       cpu.pc, (uint8_t *)&val, ilen);
   
-  printf("------> %s\n", RING);
+  printf("\t%s\n", RING);
 }
 
-static void iringbuffer_display() {
+void iringbuffer_display() {
   int front = iringbuffer.read;
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
   printf("*============ Instruction traceback ===================*\n");
-  for (; front != end; ADVANCE(front)) {
+  for (; ((front + 1) % RING_SIZE) != end; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
+  printf("------> %s\n", buffer[front]);
   decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }

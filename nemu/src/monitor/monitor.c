@@ -158,7 +158,7 @@ void init_monitor(int argc, char *argv[]) {
 static long load_img() {
   extern char bin_start, bin_end;
   size_t size = &bin_end - &bin_start;
-  Log("img size = %ld", size);
+  // Log("img size = %ld", size);
   memcpy(guest_to_host(RESET_VECTOR), &bin_start, size);
   return size;
 }

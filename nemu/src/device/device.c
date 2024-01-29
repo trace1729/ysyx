@@ -78,6 +78,9 @@ void init_device() {
   init_map();
 
   IFDEF(CONFIG_HAS_SERIAL, init_serial());
+#ifdef CONFIG_TARGET_AM
+  printf("device booted\n");
+#endif
 #ifndef CONFIG_TARGET_AM
   IFDEF(CONFIG_HAS_TIMER, init_timer());
   IFDEF(CONFIG_HAS_VGA, init_vga());

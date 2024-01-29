@@ -50,6 +50,5 @@ void init_serial() {
 #else
   add_mmio_map("serial", CONFIG_SERIAL_MMIO, serial_base, 8, serial_io_handler);
 #endif
-  printf("init serial ended\n");
 
 }

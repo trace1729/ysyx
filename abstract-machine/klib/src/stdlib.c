@@ -38,7 +38,6 @@ void *malloc(size_t size) {
   if (addr == 0) addr = heap.start;
   void* alloc = addr;
   addr += size;
-  printf("allocating memory %d\n", alloc);
   return alloc;
 }
 

@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include <SDL2/SDL_audio.h>
 #include <common.h>
 #include <device/map.h>
 #include <SDL2/SDL.h>
@@ -29,8 +30,45 @@ enum {
 
 static uint8_t *sbuf = NULL;
 static uint32_t *audio_base = NULL;
+static int rptr = 0;
+
+static void audio_play(void *userdata, uint8_t *stream, int len) {
+  int nread = len;
+  int count = audio_base[reg_count];
+  int bufsize = audio_base[reg_sbuf_size];
+  if (count < len) nread = count;
+  
+  for (int i = 0; i < nread; i++) {
+    stream[i] = sbuf[rptr++ % bufsize];
+  }
+
+  audio_base[reg_count] = count -= nread;
+  if (len > nread) {
+    memset(stream + nread, 0, len - nread);
+  }
+}
+
 
 static void audio_io_handler(uint32_t offset, int len, bool is_write) {
+  
+  if (audio_base[reg_init]) {
+    audio_base[reg_init]  = 0;
+    SDL_AudioSpec desired = {};
+    desired.freq          = audio_base[reg_freq];
+    desired.channels      = audio_base[reg_channels];
+    desired.samples       = audio_base[reg_samples];
+    desired.callback      = audio_play;
+    desired.format        = AUDIO_S16SYS;
+    desired.userdata      = NULL;
+
+    int ret = SDL_InitSubSystem(SDL_INIT_AUDIO);
+    if (ret != 0) 
+      panic("SDL init Audio Failed!");
+    SDL_OpenAudio(&desired, NULL);
+    SDL_PauseAudio(0);
+  }
+
+
 }
 
 void init_audio() {
@@ -44,4 +82,5 @@ void init_audio() {
 
   sbuf = (uint8_t *)new_space(CONFIG_SB_SIZE);
   add_mmio_map("audio-sbuf", CONFIG_SB_ADDR, sbuf, CONFIG_SB_SIZE, NULL);
+  audio_base[reg_sbuf_size] = CONFIG_SB_SIZE;
 }

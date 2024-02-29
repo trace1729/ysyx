@@ -28,7 +28,8 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
 #if CONFIG_ETRACE
   char exception[128];
   switch (NO) {
-    case -1: strcpy(exception, "YIELD");
+    case -1: strcpy(exception, "YIELD"); break;
+    default: break;
   }
   Log("%s exception occurs\n", exception);
 #endif

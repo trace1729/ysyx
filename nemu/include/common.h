@@ -46,4 +46,7 @@ typedef uint16_t ioaddr_t;
 
 #include <debug.h>
 
+enum {MSTATUS, MEPC, MCAUSE, PL1, PL2, MTVEC};
+#define NR_CSR 10
+
 #endif

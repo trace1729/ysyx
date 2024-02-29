@@ -24,12 +24,10 @@
 // PL means place holder
 // 001100000101 mtvec
 
-enum {MSTATUS, MEPC, MCAUSE, PL1, PL2, MTVEC};
-#define nr_csr 10
 
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
-  word_t csr[nr_csr];
+  word_t csr[NR_CSR];
   vaddr_t pc;
   uint32_t mode;
 } MUXDEF(CONFIG_RV64, riscv64_CPU_state, riscv32_CPU_state);

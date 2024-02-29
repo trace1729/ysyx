@@ -21,7 +21,9 @@
 #define NR_GPR MUXDEF(CONFIG_RVE, 16, 32)
 struct diff_context_t {
   word_t gpr[NR_GPR];
-  word_t pc;
+  word_t csr[NR_CSR];
+  vaddr_t pc;
+  uint32_t mode;
 };
 
 void diff_get_regs(void* dut) {

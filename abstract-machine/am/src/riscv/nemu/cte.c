@@ -40,14 +40,16 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-	uint32_t* ctx = (uint32_t*)kstack.start;
-	for (int i = 0; i < 35; i++) {
-		ctx[i] = 0;
+	Context* ctx = (Context*)kstack.start;
+	for (int i = 0; i < 32; i++) {
+		ctx->gpr[i] = 0;
 	}
+	ctx->mcause = 0;
+	ctx->mstatus = 0;
 	// set mepc to f
-	// ctx[10] = (uintptr_t)arg;
-	ctx[34] = (uintptr_t)entry;
-	return kstack.start;
+	// ctx->gpr[10] = (uintptr_t)arg;
+	ctx->mepc = (uintptr_t)entry;
+	return ctx;
 }
 
 void yield() {

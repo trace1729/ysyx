@@ -29,6 +29,7 @@ paddr_t host_to_guest(uint8_t *haddr) { return haddr - pmem + CONFIG_MBASE; }
 
 static word_t pmem_read(paddr_t addr, int len) {
 #if CONFIG_MTRACE
+if (addr >= 0x80021000)
   printf("paddr_read: Accessing memory at location %02x\n", addr);
 #endif
   word_t ret = host_read(guest_to_host(addr), len);

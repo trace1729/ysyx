@@ -15,9 +15,7 @@ static Context* (*user_handler)(Event, Context*) = NULL;
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
-	if (XLEN == 4) {
-		printf("right\n");
-	}
+	printf("xlen = %d\n", XLEN);
     switch (c->mcause) {
       case -1: ev.event = EVENT_YIELD; c->mepc += XLEN; break;
       default: ev.event = EVENT_ERROR; break;

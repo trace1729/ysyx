@@ -33,7 +33,6 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   }
 
   if (cpu.csr[MCAUSE] != ref_r->csr[MCAUSE]) {
-    printf("\ndut: %x,  ref: %x\n", cpu.csr[MSTATUS], ref_r->csr[MSTATUS]);
     return difftest_check_reg("mcause", pc, ref_r->csr[MCAUSE], cpu.csr[MCAUSE]);
   }
   

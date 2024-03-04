@@ -26,6 +26,7 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   if (NO == -1) {
     cpu.csr[MEPC] = epc;
     cpu.csr[MCAUSE] = 0xb;
+    printf("\ndut: %x\n", cpu.csr[MSTATUS]);
   }
 #if CONFIG_ETRACE
   char exception[128];

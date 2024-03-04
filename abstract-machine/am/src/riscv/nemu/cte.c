@@ -52,10 +52,11 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 		ctx->gpr[i] = 0;
 	}
 	ctx->mcause = 0;
-	ctx->mstatus = 0;
+	ctx->mstatus = 0x1800;
 	// set mepc to f
-	ctx->gpr[10] = (uintptr_t)arg;
 	ctx->mepc = (uintptr_t)entry;
+    // x10 -> a0 储存参数
+	ctx->gpr[10] = (uintptr_t)arg;
 	return ctx;
 }
 

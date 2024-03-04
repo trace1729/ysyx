@@ -71,7 +71,7 @@ void sim_t::diff_get_regs(void* diff_context) {
     printf("\nget(/= 0): mcause %lx\n", state->mcause->read());
   }
   if (ctx->csr[MSTATUS] == 0) {
-    printf("\nget: %lx\n", state->mcause->read());
+    printf("\nget(= 0): %lx\n", state->mcause->read());
   }
 }                                     
 

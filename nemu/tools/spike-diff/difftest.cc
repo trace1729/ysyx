@@ -67,7 +67,7 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MTVEC]   = state->mtvec->read();
   ctx->csr[MSTATUS] = state->mstatus->read();
   if (state->mepc->read() != 0 ) {
-    printf("MEPC: %d %ld\n", ctx->csr[MEPC], state->mepc->read());
+    printf("MEPC: %x\n", ctx->csr[MEPC]);
   }
 }                                     
 

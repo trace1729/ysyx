@@ -66,6 +66,13 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MCAUSE]  = state->mcause->read();
   ctx->csr[MTVEC]   = state->mtvec->read();
   ctx->csr[MSTATUS] = state->mstatus->read();
+  if (ctx->csr[MSTATUS] != 0) {
+    printf("\nget(/= 0): status %x\n", ctx->csr[MSTATUS]);
+    printf("\nget(/= 0): mcause %lx\n", state->mcause->read());
+  }
+  if (ctx->csr[MSTATUS] == 0) {
+    printf("\nget: %lx\n", state->mcause->read());
+  }
 }                                     
 
 void sim_t::diff_set_regs(void* diff_context) {
@@ -78,6 +85,10 @@ void sim_t::diff_set_regs(void* diff_context) {
   state->mcause->write(ctx->csr[MCAUSE]);
   state->mtvec->write(ctx->csr[MTVEC]);
   state->mstatus->write(ctx->csr[MSTATUS]);
+
+  if (ctx->csr[MSTATUS] != 0) {
+    printf("\nset: %x\n", ctx->csr[MSTATUS]);
+  }
 }
 
 void sim_t::diff_memcpy(reg_t dest, void* src, size_t n) {

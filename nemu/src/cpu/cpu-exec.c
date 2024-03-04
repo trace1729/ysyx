@@ -146,6 +146,8 @@ static void execute(uint64_t n) {
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
     g_nr_guest_inst ++;
+    if (cpu.csr[MCAUSE] != 0)
+      printf("execute: mcause: %d\n", cpu.csr[MCAUSE]);
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING) break;
 #ifndef CONFIG_TARGET_AM

@@ -66,13 +66,13 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MCAUSE]  = state->mcause->read();
   ctx->csr[MTVEC]   = state->mtvec->read();
   ctx->csr[MSTATUS] = state->mstatus->read();
-  if (state->mepc->read() != 0 ) {
-    printf("spike: MEPC: %x\n", ctx->csr[MEPC]);
-    printf("spike: mstatus: %d\n", ctx->csr[MSTATUS]);
-  }
-  if (state->mcause->read() != 0 ) {
-    printf("spike: mcause: %x\n", ctx->csr[MCAUSE]);
-  }
+  // if (state->mepc->read() != 0 ) {
+  //   printf("spike: MEPC: %x\n", ctx->csr[MEPC]);
+  //   printf("spike: mstatus: %d\n", ctx->csr[MSTATUS]);
+  // }
+  // if (state->mcause->read() != 0 ) {
+  //   printf("spike: mcause: %x\n", ctx->csr[MCAUSE]);
+  // }
 }                                     
 
 void sim_t::diff_set_regs(void* diff_context) {

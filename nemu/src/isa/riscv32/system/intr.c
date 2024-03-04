@@ -13,7 +13,6 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
-#include "common.h"
 #include "debug.h"
 #include <isa.h>
 #ifndef CONFIG_TARGET_AM
@@ -27,7 +26,6 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   if (NO == -1) {
     cpu.csr[MEPC] = epc;
     cpu.csr[MCAUSE] = 0xb;
-    printf("dut: %x\n", cpu.csr[MCAUSE]);
   }
 #if CONFIG_ETRACE
   char exception[128];

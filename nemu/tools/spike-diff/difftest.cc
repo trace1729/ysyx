@@ -78,6 +78,9 @@ void sim_t::diff_set_regs(void* diff_context) {
   state->mcause->write(ctx->csr[MCAUSE]);
   state->mtvec->write(ctx->csr[MTVEC]);
   state->mstatus->write(ctx->csr[MSTATUS]);
+  if (ctx->csr[MCAUSE] != 0) {
+    printf("mcause: %d\n", ctx->csr[MCAUSE]);
+  }
 }
 
 void sim_t::diff_memcpy(reg_t dest, void* src, size_t n) {

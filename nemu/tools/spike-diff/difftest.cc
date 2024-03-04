@@ -69,6 +69,9 @@ void sim_t::diff_get_regs(void* diff_context) {
   if (state->mepc->read() != 0 ) {
     printf("MEPC: %x\n", ctx->csr[MEPC]);
   }
+  if (state->mcause->read() != 0 ) {
+    printf("MEPC: %x\n", ctx->csr[MCAUSE]);
+  }
 }                                     
 
 void sim_t::diff_set_regs(void* diff_context) {

@@ -68,7 +68,7 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MSTATUS] = state->mstatus->read();
   if (state->mepc->read() != 0 ) {
     printf("spike: MEPC: %x\n", ctx->csr[MEPC]);
-    printf("nemu: mstatus: %d\n", ctx->csr[MSTATUS]);
+    printf("spike: mstatus: %d\n", ctx->csr[MSTATUS]);
   }
   if (state->mcause->read() != 0 ) {
     printf("spike: MEPC: %x\n", ctx->csr[MCAUSE]);

@@ -66,6 +66,9 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MCAUSE]  = state->mcause->read();
   ctx->csr[MTVEC]   = state->mtvec->read();
   ctx->csr[MSTATUS] = state->mstatus->read();
+  if (state->mepc->read() != 0 ) {
+    printf("MEPC: %d %ld\n", ctx->csr[MEPC], state->mepc->read());
+  }
 }                                     
 
 void sim_t::diff_set_regs(void* diff_context) {
@@ -78,8 +81,9 @@ void sim_t::diff_set_regs(void* diff_context) {
   state->mcause->write(ctx->csr[MCAUSE]);
   state->mtvec->write(ctx->csr[MTVEC]);
   state->mstatus->write(ctx->csr[MSTATUS]);
-  if (ctx->csr[MCAUSE] != 0) {
+  if (ctx->csr[MCAUSE] != 0 || ctx->csr[MEPC] != 0) {
     printf("mcause: %d\n", ctx->csr[MCAUSE]);
+    printf("MEPC: %d\n", ctx->csr[MEPC]);
   }
 }
 

@@ -66,13 +66,6 @@ void sim_t::diff_get_regs(void* diff_context) {
   ctx->csr[MCAUSE]  = state->mcause->read();
   ctx->csr[MTVEC]   = state->mtvec->read();
   ctx->csr[MSTATUS] = state->mstatus->read();
-  // if (ctx->csr[MSTATUS] != 0) {
-  //   printf("\nget(/= 0): status %x\n", ctx->csr[MSTATUS]);
-  //   printf("\nget(/= 0): mcause %lx\n", state->mcause->read());
-  // }
-  // if (ctx->csr[MSTATUS] == 0) {
-  //   printf("\nget(= 0): %lx\n", state->mcause->read());
-  // }
 }                                     
 
 void sim_t::diff_set_regs(void* diff_context) {

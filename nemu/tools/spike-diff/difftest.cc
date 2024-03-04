@@ -84,9 +84,11 @@ void sim_t::diff_set_regs(void* diff_context) {
   state->mcause->write(ctx->csr[MCAUSE]);
   state->mtvec->write(ctx->csr[MTVEC]);
   state->mstatus->write(ctx->csr[MSTATUS]);
-  if (ctx->csr[MCAUSE] != 0 || ctx->csr[MEPC] != 0) {
+  if (ctx->csr[MCAUSE] != 0 || ctx->csr[MEPC] != 0 || ctx->csr[MSTATUS] != 0) {
     printf("nemu: mcause: %d\n", ctx->csr[MCAUSE]);
     printf("nemu: MEPC: %d\n", ctx->csr[MEPC]);
+    printf("nemu: mstatus: %d\n", ctx->csr[MSTATUS]);
+
   }
 }
 

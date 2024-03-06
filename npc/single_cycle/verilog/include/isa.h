@@ -35,7 +35,9 @@ typedef struct Decode {
 } Decode;
 typedef struct {
   word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
+  word_t csr[NR_CSR];
   vaddr_t pc;
+  uint32_t mode;
 } CPU_state;
 
 // The macro `__GUEST_ISA__` is defined in $(CFLAGS).

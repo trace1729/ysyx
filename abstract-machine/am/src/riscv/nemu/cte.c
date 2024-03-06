@@ -47,17 +47,20 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-	Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
-	for (int i = 0; i < 32; i++) {
-		ctx->gpr[i] = 0;
-	}
-	ctx->mcause = 0;
-	ctx->mstatus = 0x1800;
-	// set mepc to f
-	ctx->mepc = (uintptr_t)entry;
-    // x10 -> a0 储存参数
-	ctx->gpr[10] = (uintptr_t)arg;
-	return ctx;
+  if (entry == NULL) {
+    printf("entry function is NULL!\n"); assert(0);
+  }
+  Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
+  for (int i = 0; i < 32; i++) {
+      ctx->gpr[i] = 0;
+  }
+  ctx->mcause = 0;
+  ctx->mstatus = 0x1800;
+  // set mepc to f
+  ctx->mepc = (uintptr_t)entry;
+  // x10 -> a0 储存参数
+  ctx->gpr[10] = (uintptr_t)arg;
+  return ctx;
 }
 
 void yield() {

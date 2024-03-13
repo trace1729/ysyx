@@ -24,7 +24,7 @@ class IFU extends Module {
   }.elsewhen(io.out.ready && io.out.valid) {
     io.out.valid := 0.U
   }.otherwise{
-    io.out.valid := io.out.valid
+    io.out.valid := DontCare
   }
 
 }
@@ -45,8 +45,8 @@ class IDU extends Module {
      pc := io.in.bits.pc
      inst := io.in.bits.inst
   }.otherwise{
-      pc := pc
-      inst := inst
+      pc := DontCare
+      inst := DontCare
   }
   io.out.pc := pc
   io.out.inst := inst

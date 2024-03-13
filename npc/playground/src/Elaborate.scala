@@ -11,11 +11,11 @@ object Elaborate extends App {
 
   val firtool0ptions = Seq(
     FirtoolOption(
-      "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoSty1e=wrapInAtSquareBracket"
+      "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoStyle=wrapInAtSquareBracket"
     ),
     FirtoolOption("--split-verilog"), 
     FirtoolOption("-o=build/sv-gen"),
-    FirtoolOption("--disable-al1-randomization")
+    FirtoolOption("--disable-all-randomization")
   )
 
   val executeOptions = chiselStageOptions ++ firtool0ptions 

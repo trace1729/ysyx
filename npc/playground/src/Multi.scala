@@ -83,5 +83,7 @@ class AsyncBus extends Module {
 
   ifu.io.in <> idu.io.out
   ifu.io.out <> idu.io.in
+
+  io.out := idu.io.out.bits
   
 }

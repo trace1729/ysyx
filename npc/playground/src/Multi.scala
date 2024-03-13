@@ -45,7 +45,10 @@ class IDU extends Module {
 
   when (io.in.valid) {
     io.out := io.in.bits
+  }.otherwise{
+    io.out := DontCare
   }
+
 
 }
 
@@ -57,6 +60,7 @@ class AsyncBus extends Module {
   val ifu = Module(new IFU)
   val idu = Module(new IDU)
 
+  ifu.io.in := true.B
   ifu.io.out <> idu.io.in
   io.out := idu.io.out
 }

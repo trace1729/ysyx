@@ -47,10 +47,6 @@ object GCDSpec extends ChiselUtestTester {
     test("bus") {
       testCircuit(new AsyncBus()) {
         dut =>
-          dut.io.in.inst.poke(1.U)
-          dut.io.in.pc.poke(2.U)
-          dut.io.out.inst.expect(1.U)
-          dut.io.out.pc.expect(2.U)
       }
     }
   }

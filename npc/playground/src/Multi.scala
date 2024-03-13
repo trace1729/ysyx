@@ -12,19 +12,18 @@ class IFU extends Module {
     val out = Decoupled(new Message)
   })
 
+  val temp_valid = RegInit(0.U)
+  io.out.valid := temp_valid
+
   io.out.bits.inst := 4.U
   io.out.bits.pc := 4.U
 
-  // valid 就取下一条指令
+  // wb_valid 就取下一条指令
   // io.in <=> wb_v
-  when (io.in) {
-    // ifu_to_idu_valid
-    io.out.valid := 1.U
-    // ifu_to_idu_ready && ifu_to_idu_valid
-  }.elsewhen(io.out.ready && io.out.valid) {
-    io.out.valid := 0.U
-  }.otherwise{
-    io.out.valid := DontCare
+  when(io.in) {
+    temp_valid := 1.U
+  }.elsewhen(io.out.valid && io.out.ready) {
+    temp_valid := 0.U
   }
 
 }
@@ -41,13 +40,10 @@ class IDU extends Module {
   io.in.ready := io.in.valid
   // valid 就取下一条指令
   // io.in <=> wb_v
-  when (io.in.valid && io.in.ready) {
-     pc := io.in.bits.pc
-     inst := io.in.bits.inst
-  }.otherwise{
-      pc := DontCare
-      inst := DontCare
-  }
+
+  inst := Mux(io.in.valid, io.in.bits.inst, DontCare) 
+  pc := Mux(io.in.valid, io.in.bits.pc, DontCare) 
+
   io.out.pc := pc
   io.out.inst := inst
 }

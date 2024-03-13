@@ -47,6 +47,9 @@ object GCDSpec extends ChiselUtestTester {
     test("bus") {
       testCircuit(new AsyncBus()) {
         dut =>
+          dut.clock.step(1)
+          dut.io.out.pc.expect(4.U)
+          dut.io.out.inst.expect(4.U)
       }
     }
   }

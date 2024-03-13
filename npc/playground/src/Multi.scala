@@ -16,7 +16,7 @@ class IFU extends Module {
   val inst = RegInit(0.U(32.W))
 
   // 当前模块的valid信号跟随上一个模块
-  io.out.valid := Mux(pc === 0.U, 1.U, io.in.valid)
+  io.out.valid := 1.U
   
   // 且 ready 信号跟随 valid 信号
   io.in.ready := io.out.valid

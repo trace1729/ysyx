@@ -12,26 +12,20 @@ class IFU extends Module {
     val out = Decoupled(new Message)
   })
 
-  val pc = RegInit(0.U(32.W))
-  val inst = RegInit(0.U(32.W))
+  io.out.bits.inst := 4.U
+  io.out.bits.pc := 4.U
 
   // valid 就取下一条指令
+  // io.in <=> wb_v
   when (io.in) {
-    pc := pc + 4.U
-    inst := inst + 1.U
+    // ifu_to_idu_valid
     io.out.valid := 1.U
-  }.otherwise {
+    // ifu_to_idu_ready && ifu_to_idu_valid
+  }.elsewhen(io.out.ready && io.out.valid) {
     io.out.valid := 0.U
+  }.otherwise{
+    io.out.valid := io.out.valid
   }
-
-  // 当获取到下一个单元的 ready 信号时，将指令和程序计数器传递给下一个模块
-  when (io.out.ready) {
-    io.out.bits.inst := inst
-    io.out.bits.pc := pc
-    }.otherwise {
-      io.out.bits.inst := DontCare
-      io.out.bits.pc := DontCare
-    }
 
 }
 
@@ -41,15 +35,21 @@ class IDU extends Module {
     val out = new Message
   })
   
+  val pc = RegInit(0.U(32.W))
+  val inst = RegInit(0.U(32.W))
+
   io.in.ready := io.in.valid
-
-  when (io.in.valid) {
-    io.out := io.in.bits
+  // valid 就取下一条指令
+  // io.in <=> wb_v
+  when (io.in.valid && io.in.ready) {
+     pc := io.in.bits.pc
+     inst := io.in.bits.inst
   }.otherwise{
-    io.out := DontCare
+      pc := pc
+      inst := inst
   }
-
-
+  io.out.pc := pc
+  io.out.inst := inst
 }
 
 class AsyncBus extends Module {

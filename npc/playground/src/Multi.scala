@@ -19,10 +19,10 @@ class IFU extends Module {
   io.out.valid := Mux(pc === 0.U, 1.U, io.in.valid)
   
   // 且 ready 信号跟随 valid 信号
-  io.out.ready := io.out.valid
+  io.in.ready := io.out.valid
 
   
-  // 最后一个执行单元传递过来的信号
+  // valid 就取下一条指令
   when (io.in.valid) {
     pc := pc + 4.U
     inst := inst + 1.U
@@ -53,7 +53,7 @@ class IDU extends Module {
   // 当前模块的valid信号跟随上一个模块
   io.out.valid := io.in.valid
 
-  io.out.ready := io.out.valid
+  io.in.ready := io.out.valid
   
   // 最后一个执行单元传递过来的信号
   when (io.in.valid) {
@@ -83,7 +83,5 @@ class AsyncBus extends Module {
 
   ifu.io.in <> idu.io.out
   ifu.io.out <> idu.io.in
-
-  io.out <> idu.io.out.bits
   
 }

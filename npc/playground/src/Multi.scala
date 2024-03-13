@@ -8,7 +8,7 @@ class Message extends Bundle {
 
 class IFU extends Module {
   val io = IO(new Bundle {
-    val in = Bool()
+    val in = Flipped(Bool())
     val out = Decoupled(new Message)
   })
 

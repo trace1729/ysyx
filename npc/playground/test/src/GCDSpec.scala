@@ -47,7 +47,8 @@ object GCDSpec extends ChiselUtestTester {
     test("bus") {
       testCircuit(new AsyncBus()) {
         dut =>
-          dut.clock.step(1)
+          // 才可以拿到数据
+          dut.clock.step(2)
           dut.io.out.pc.expect(4.U)
           dut.io.out.inst.expect(4.U)
       }

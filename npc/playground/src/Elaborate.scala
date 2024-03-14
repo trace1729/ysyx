@@ -13,7 +13,7 @@ object Elaborate extends App {
     FirtoolOption(
       "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoStyle=wrapInAtSquareBracket"
     ),
-//     FirtoolOption("--split-verilog"), 
+    FirtoolOption("--split-verilog"), 
     FirtoolOption("-o=build/sv-gen"),
     FirtoolOption("--disable-all-randomization")
   )

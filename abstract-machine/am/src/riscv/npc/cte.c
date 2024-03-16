@@ -49,8 +49,9 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   if (entry == NULL) {
     printf("entry function is NULL!\n"); assert(0);
   }
+  printf("NR_REGS %d\n", NR_REGS);
   Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < 16; i++) {
       ctx->gpr[i] = 0;
   }
   ctx->mcause = 0;

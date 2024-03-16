@@ -1,6 +1,7 @@
+package cpu
 import chisel3._
 import chisel3.util._
-import config.Config._
+import cpu.config._
 
 class ImmGen(width: Int = 32) extends Module {
 

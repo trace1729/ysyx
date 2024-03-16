@@ -1,3 +1,4 @@
+package cpu
 import circt.stage._
 
 object Elaborate extends App {

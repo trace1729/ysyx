@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = playground
+TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
 
@@ -8,7 +8,7 @@ test:
 
 verilog:
 	$(call git_commit, "generate verilog")
-	mkdir -p $(BUILD_DIR)
+	gkdir -p $(BUILD_DIR)
 	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM)
 
 help:

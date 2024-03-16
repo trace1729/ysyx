@@ -154,6 +154,7 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   )
 
   // csr
+  csr.io.csrsWriteEn := cntlLogic.io.csrsWriteEn
   csr.io.csrNo := immgen.io.imm
   // 只考虑 csrw, 所以直接把 rs1 寄存器的值写入 CSRs[csr_no]
   csr.io.data := regfile.io.rs1

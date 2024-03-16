@@ -218,6 +218,7 @@ class controlLogic(width: Int = 32) extends Module {
       io.memRW     := DontCare
       io.memEnable := 0.U
       io.WBsel     := 3.U
+      io.csrsWriteEn := 0.U
     }
     // 目前只实现 csrw, 不需要将 csr 的值写入寄存器文件
     is(type_I_CSRW) {

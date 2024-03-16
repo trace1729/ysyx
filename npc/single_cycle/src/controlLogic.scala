@@ -38,6 +38,8 @@ class controlLogic(width: Int = 32) extends Module {
   func7 := io.inst(31, 25)
 
   optype := MuxCase(type_N, Seq(
+    // csrrx
+    (io.inst(6, 0) === "b1110011".asUInt) -> type_IE,
     // load 
     (io.inst(6, 0) ===  "b0000011".asUInt) -> type_IL,
     // jalr
@@ -107,6 +109,19 @@ class controlLogic(width: Int = 32) extends Module {
       io.memRW := 0.U
       io.memEnable := 1.U
       io.WBsel := 2.U
+    }
+    // (csrrw) alures = r     
+    is (type_IE) {
+      io.pcsel := 0.U
+      io.writeEn := 1.U
+      io.immsel := type_I
+      io.asel := 0.U
+      io.bsel := 1.U
+      io.alusel := 0.U
+      io.memRW := 0.U
+      io.memEnable := 1.U
+      io.WBsel := 2.U
+
     }
     is (type_IS) {
       io.pcsel := 0.U

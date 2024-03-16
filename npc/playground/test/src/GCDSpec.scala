@@ -53,5 +53,14 @@ object GCDSpec extends ChiselUtestTester {
           dut.io.out.inst.expect(4.U)
       }
     }
+    test("CSR") {
+      testCircuit(new CSR(10, 32)) {
+        dut =>
+          dut.io.csr_no.poke(1.U)
+          dut.io.data.poke(1.U)
+          dut.clock.step(1)
+          dut.io.csr_value.expect(1.U)
+      }
+    }
   }
 }

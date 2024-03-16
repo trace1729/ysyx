@@ -161,7 +161,7 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   csr.io.mcauseData := 0xb.U
   csr.io.mcauseWriteEn := cntlLogic.io.mcauseWriteEn
 
-  csr.io.mepc := io.pc
+  csr.io.mepcData := io.pc
   csr.io.mepcWriteEn := cntlLogic.io.mepcWriteEn
   
 }

@@ -33,7 +33,7 @@ object csrInst {
     return cpu.csr[MTVEC];
       对应到 rtl a  pc 的值
    */
-  def MRET = BitPat("00110000001000000000000001110011")
+  def MRET = BitPat("b00110000001000000000000001110011")
   // 对应到 rtl 就是将 csr_no 设置为 0x341, 选择 csrValue 作为 pc 的值
 }
 

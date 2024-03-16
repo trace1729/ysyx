@@ -4,10 +4,25 @@
 
 static Context* (*user_handler)(Event, Context*) = NULL;
 
+#if __riscv_xlen == 32
+#define XLEN 4
+#else 
+#define XLEN 8
+#endif
+
+#ifndef __riscv_e
+#define NR_REGS 32
+#else
+#define NR_REGS 16
+#endif
+
+#define CONTEXT_SIZE  ((NR_REGS + 3 + 1) * XLEN)
+
 Context* __am_irq_handle(Context *c) {
   if (user_handler) {
     Event ev = {0};
     switch (c->mcause) {
+      case 0xb: ev.event = EVENT_YIELD; c->mepc += XLEN; break;
       default: ev.event = EVENT_ERROR; break;
     }
 
@@ -31,7 +46,20 @@ bool cte_init(Context*(*handler)(Event, Context*)) {
 }
 
 Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
-  return NULL;
+  if (entry == NULL) {
+    printf("entry function is NULL!\n"); assert(0);
+  }
+  Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
+  for (int i = 0; i < 32; i++) {
+      ctx->gpr[i] = 0;
+  }
+  ctx->mcause = 0;
+  ctx->mstatus = 0x1800;
+  // set mepc to f
+  ctx->mepc = (uintptr_t)entry;
+  // x10 -> a0 储存参数
+  ctx->gpr[10] = (uintptr_t)arg;
+  return ctx;
 }
 
 void yield() {

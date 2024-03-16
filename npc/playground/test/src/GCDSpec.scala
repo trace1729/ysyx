@@ -4,6 +4,12 @@ import chisel3.experimental.BundleLiterals._
 
 import utest._
 
+object CSRs {
+  val mstatus = 0x300.U(12.W)
+  val mtvec = 0x301.U(12.W)
+  val mepc = 0x341.U(12.W)
+  val mcause = 0x342.U(12.W)
+}
 /**
   * This is a trivial example of how to run this Specification
   * From within sbt use:
@@ -51,6 +57,13 @@ object GCDSpec extends ChiselUtestTester {
           dut.clock.step(2)
           dut.io.out.pc.expect(4.U)
           dut.io.out.inst.expect(4.U)
+      }
+    }
+    test("CSR") {
+      testCircuit(new CSR(10, 32)) {
+        dut =>
+          dut.io.csr_no.poke(CSRs.mstatus)
+          dut.io.csr_value.expect(0x1800.U)
       }
     }
   }

@@ -56,8 +56,8 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   pcvalue := MuxCase(0.U, Seq(
     (cntlLogic.io.pcsel === 0.U) -> (io.pc + top.inst_len),
     (cntlLogic.io.pcsel === 1.U) -> alu.io.res,
-    (cntlLogic.io.pcsel === 2.U) -> csr.mepc,
-    (cntlLogic.io.pcsel === 3.U) -> csr.mtvec,
+    (cntlLogic.io.pcsel === 2.U) -> csr.io.mepc,
+    (cntlLogic.io.pcsel === 3.U) -> csr.io.mtvec,
   ))
   io.pc   := RegNext(pcvalue, top.base)
 

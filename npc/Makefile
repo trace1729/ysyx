@@ -8,7 +8,7 @@ test:
 
 verilog:
 	$(call git_commit, "generate verilog")
-	gkdir -p $(BUILD_DIR)
+	mkdir -p $(BUILD_DIR)
 	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM)
 
 help:
@@ -17,7 +17,7 @@ help:
 compile:
 	mill -i __.compile
 
-gsp:
+bsp:
 	mill -i mill.bsp.BSP/install
 
 reformat:

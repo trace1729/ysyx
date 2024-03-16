@@ -1,5 +1,7 @@
 import circt.stage._
 
+import cpu.top
+
 object Elaborate extends App {
   // Argument is appended after --
   val seperator = args.indexWhere(_ == "--")

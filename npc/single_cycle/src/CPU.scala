@@ -1,6 +1,8 @@
+package cpu
+
 import chisel3._
 import chisel3.util._
-import config.Config._
+import cpu.config._
 
 class top(width: Int = 32, memoryFile: String = "") extends Module {
 
@@ -47,9 +49,16 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   val alu       = Module(new ALU(width))
   val mem       = Module(new Mem(width))
   val immgen    = Module(new ImmGen(width))
+  val csr = Module(new CSR(10, width))
 
   val pcvalue = Wire(UInt(32.W))
-  pcvalue := Mux(!cntlLogic.io.pcsel, io.pc + top.inst_len, alu.io.res)
+//   pcvalue := Mux(!cntlLogic.io.pcsel, io.pc + top.inst_len, alu.io.res)
+  pcvalue := MuxCase(0.U, Seq(
+    (cntlLogic.io.pcsel === 0.U) -> (io.pc + top.inst_len),
+    (cntlLogic.io.pcsel === 1.U) -> alu.io.res,
+    (cntlLogic.io.pcsel === 2.U) -> csr.io.mepc,
+    (cntlLogic.io.pcsel === 3.U) -> csr.io.mtvec,
+  ))
   io.pc   := RegNext(pcvalue, top.base)
 
   instMem.io.pc     := io.pc
@@ -79,12 +88,15 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
   regfile.io.writeEn  := cntlLogic.io.writeEn
 
   val rmemdata = Wire(UInt(width.W))
+
+  // write back stage
   regfile.io.data := MuxCase(
     0.U,
     Seq(
       (cntlLogic.io.WBsel === 0.U) -> alu.io.res,
       (cntlLogic.io.WBsel === 1.U) -> (io.pc + top.inst_len),
-      (cntlLogic.io.WBsel === 2.U) -> rmemdata
+      (cntlLogic.io.WBsel === 2.U) -> rmemdata,
+      (cntlLogic.io.WBsel === 3.U) -> csr.io.csrValue
     )
   )
 
@@ -141,6 +153,18 @@ class top(width: Int = 32, memoryFile: String = "") extends Module {
     )
   )
 
+  // csr
+  csr.io.csrsWriteEn := cntlLogic.io.csrsWriteEn
+  csr.io.csrNo := immgen.io.imm
+  // 只考虑 csrw, 所以直接把 rs1 寄存器的值写入 CSRs[csr_no]
+  csr.io.data := regfile.io.rs1
+  // 需要写回寄存器文件的值
+  csr.io.mcauseData := 0xb.U
+  csr.io.mcauseWriteEn := cntlLogic.io.mcauseWriteEn
+
+  csr.io.mepcData := io.pc
+  csr.io.mepcWriteEn := cntlLogic.io.mepcWriteEn
+  
 }
 
 object top {

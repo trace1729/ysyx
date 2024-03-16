@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = playground
+TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
 
@@ -17,7 +17,7 @@ help:
 compile:
 	mill -i __.compile
 
-gsp:
+bsp:
 	mill -i mill.bsp.BSP/install
 
 reformat:

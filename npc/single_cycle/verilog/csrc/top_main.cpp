@@ -21,7 +21,6 @@ int is_exit_status_bad();
 
 std::unique_ptr<VerilatedContext> contextp {};
 std::unique_ptr<Vtop> top {};
-std::unique_ptr<VerilatedVcdC> tfp{};
 
 Decode itrace;
 Ftrace ftrace_block;
@@ -30,11 +29,7 @@ extern CPU_state cpu;
 void sim_init(char argc, char* argv[]) {
   contextp = std::make_unique<VerilatedContext>();
   top = std::make_unique<Vtop>(contextp.get());
-  contextp->traceEverOn(true);
   Verilated::commandArgs(argc, argv);
-  tfp = std::make_unique<VerilatedVcdC>();
-  // top->trace(tfp.get(), 3);
-  // tfp->open("wave.vcd");
 }
 
 void sim_reset(Vtop* top) {
@@ -50,17 +45,24 @@ void sim_reset(Vtop* top) {
 
 void sim_end() {
   top->final();
-  tfp->close();
 }
 
 int main(int argc, char** argv, char** env) {
  
   sim_init(argc, argv);
+
+  /* generate wave */
+  contextp->traceEverOn(true);
+  auto tfp = std::make_unique<VerilatedVcdC>();
+  // top->trace(tfp.get(), 3);
+  // tfp->open("wave.vcd");
+
   sim_reset(top.get());
 
   init_monitor(argc, argv);
   sdb_mainloop();
   sim_end();
+  tfp->close();
 
   return is_exit_status_bad();
 }

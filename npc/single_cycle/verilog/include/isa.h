@@ -34,8 +34,8 @@ typedef struct Decode {
   IFDEF(CONFIG_ITRACE, char logbuf[128]);
 } Decode;
 typedef struct {
-  word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   word_t csr[NR_CSR];
+  word_t gpr[MUXDEF(CONFIG_RVE, 16, 32)];
   vaddr_t pc;
   uint32_t mode;
 } CPU_state;

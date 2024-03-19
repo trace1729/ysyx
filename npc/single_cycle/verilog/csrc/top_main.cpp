@@ -21,7 +21,7 @@ int is_exit_status_bad();
 
 std::unique_ptr<VerilatedContext> contextp {};
 std::unique_ptr<Vtop> top {};
-std::unique_ptr<VerilatedVcdC> tfp {};
+VerilatedVcdC* tfp = new VerilatedVcdC;
 
 Decode itrace;
 Ftrace ftrace_block;
@@ -54,8 +54,8 @@ int main(int argc, char** argv, char** env) {
 
   /* generate wave */
   contextp->traceEverOn(true);
-  tfp = std::make_unique<VerilatedVcdC>();
-  top->trace(tfp.get(), 3);
+  // tfp = std::make_unique<VerilatedVcdC>();
+  top->trace(tfp, 3);
   tfp->open("wave.vcd");
 
   sim_reset(top.get());

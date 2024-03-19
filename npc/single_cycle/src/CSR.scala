@@ -108,4 +108,15 @@ class CSR(regNum: Int = 10, width: Int) extends Module {
   when(io.mcauseWriteEn) {
     mcause := io.mcauseData
   }
+
+  val csr_display = Module(new Csrs_display)
+  csr_display.io.regs := VecInit(Seq(mstatus, mepc, mtvec, mcause))
+}
+
+
+class Csrs_display extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val regs = Input(Vec(4, UInt(32.W)))
+  })
+  addResource("/Csrs_display.v")
 }

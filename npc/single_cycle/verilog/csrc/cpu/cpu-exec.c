@@ -88,7 +88,7 @@ void iringbuffer_display() {
     printf("\t%s\n", buffer[front]);
   }
   printf("------> %s\n", buffer[front]);
-//  decode_last_inst();
+  decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }
 #endif
@@ -166,10 +166,6 @@ static void statistic() {
 
 void assert_fail_msg() {
   isa_reg_display();
-#ifdef CONFIG_ITRACE
-  void iringbuffer_display();
-  iringbuffer_display();
-#endif
   statistic();
 }
 

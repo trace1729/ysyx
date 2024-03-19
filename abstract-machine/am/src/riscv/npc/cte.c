@@ -10,12 +10,6 @@ static Context* (*user_handler)(Event, Context*) = NULL;
 #define XLEN 8
 #endif
 
-#ifndef __riscv_e
-#define NR_REGS 32
-#else
-#define NR_REGS 16
-#endif
-
 #define CONTEXT_SIZE  ((NR_REGS + 3 + 1) * XLEN)
 
 Context* __am_irq_handle(Context *c) {
@@ -52,7 +46,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   }
   printf("NR_REGS %d\n", NR_REGS);
   Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
-  for (int i = 0; i < 16; i++) {
+  for (int i = 0; i < 32; i++) {
       ctx->gpr[i] = 0;
   }
   ctx->mcause = 0;

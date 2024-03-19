@@ -112,13 +112,6 @@ static void csrrw(word_t no, word_t src1, word_t rd) {
   R(rd) = t;
 }
 
-static void test()  {
-  Log("exceute mtvec = " FMT_WORD, cpu.csr[MTVEC]);
-  Log("exceute mstatus = " FMT_WORD, cpu.csr[MSTATUS]);
-  Log("exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
-  Log("exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
-}
-
 static int decode_exec(Decode *s) {
   int rd = 0;
   word_t src1 = 0, src2 = 0, imm = 0;
@@ -174,8 +167,8 @@ static int decode_exec(Decode *s) {
   INSTPAT("??????? ????? ????? 000 ????? 11001 11", jalr   , I, R(rd) = s->pc + 4, s->dnpc = src1 + imm FTRACE(rd, JALR, s,src1));
 
   // control and status registers 
-  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs   , I, csrrs(BITS(imm, 3, 0), src1, rd), test());
-  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw   , I, csrrw(BITS(imm, 3, 0), src1, rd), test());
+  INSTPAT("??????? ????? ????? 010 ????? 11100 11", csrrs   , I, csrrs(BITS(imm, 3, 0), src1, rd));
+  INSTPAT("??????? ????? ????? 001 ????? 11100 11", csrrw   , I, csrrw(BITS(imm, 3, 0), src1, rd));
   
 
   // IS type
@@ -204,9 +197,9 @@ static int decode_exec(Decode *s) {
 #ifdef __riscv_e
   // 这个宏定义没啥用，因为在构建NEMU 的时候是没有 __riscv_e 的
   // 之后注意下
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc), test());
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc));
 #else
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc), test()); 
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc)); 
 #endif
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak ,  N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    ,  N, INV(s->pc));

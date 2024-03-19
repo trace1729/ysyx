@@ -8,7 +8,7 @@ import cpu.config._
 
 object CSR {
   val mstatus = 0x300.U(12.W)
-  val mtvec   = 0x301.U(12.W)
+  val mtvec   = 0x305.U(12.W)
   val mepc    = 0x341.U(12.W)
   val mcause  = 0x342.U(12.W)
 }
@@ -79,7 +79,7 @@ class CSR(regNum: Int = 10, width: Int) extends Module {
   )
 
   // t = csrs[csr_no]
-  io.csrValue := Lookup(io.csrNo, 0.U, csr_file)
+  io.csrValue := mtvec
   io.mepc := mepc
   io.mtvec := mtvec
 

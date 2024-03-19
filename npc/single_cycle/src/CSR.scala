@@ -79,7 +79,7 @@ class CSR(regNum: Int = 10, width: Int) extends Module {
   )
 
   // t = csrs[csr_no]
-  io.csrValue := mtvec
+  io.csrValue := Lookup(io.csrNo, 0.U, csr_file)
   io.mepc := mepc
   io.mtvec := mtvec
 

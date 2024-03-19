@@ -46,6 +46,14 @@ bool isa_difftest_checkregs(CPU_state *ref_r, vaddr_t pc) {
   if (i != n) {
     return difftest_check_reg(reg_name(i), pc, ref_r->gpr[i], gpr(i));
   }
+  if (cpu.csr[MEPC] != ref_r->csr[MEPC]) {
+    return difftest_check_reg("mepc", pc, ref_r->csr[MEPC], cpu.csr[MEPC]);
+  }
+
+  if (cpu.csr[MCAUSE] != ref_r->csr[MCAUSE]) {
+    return difftest_check_reg("mcause", pc, ref_r->csr[MCAUSE], cpu.csr[MCAUSE]);
+  }
+
   return true;
 }
 

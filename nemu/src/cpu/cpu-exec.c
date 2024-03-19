@@ -109,6 +109,8 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
+  Log("exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
+  Log("exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;
@@ -145,16 +147,8 @@ static void execute(uint64_t n) {
   Decode s;
   for (;n > 0; n --) {
     exec_once(&s, cpu.pc);
-
-    Log("exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
-    Log("exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
-
     g_nr_guest_inst ++;
     trace_and_difftest(&s, cpu.pc);
-
-    Log("after difftest: exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
-    Log("after difftest: exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
-    
     if (nemu_state.state != NEMU_RUNNING) break;
 #ifndef CONFIG_TARGET_AM
     IFDEF(CONFIG_DEVICE, device_update());

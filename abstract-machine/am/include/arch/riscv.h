@@ -5,7 +5,9 @@
 #define NR_REGS 16
 #else
 #endif
-// #define NR_REGS 32
+#ifndef NR_REGS
+#define NR_REGS 32
+#endif
 
 struct Context {
   // TODO: fix the order of these members to match trap.S

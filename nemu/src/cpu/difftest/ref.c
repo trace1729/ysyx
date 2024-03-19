@@ -39,7 +39,6 @@ void diff_get_regs(void* dut) {
   ctx->csr[MEPC] = cpu.csr[MEPC];
   ctx->csr[MTVEC] = cpu.csr[MTVEC];
   
-  Log("nemu pc = %d", cpu.pc);
   Log("nemu mepc = %d", cpu.csr[MEPC]);
   Log("nemu mcause = %d", cpu.csr[MCAUSE]);
 

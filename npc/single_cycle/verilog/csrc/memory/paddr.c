@@ -44,7 +44,7 @@ static void pmem_write(paddr_t addr, int len, word_t data) {
 
 static void out_of_bound(paddr_t addr) {
   panic("(pc is dummy value) address = " FMT_PADDR " is out of bound of pmem [" FMT_PADDR ", " FMT_PADDR "] at pc = " FMT_WORD,
-      addr, PMEM_LEFT, PMEM_RIGHT, 0x0);
+      addr, PMEM_LEFT, PMEM_RIGHT, 0x23232323);
 }
 
 void init_mem() {

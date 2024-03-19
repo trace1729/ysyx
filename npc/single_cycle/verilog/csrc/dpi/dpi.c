@@ -1,3 +1,4 @@
+#include "common.h"
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <dpi.h>
@@ -115,6 +116,13 @@ extern "C" void Regs_display(const svLogicVecVal* regs)
   }
 }
 
+extern "C" void Csrs_display(const svLogicVecVal* regs) 
+{
+  cpu.csr[MSTATUS] = regs[0].aval;
+  cpu.csr[MEPC] = regs[1].aval;
+  cpu.csr[MTVEC] = regs[2].aval;
+  cpu.csr[MCAUSE] = regs[3].aval;
+}
 #ifdef CONFIG_FTRACE
 #define JAL 1
 #define RA 1

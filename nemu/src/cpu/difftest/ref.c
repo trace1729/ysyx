@@ -18,6 +18,8 @@
 #include <difftest-def.h>
 #include <memory/paddr.h>
 
+extern CPU_state cpu;
+
 #define NR_GPR MUXDEF(CONFIG_RVE, 16, 32)
 struct diff_context_t {
   word_t csr[NR_CSR];
@@ -37,6 +39,7 @@ void diff_get_regs(void* dut) {
   ctx->csr[MEPC] = cpu.csr[MEPC];
   ctx->csr[MTVEC] = cpu.csr[MTVEC];
   
+  Log("nemu pc = %d", cpu.pc);
   Log("nemu mepc = %d", cpu.csr[MEPC]);
   Log("nemu mcause = %d", cpu.csr[MCAUSE]);
 

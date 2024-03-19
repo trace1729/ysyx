@@ -104,6 +104,7 @@ static void csrrs(word_t no, word_t src1, word_t rd) {
   Log("nemu execting csrrs");
   word_t t = cpu.csr[no];
   cpu.csr[no] = t | src1;
+  Log("csr[%d] = %x", no, cpu.csr[no]);
   R(rd) = t;
 }
 
@@ -111,6 +112,7 @@ static void csrrw(word_t no, word_t src1, word_t rd) {
   Log("nemu execting csrrw");
   word_t t = cpu.csr[no];
   cpu.csr[no] = src1;
+  Log("csr[%d] = %x", no, cpu.csr[no]);
   R(rd) = t;
 }
 

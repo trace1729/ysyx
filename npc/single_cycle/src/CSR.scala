@@ -8,7 +8,7 @@ import cpu.config._
 
 object CSR {
   val mstatus = 0x300.U(12.W)
-  val mtvec   = 0x301.U(12.W)
+  val mtvec   = 0x305.U(12.W)
   val mepc    = 0x341.U(12.W)
   val mcause  = 0x342.U(12.W)
 }

@@ -166,10 +166,6 @@ static void statistic() {
 
 void assert_fail_msg() {
   isa_reg_display();
-#ifdef CONFIG_ITRACE
-  void iringbuffer_display();
-  iringbuffer_display();
-#endif
   statistic();
 }
 

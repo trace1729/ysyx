@@ -31,6 +31,10 @@ void sim_init(char argc, char* argv[]) {
   contextp = std::make_unique<VerilatedContext>();
   top = std::make_unique<Vtop>(contextp.get());
   Verilated::commandArgs(argc, argv);
+  /* generate wave */
+  contextp->traceEverOn(true);
+  top->trace(tfp, 3);
+  tfp->open("wave.vcd");
 }
 
 void sim_reset(Vtop* top) {
@@ -46,24 +50,17 @@ void sim_reset(Vtop* top) {
 
 void sim_end() {
   top->final();
+  tfp->close();
 }
 
 int main(int argc, char** argv, char** env) {
  
   sim_init(argc, argv);
-
-  /* generate wave */
-  contextp->traceEverOn(true);
-  // tfp = std::make_unique<VerilatedVcdC>();
-  top->trace(tfp, 3);
-  tfp->open("wave.vcd");
-
   sim_reset(top.get());
 
   init_monitor(argc, argv);
   sdb_mainloop();
   sim_end();
-  tfp->close();
 
   return is_exit_status_bad();
 }

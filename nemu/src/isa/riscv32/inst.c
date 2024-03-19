@@ -113,6 +113,8 @@ static void csrrw(word_t no, word_t src1, word_t rd) {
 }
 
 static void test()  {
+  Log("exceute mtvec = " FMT_WORD, cpu.csr[MTVEC]);
+  Log("exceute mstatus = " FMT_WORD, cpu.csr[MSTATUS]);
   Log("exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
   Log("exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
 }

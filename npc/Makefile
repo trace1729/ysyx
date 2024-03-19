@@ -37,7 +37,7 @@ run: verilog
 	@tac $(BUILD_DIR)/top.v | sed -E '1,5s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
-	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
+#	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
 
 
 gdb: verilog 

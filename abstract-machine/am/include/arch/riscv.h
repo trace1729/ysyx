@@ -1,11 +1,11 @@
 #ifndef ARCH_H__
 #define ARCH_H__
 
-//#ifdef __riscv_e
-//#define NR_REGS 16
-//#else
-//#endif
-#define NR_REGS 32
+#ifdef __riscv_e
+#define NR_REGS 16
+#else
+#endif
+// #define NR_REGS 32
 
 struct Context {
   // TODO: fix the order of these members to match trap.S

@@ -21,6 +21,7 @@ int is_exit_status_bad();
 
 std::unique_ptr<VerilatedContext> contextp {};
 std::unique_ptr<Vtop> top {};
+std::unique_ptr<VerilatedVcdC> tfp {};
 
 Decode itrace;
 Ftrace ftrace_block;
@@ -53,9 +54,9 @@ int main(int argc, char** argv, char** env) {
 
   /* generate wave */
   contextp->traceEverOn(true);
-  auto tfp = std::make_unique<VerilatedVcdC>();
-  // top->trace(tfp.get(), 3);
-  // tfp->open("wave.vcd");
+  tfp = std::make_unique<VerilatedVcdC>();
+  top->trace(tfp.get(), 3);
+  tfp->open("wave.vcd");
 
   sim_reset(top.get());
 
@@ -75,7 +76,7 @@ void verilator_exec_once(Decode* s) {
     top->eval();
     contextp->timeInc(1);
     // printf("================= current state =====================\n");
-    // tfp->dump(contextp->time());
+    tfp->dump(contextp->time());
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
     s->snpc = s->pc + 4;
@@ -95,7 +96,7 @@ void verilator_exec_once(Decode* s) {
     top->eval();
     contextp->timeInc(1);
 
-    // tfp->dump(contextp->time());
+    tfp->dump(contextp->time());
     // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
 #if CONFIG_FTRACE

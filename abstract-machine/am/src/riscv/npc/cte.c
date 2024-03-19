@@ -46,7 +46,7 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
   }
   printf("NR_REGS %d\n", NR_REGS);
   Context* ctx = (Context*)(kstack.end - CONTEXT_SIZE);
-  for (int i = 0; i < 32; i++) {
+  for (int i = 0; i < NR_REGS; i++) {
       ctx->gpr[i] = 0;
   }
   ctx->mcause = 0;
@@ -59,11 +59,11 @@ Context *kcontext(Area kstack, void (*entry)(void *), void *arg) {
 }
 
 void yield() {
-// #ifdef __riscv_e
-//  asm volatile("li a5, -1; ecall");
-// #else
+ #ifdef __riscv_e
+  asm volatile("li a5, -1; ecall");
+ #else
   asm volatile("li a7, -1; ecall");
-// #endif
+ #endif
 }
 
 bool ienabled() {

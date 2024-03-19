@@ -74,6 +74,9 @@ NPC_EXEC := $(BIN) $(ARGS) $(IMG)
 run: build
 	$(NPC_EXEC)
 
+sim: run
+	-gtkwave wave.vcd
+
 gdb: CXXFLAGS+= -g
 gdb: build
 	echo $(BIN)

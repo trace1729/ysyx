@@ -38,6 +38,9 @@ run: verilog
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
 
+sim: run
+	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
+
 gdb: verilog 
 	$(call git_commit, "debugger RTL") # DO NOT REMOVE THIS LINE!!!
 	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc

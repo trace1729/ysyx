@@ -39,8 +39,6 @@ void diff_get_regs(void* dut) {
   ctx->csr[MEPC] = cpu.csr[MEPC];
   ctx->csr[MTVEC] = cpu.csr[MTVEC];
   
-  Log("nemu mepc = %d", cpu.csr[MEPC]);
-  Log("nemu mcause = %d", cpu.csr[MCAUSE]);
 
 }
 
@@ -55,8 +53,6 @@ void diff_set_regs(void* dut) {
   cpu.csr[MEPC] = ctx->csr[MEPC];
   cpu.csr[MTVEC] = ctx->csr[MTVEC];
 
-  Log("nemu mepc = %d", cpu.csr[MEPC]);
-  Log("nemu mcause = %d", cpu.csr[MCAUSE]);
 }
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {

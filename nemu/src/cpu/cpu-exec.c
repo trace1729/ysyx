@@ -109,8 +109,6 @@ static void exec_once(Decode *s, vaddr_t pc) {
   s->pc = pc;
   s->snpc = pc;
   isa_exec_once(s);
-  Log("exceute mepc = " FMT_WORD, cpu.csr[MEPC]);
-  Log("exceute mcause = " FMT_WORD, cpu.csr[MEPC]);
   cpu.pc = s->dnpc;
 #ifdef CONFIG_ITRACE
   char *p = s->logbuf;

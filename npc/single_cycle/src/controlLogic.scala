@@ -238,6 +238,9 @@ class controlLogic(width: Int = 32) extends Module {
       io.mepcWriteEn := 1.U
       io.mcauseWriteEn := 1.U
     }
+    is (type_MRET) {
+      io.pcsel := 2.U
+    }
   }
 
   val stop = Module(new BlackBoxRealAdd)

@@ -20,8 +20,8 @@
 
 #define NR_GPR MUXDEF(CONFIG_RVE, 16, 32)
 struct diff_context_t {
-  word_t csr[NR_CSR];
   word_t gpr[NR_GPR];
+  word_t csr[NR_CSR];
   vaddr_t pc;
   uint32_t mode;
 };

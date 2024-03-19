@@ -4,8 +4,6 @@
 #ifdef __riscv_e
 #define NR_REGS 16
 #else
-#endif
-#ifndef NR_REGS
 #define NR_REGS 32
 #endif
 

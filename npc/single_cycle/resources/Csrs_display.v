@@ -3,7 +3,7 @@ module Csrs_display(
     input [31:0] regs_0 ,
     input [31:0] regs_1 ,
     input [31:0] regs_2 ,
-    input [31:0] regs_3 ,
+    input [31:0] regs_3 
 );
     import "DPI-C" function void Csrs_display(input [31:0] regs [31:0]);
     wire [31:0] regs [31:0];

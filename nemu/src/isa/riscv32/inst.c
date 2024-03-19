@@ -194,7 +194,13 @@ static int decode_exec(Decode *s) {
 
   // N type 
   INSTPAT("0011000 00010 00000 000 00000 11100 11", mret   ,  N, s->dnpc = cpu.csr[MEPC]); 
-  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(17), s->pc)); 
+#ifdef __riscv_e
+  // 这个宏定义没啥用，因为在构建NEMU 的时候是没有 __riscv_e 的
+  // 之后注意下
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc));
+#else
+  INSTPAT("0000000 00000 00000 000 00000 11100 11", ecall  ,  N, s->dnpc = isa_raise_intr(R(15), s->pc)); 
+#endif
   INSTPAT("0000000 00001 00000 000 00000 11100 11", ebreak ,  N, NEMUTRAP(s->pc, R(10))); // R(10) is $a0
   INSTPAT("??????? ????? ????? ??? ????? ????? ??", inv    ,  N, INV(s->pc));
 

@@ -32,10 +32,10 @@ void diff_get_regs(void* dut) {
     ctx->gpr[i] = cpu.gpr[i];
   }
   ctx->pc = cpu.pc;
-  //ctx->csr[MSTATUS] = cpu.csr[MSTATUS];
-  //ctx->csr[MCAUSE] = cpu.csr[MCAUSE];
-  //ctx->csr[MEPC] = cpu.csr[MEPC];
-  //ctx->csr[MTVEC] = cpu.csr[MTVEC];
+  ctx->csr[MSTATUS] = cpu.csr[MSTATUS];
+  ctx->csr[MCAUSE] = cpu.csr[MCAUSE];
+  ctx->csr[MEPC] = cpu.csr[MEPC];
+  ctx->csr[MTVEC] = cpu.csr[MTVEC];
 
 }
 
@@ -45,10 +45,10 @@ void diff_set_regs(void* dut) {
     cpu.gpr[i] = ctx->gpr[i];
   }
   cpu.pc = ctx->pc;
-  //cpu.csr[MSTATUS] = ctx->csr[MSTATUS];
-  //cpu.csr[MCAUSE] = ctx->csr[MCAUSE];
-  //cpu.csr[MEPC] = ctx->csr[MEPC];
-  //cpu.csr[MTVEC] = ctx->csr[MTVEC];
+  cpu.csr[MSTATUS] = ctx->csr[MSTATUS];
+  cpu.csr[MCAUSE] = ctx->csr[MCAUSE];
+  cpu.csr[MEPC] = ctx->csr[MEPC];
+  cpu.csr[MTVEC] = ctx->csr[MTVEC];
 }
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {

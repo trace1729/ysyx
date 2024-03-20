@@ -170,16 +170,18 @@ class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
   addResource("/Dpi_ftrace.sv")
 }
 
-class Mem(val width: Int = 32) extends BlackBox with HasBlackBoxResource {
-  val io = IO(new Bundle {
-    // val raddr = Input(UInt(width.W))
-    val addr      = Input(UInt(width.W))
-    val rdata     = Output(UInt(width.W))
-    val wdata     = Input(UInt(width.W))
-    val wmask     = Input(UInt(8.W))
-    val memEnable = Input(Bool())
-    val memRW     = Input(Bool())
-    // val waddr = Input(UInt(width.W))
-  })
+class MemIO(width: Int) extends Bundle {
+  // val raddr = Input(UInt(width.W))
+  val addr      = Input(UInt(width.W))
+  val rdata     = Output(UInt(width.W))
+  val wdata     = Input(UInt(width.W))
+  val wmask     = Input(UInt(8.W))
+  val memEnable = Input(Bool())
+  val memRW     = Input(Bool())
+  // val waddr = Input(UInt(width.W))
+}
+
+class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
+  val io = IO(new MemIO(width))
   addResource("/Mem.sv")
 }

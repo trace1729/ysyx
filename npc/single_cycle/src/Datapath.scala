@@ -36,15 +36,36 @@ class IDU extends Bundle {
   */
 
 class EXOutputIO extends Bundle {
-    val alu_res = Output(UInt(width.W))
+    val alu = new AluIO(width)
 }
 
 class EX extends Bundle {
     val in = IO(Flipped(new IDUOutputIO))
+    val out = IO(new EXOutputIO)
 }
 
 /*********************MEM***************************
   */
 
+class MEMOutputIO(width: Int) extends Bundle {
+    val mem = new MemIO(width)
+}
+
+class MEM extends Bundle {
+    val in = IO(Flipped(new EXOutputIO))
+    val out = IO(new MEMOutputIO(width))
+}
+
 /*********************WB***************************
   */
+
+
+class WBOutputIO extends Bundle {
+    // 暂时不太清楚 wb 需要输出什么
+    val wb = Output(Bool())
+}
+
+class WB extends Bundle {
+    val in = IO(Flipped(new MEMOutputIO(width)))
+    val out = IO(new WBOutputIO)
+}

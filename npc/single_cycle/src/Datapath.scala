@@ -13,7 +13,7 @@ class IFUInputIO extends Bundle {
 }
 
 class IFU extends Bundle {
-  val out = IO(new IFUInputIO)
+  val out = IO(Decoupled(new IFUInputIO))
 }
 
 /** *******************IDU***************************
@@ -27,8 +27,8 @@ class IDUOutputIO extends Bundle {
 }
 
 class IDU extends Bundle {
-  val in = IO(Flipped(new IFUInputIO))
-  val out = IO(new IDUOutputIO)
+  val in = IO(Flipped(Decoupled(new IFUInputIO)))
+  val out = IO(DecoupledIO(new IDUOutputIO))
 }
 
 
@@ -40,8 +40,8 @@ class EXOutputIO extends Bundle {
 }
 
 class EX extends Bundle {
-    val in = IO(Flipped(new IDUOutputIO))
-    val out = IO(new EXOutputIO)
+    val in = IO(Flipped(Decoupled(new IDUOutputIO)))
+    val out = IO(Decoupled(new EXOutputIO))
 }
 
 /*********************MEM***************************
@@ -52,8 +52,8 @@ class MEMOutputIO(width: Int) extends Bundle {
 }
 
 class MEM extends Bundle {
-    val in = IO(Flipped(new EXOutputIO))
-    val out = IO(new MEMOutputIO(width))
+    val in = IO(Flipped(Decoupled(new EXOutputIO)))
+    val out = IO(Decoupled(new MEMOutputIO(width)))
 }
 
 /*********************WB***************************
@@ -66,6 +66,6 @@ class WBOutputIO extends Bundle {
 }
 
 class WB extends Bundle {
-    val in = IO(Flipped(new MEMOutputIO(width)))
-    val out = IO(new WBOutputIO)
+    val in = IO(Flipped(Decoupled(new MEMOutputIO(width))))
+    val out = IO(Decoupled(new WBOutputIO))
 }

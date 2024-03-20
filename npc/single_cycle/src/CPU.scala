@@ -178,7 +178,7 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
     val inst   = Input(UInt(32.W))
     val nextpc = Input(UInt(32.W))
   })
-  addResource("/Dpi_itrace.v")
+  addResource("/Dpi_itrace.sv")
 }
 
 class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
@@ -189,7 +189,7 @@ class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
     val rd       = Input(UInt(5.W))
     val src1     = Input(UInt(32.W))
   })
-  addResource("/Dpi_ftrace.v")
+  addResource("/Dpi_ftrace.sv")
 }
 
 class Mem(val width: Int = 32) extends BlackBox with HasBlackBoxResource {
@@ -203,5 +203,5 @@ class Mem(val width: Int = 32) extends BlackBox with HasBlackBoxResource {
     val memRW     = Input(Bool())
     // val waddr = Input(UInt(width.W))
   })
-  addResource("/Mem.v")
+  addResource("/Mem.sv")
 }

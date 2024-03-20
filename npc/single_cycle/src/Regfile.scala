@@ -58,5 +58,5 @@ class Regs_display extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val regs = Input(Vec(32, UInt(32.W)))
   })
-  addResource("/Regs_display.v")
+  addResource("/Regs_display.sv")
 }

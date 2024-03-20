@@ -34,8 +34,8 @@ run: verilog
 	$(call git_commit, "sim RTL") # DO NOT REMOVE THIS LINE!!!
 	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	mkdir -p $(NPC_HOME)/$(TARGET)/verilog/vsrc
-	@tac $(BUILD_DIR)/top.v | sed -E '1,6s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
-	make -C $(NPC_HOME)/$(TARGET)/verilog clean
+	cp $(BUILD_DIR)/sv-gen/*.sv $(NPC_HOME)/$(TARGET)/verilog/vsrc/
+#	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
 #	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
 
@@ -44,10 +44,10 @@ gdb: verilog
 	$(call git_commit, "debugger RTL") # DO NOT REMOVE THIS LINE!!!
 	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	mkdir -p $(NPC_HOME)/$(TARGET)/verilog/vsrc
-	@tac $(BUILD_DIR)/top.v | sed -E '1,6s+(.*)+// \1+g' | tac > $(NPC_HOME)/$(TARGET)/verilog/vsrc/top.v
+	cp $(BUILD_DIR)/sv-gen/*.sv $(NPC_HOME)/$(TARGET)/verilog/vsrc/
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog gdb IMG=$(IMG)
 
-.PHONY: test verilog help compile bsp reformat checkformat clean sim
+.PHONY: test verilog help compile bsp reformat checkformat clean sim run gdb
 
 -include ../Makefile

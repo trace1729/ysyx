@@ -118,5 +118,5 @@ class Csrs_display extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val regs = Input(Vec(4, UInt(32.W)))
   })
-  addResource("/Csrs_display.v")
+  addResource("/Csrs_display.sv")
 }

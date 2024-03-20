@@ -13,7 +13,7 @@ class AluIO(width: Int) extends Bundle {
   
 }
 
-class Alu(width: Int = 32) extends Module {
+class Alu(width: Int) extends Module {
 
   val io = IO(new AluIO(width))
   /* 加法器 */

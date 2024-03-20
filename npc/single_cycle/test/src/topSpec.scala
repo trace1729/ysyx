@@ -14,7 +14,7 @@ object topSpec extends ChiselUtestTester {
   println(regfile_test_data)
   val tests = Tests {
     test("regfile") {
-      testCircuit(new Regfile) {
+      testCircuit(new Regfile(32, 32)) {
         dut => 
           // 不可写
           dut.io.writeEn.poke(0.U)

@@ -23,7 +23,7 @@ class RegfileIO(num: Int, width: Int) extends Bundle {
     val writeEn  = Input(Bool())
 
 }
-class Regfile (num: Int = 32, width: Int = 32) extends Module {
+class Regfile (num: Int, width: Int) extends Module {
 
   val io = IO(new RegfileIO(num=num, width=width))
 

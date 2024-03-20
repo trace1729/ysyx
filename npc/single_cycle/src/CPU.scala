@@ -27,7 +27,7 @@ class top(memoryFile: String = "") extends Module {
 
   val instMem   = Module(new InstMem(memoryFile = memoryFile))
   val cntlLogic = Module(new controlLogic(width))
-  val regfile   = Module(new Regfile(width = width))
+  val regfile   = Module(new Regfile(num=regsNum, width = width))
   val alu       = Module(new Alu(width))
   val mem       = Module(new Mem(width))
   val immgen    = Module(new ImmGen(width))

@@ -23,6 +23,7 @@ class IDUOutputIO extends Bundle {
   val rs1       = Output(UInt(width.W))
   val rs2       = Output(UInt(width.W))
   val immediate = Output(UInt(width.W))
+  val ctrl = Output(new controlLogicIO(width))
 }
 
 class IDU extends Bundle {

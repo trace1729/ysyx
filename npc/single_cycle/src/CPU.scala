@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 
-class top(width: Int = 32, memoryFile: String = "") extends Module {
+class top(memoryFile: String = "") extends Module {
 
   def padding(len: Int, v: UInt): UInt = Cat(Seq.fill(len)(v))
   // start means the least two significant bits of read addr

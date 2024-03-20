@@ -19,7 +19,7 @@ class InstMemIO (width: Int, ilen: Int) extends Bundle {
     val inst = Output(Vec(ilen, UInt(InstMem.byte_len.W)))
 }
 
-class InstMem(val width:Int = 32, val memoryFile: String = "") extends Module {
+class InstMem(val memoryFile: String = "") extends Module {
     val memSize = 8192 * 4 * 8
     val ilen = width / InstMem.byte_len
 

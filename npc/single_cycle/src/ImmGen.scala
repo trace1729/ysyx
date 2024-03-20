@@ -9,7 +9,7 @@ class ImmGenIO(width: Int) extends Bundle {
     val imm = Output(UInt(width.W))
 }
 
-class ImmGen(width: Int = 32) extends Module {
+class ImmGen(width: Int) extends Module {
 
     def padding(len:Int): UInt = Cat(Seq.fill(len)(0.U(1.W)))
 

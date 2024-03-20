@@ -4,7 +4,7 @@ import chisel3._
 import cpu.config._
 import chisel3.util._
 
-class controlLogicIO(width: Int = 32) extends  Bundle {
+class controlLogicIO(width: Int) extends  Bundle {
     val inst = Input(UInt(width.W))
     val rs1  = Input(UInt(width.W))
     val rs2  = Input(UInt(width.W))
@@ -29,7 +29,7 @@ class controlLogicIO(width: Int = 32) extends  Bundle {
     val mcauseWriteEn = Output(Bool())
 }
 
-class controlLogic(width: Int = 32) extends Module {
+class controlLogic(width: Int) extends Module {
 
   val io = IO(new controlLogicIO(width))
   // io.writeEn := 1.U

@@ -45,7 +45,6 @@ gdb: verilog
 	rm -rf $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	mkdir -p $(NPC_HOME)/$(TARGET)/verilog/vsrc
 	cp $(BUILD_DIR)/sv-gen/*.sv $(NPC_HOME)/$(TARGET)/verilog/vsrc/
-	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog gdb IMG=$(IMG)
 
 .PHONY: test verilog help compile bsp reformat checkformat clean sim

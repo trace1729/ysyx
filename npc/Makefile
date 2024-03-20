@@ -48,6 +48,6 @@ gdb: verilog
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog gdb IMG=$(IMG)
 
-.PHONY: test verilog help compile bsp reformat checkformat clean sim
+.PHONY: test verilog help compile bsp reformat checkformat clean sim run gdb
 
 -include ../Makefile

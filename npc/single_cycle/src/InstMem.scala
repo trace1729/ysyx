@@ -9,17 +9,22 @@ import firrtl.annotations.MemoryLoadFileType
     width: 指令宽度
     memoryFile: 读取的数据文件路径
  */
-class InstMem(val width:Int = 32, val memoryFile: String = "") extends Module {
+
+object InstMem {
     val byte_len = 8
-    val ilen = width / byte_len
+}
+
+class InstMemIO (width: Int, ilen: Int) extends Bundle {
+    val pc = Input(UInt(width.W))
+    val inst = Output(Vec(ilen, UInt(InstMem.byte_len.W)))
+}
+
+class InstMem(val width:Int = 32, val memoryFile: String = "") extends Module {
     val memSize = 8192 * 4 * 8
+    val ilen = width / InstMem.byte_len
 
-    val io = IO(new Bundle{
-        val pc = Input(UInt(width.W))
-        val inst = Output(Vec(ilen, UInt(byte_len.W)))
-    })
-
-    val mem = Mem(memSize, UInt(byte_len.W))
+    val io = IO(new InstMemIO(width, ilen))
+    val mem = Mem(memSize, UInt(InstMem.byte_len.W))
 
     // Initialize memory
     if (memoryFile.trim().nonEmpty) {

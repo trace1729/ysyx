@@ -32,9 +32,9 @@ class InstMem(val width:Int = 32, val memoryFile: String = "") extends Module {
     }
 
     io.inst := VecInit(
-        mem.read(io.pc - config.base.U + 3.U),
-        mem.read(io.pc - config.base.U + 2.U),
-        mem.read(io.pc - config.base.U + 1.U),
-        mem.read(io.pc - config.base.U + 0.U),
+        mem.read(io.pc - config.startPC.U + 3.U),
+        mem.read(io.pc - config.startPC.U + 2.U),
+        mem.read(io.pc - config.startPC.U + 1.U),
+        mem.read(io.pc - config.startPC.U + 0.U),
     )
 }

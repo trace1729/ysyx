@@ -10,4 +10,5 @@ class IFU extends Bundle {
 }
 
 class IDU extends Bundle {
+    val in = IO(new IFU)
 }

@@ -275,7 +275,7 @@ class DatapathIO extends Bundle {
   // val x7           = Output(UInt(width.W))
   // val x8           = Output(UInt(width.W))
   // val x9           = Output(UInt(width.W))
-  val x10          = Output(UInt(width.W))
+  // val x10          = Output(UInt(width.W))
   // val writereg     = Output(UInt(5.W))
   // val test_alu_res = Output(UInt(width.W))
 }

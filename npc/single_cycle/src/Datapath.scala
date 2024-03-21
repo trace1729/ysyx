@@ -76,7 +76,7 @@ class IDU extends Module {
   regfile.io.readreg1 := in.bits.inst(19, 15)
   regfile.io.readreg2 := in.bits.inst(24, 20)
   regfile.io.writereg := in.bits.inst(11, 7)
-  regfile.io.writeEn  := ctrlLogic.io.writeEn
+  regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
   regfile.io.data := data
   x10 := regfile.io.x10
 
@@ -87,35 +87,21 @@ class IDU extends Module {
 
   // 立即数生成器的连接
   immgen.io.inst   := in.bits.inst
-  immgen.io.immsel := ctrlLogic.io.immsel
+  immgen.io.immsel := ctrlLogic.io.ctrlsignals.immsel
 
   // csr 寄存器文件的连接
-  csr.io.csrsWriteEn := ctrlLogic.io.csrsWriteEn
+  csr.io.csrsWriteEn := ctrlLogic.io.ctrlsignals.csrsWriteEn
   csr.io.csrNo       := immgen.io.imm
   // 只考虑 csrw, 所以直接把 rs1 寄存器的值写入 CSRs[csr_no]
   csr.io.data := regfile.io.rs1
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
-  csr.io.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
+  csr.io.mcauseWriteEn := ctrlLogic.io.ctrlsignals.mcauseWriteEn
 
   csr.io.mepcData    := in.bits.pc
-  csr.io.mepcWriteEn := ctrlLogic.io.mepcWriteEn
+  csr.io.mepcWriteEn := ctrlLogic.io.ctrlsignals.mepcWriteEn
 
-  // 输出信号到外部模块，肯定可以简化，之后看看
-  out.bits.ctrlsignals.pcsel         := ctrlLogic.io.pcsel
-  out.bits.ctrlsignals.writeEn       := ctrlLogic.io.writeEn
-  out.bits.ctrlsignals.immsel        := ctrlLogic.io.immsel
-  out.bits.ctrlsignals.asel          := ctrlLogic.io.asel
-  out.bits.ctrlsignals.bsel          := ctrlLogic.io.bsel
-  out.bits.ctrlsignals.alusel        := ctrlLogic.io.alusel
-  out.bits.ctrlsignals.memRW         := ctrlLogic.io.memRW
-  out.bits.ctrlsignals.memEnable     := ctrlLogic.io.memEnable
-  out.bits.ctrlsignals.WBsel         := ctrlLogic.io.WBsel
-  out.bits.ctrlsignals.optype        := ctrlLogic.io.optype
-  out.bits.ctrlsignals.isCsrInst     := ctrlLogic.io.isCsrInst
-  out.bits.ctrlsignals.csrsWriteEn   := ctrlLogic.io.csrsWriteEn
-  out.bits.ctrlsignals.mepcWriteEn   := ctrlLogic.io.mepcWriteEn
-  out.bits.ctrlsignals.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
+  out.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
 
   out.bits.rs1       := regfile.io.rs1
   out.bits.rs2       := regfile.io.rs2

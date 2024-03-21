@@ -102,10 +102,10 @@ class IDU extends Module {
   csr.io.mepcWriteEn := ctrlLogic.io.mepcWriteEn
 
   // 输出信号到外部模块，肯定可以简化，之后看看
+  out.bits.ctrlsignals :>= ctrlLogic.io
   out.bits.ctrlsignals.inst := DontCare
   out.bits.ctrlsignals.rs1 := DontCare
   out.bits.ctrlsignals.rs2 := DontCare
-  out.bits.ctrlsignals :<= ctrlLogic.io
 
   // out.bits.ctrlsignals.pcsel         := ctrlLogic.io.pcsel
   // out.bits.ctrlsignals.writeEn       := ctrlLogic.io.writeEn

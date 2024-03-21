@@ -303,7 +303,7 @@ class Datapath(memoryFile: String) extends Module {
   ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc := 0.U
   ifu.in.csr_mtvec := 0.U
-  io.x10 := idu.x10
+  // io.x10 := idu.x10
   
   idu.data := wb.data
 }

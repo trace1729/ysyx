@@ -42,7 +42,8 @@ class IFU(memoryFile: String) extends Module {
   itrace.io.pc     := out.bits.pc
   itrace.io.inst   := out.bits.inst
   itrace.io.nextpc := pcvalue
-  // 设置 vaild 信号
+
+  // ready, valid 信号全部设置成1
   out.valid := 1.U
 }
 
@@ -53,7 +54,7 @@ class IDUOutputIO extends Bundle {
   val rs1         = Output(UInt(width.W))
   val rs2         = Output(UInt(width.W))
   val immediate   = Output(UInt(width.W))
-  val ctrlsignals = Output(new ctrlSignals)
+  val ctrlsignals = Output(new controlLogicIO(width))
 
   val pc       = Output(UInt(width.W))
   val inst     = Output(UInt(width.W))
@@ -101,20 +102,23 @@ class IDU extends Module {
   csr.io.mepcWriteEn := ctrlLogic.io.mepcWriteEn
 
   // 输出信号到外部模块，肯定可以简化，之后看看
-  out.bits.ctrlsignals.pcsel         := ctrlLogic.io.pcsel
-  out.bits.ctrlsignals.writeEn       := ctrlLogic.io.writeEn
-  out.bits.ctrlsignals.immsel        := ctrlLogic.io.immsel
-  out.bits.ctrlsignals.asel          := ctrlLogic.io.asel
-  out.bits.ctrlsignals.bsel          := ctrlLogic.io.bsel
-  out.bits.ctrlsignals.alusel        := ctrlLogic.io.alusel
-  out.bits.ctrlsignals.memRW         := ctrlLogic.io.memRW
-  out.bits.ctrlsignals.memEnable     := ctrlLogic.io.memEnable
-  out.bits.ctrlsignals.WBsel         := ctrlLogic.io.WBsel
-  out.bits.ctrlsignals.optype        := ctrlLogic.io.optype
-  out.bits.ctrlsignals.isCsrInst     := ctrlLogic.io.isCsrInst
-  out.bits.ctrlsignals.csrsWriteEn   := ctrlLogic.io.csrsWriteEn
-  out.bits.ctrlsignals.mepcWriteEn   := ctrlLogic.io.mepcWriteEn
-  out.bits.ctrlsignals.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
+  out.bits.ctrlsignals.inst := DontCare
+  out.bits.ctrlsignals :<= ctrlLogic.io
+
+  // out.bits.ctrlsignals.pcsel         := ctrlLogic.io.pcsel
+  // out.bits.ctrlsignals.writeEn       := ctrlLogic.io.writeEn
+  // out.bits.ctrlsignals.immsel        := ctrlLogic.io.immsel
+  // out.bits.ctrlsignals.asel          := ctrlLogic.io.asel
+  // out.bits.ctrlsignals.bsel          := ctrlLogic.io.bsel
+  // out.bits.ctrlsignals.alusel        := ctrlLogic.io.alusel
+  // out.bits.ctrlsignals.memRW         := ctrlLogic.io.memRW
+  // out.bits.ctrlsignals.memEnable     := ctrlLogic.io.memEnable
+  // out.bits.ctrlsignals.WBsel         := ctrlLogic.io.WBsel
+  // out.bits.ctrlsignals.optype        := ctrlLogic.io.optype
+  // out.bits.ctrlsignals.isCsrInst     := ctrlLogic.io.isCsrInst
+  // out.bits.ctrlsignals.csrsWriteEn   := ctrlLogic.io.csrsWriteEn
+  // out.bits.ctrlsignals.mepcWriteEn   := ctrlLogic.io.mepcWriteEn
+  // out.bits.ctrlsignals.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
 
   out.bits.rs1       := regfile.io.rs1
   out.bits.rs2       := regfile.io.rs2

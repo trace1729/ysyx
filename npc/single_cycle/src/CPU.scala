@@ -50,6 +50,7 @@ class MemIO(width: Int) extends Bundle {
 //   ftrace.io.ref_jalr := type_IJ
 //   ftrace.io.ref_jal := type_J
 //   ftrace.io.src1 := regfile.io.rs1
+
 // class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
 //   val io = IO(new Bundle {
 //     val optype   = Input(UInt(4.W))

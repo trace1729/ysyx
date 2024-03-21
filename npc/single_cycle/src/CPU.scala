@@ -154,25 +154,25 @@ class top(memoryFile: String = "") extends Module {
 }
 
 
-class Dpi_itrace extends BlackBox with HasBlackBoxResource {
-  val io = IO(new Bundle {
-    val pc     = Input(UInt(32.W))
-    val inst   = Input(UInt(32.W))
-    val nextpc = Input(UInt(32.W))
-  })
-  addResource("/Dpi_itrace.sv")
-}
+// class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+//   val io = IO(new Bundle {
+//     val pc     = Input(UInt(32.W))
+//     val inst   = Input(UInt(32.W))
+//     val nextpc = Input(UInt(32.W))
+//   })
+//   addResource("/Dpi_itrace.sv")
+// }
 
-class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
-  val io = IO(new Bundle {
-    val optype   = Input(UInt(4.W))
-    val ref_jal  = Input(UInt(4.W))
-    val ref_jalr = Input(UInt(4.W))
-    val rd       = Input(UInt(5.W))
-    val src1     = Input(UInt(32.W))
-  })
-  addResource("/Dpi_ftrace.sv")
-}
+// class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
+//   val io = IO(new Bundle {
+//     val optype   = Input(UInt(4.W))
+//     val ref_jal  = Input(UInt(4.W))
+//     val ref_jalr = Input(UInt(4.W))
+//     val rd       = Input(UInt(5.W))
+//     val src1     = Input(UInt(32.W))
+//   })
+//   addResource("/Dpi_ftrace.sv")
+// }
 
 class MemIO(width: Int) extends Bundle {
   // val raddr = Input(UInt(width.W))
@@ -185,7 +185,7 @@ class MemIO(width: Int) extends Bundle {
   // val waddr = Input(UInt(width.W))
 }
 
-class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
-  val io = IO(new MemIO(width))
-  addResource("/Mem.sv")
-}
+// class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
+//   val io = IO(new MemIO(width))
+//   addResource("/Mem.sv")
+// }

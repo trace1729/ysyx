@@ -182,7 +182,7 @@ class MEMOutputIO(width: Int) extends Bundle {
 class MEM extends Module {
   val in  = IO(Flipped(Decoupled(new EXOutputIO)))
   val out = IO(Decoupled(new MEMOutputIO(width)))
-  val mem = Module(new Mem2(width))
+  val mem = Module(new Mem(width))
 
   val rmemdata = Wire(UInt(width.W))
 
@@ -301,7 +301,7 @@ class Datapath(memoryFile: String) extends Module {
   idu.data := wb.data
 }
 
-class Mem2(val width: Int) extends BlackBox with HasBlackBoxResource {
+class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
   addResource("/Mem.sv")
 }

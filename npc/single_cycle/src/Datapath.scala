@@ -36,7 +36,7 @@ class IFU(memoryFile: String) extends Module {
   )
   instMem.io.pc := out.bits.pc
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
-  out.bits.inst := instMem.io.inst
+  out.bits.inst := Cat(instMem.io.inst)
 }
 
 /** *******************IDU***************************

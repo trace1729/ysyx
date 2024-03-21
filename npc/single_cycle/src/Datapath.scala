@@ -261,11 +261,11 @@ class DatapathIO extends Bundle {
 class Datapath(memoryFile: String) extends Module {
   val io = IO(new DatapathIO)
 
-  val ifu = new IFU(memoryFile)
-  val idu = new IDU
-  val ex  = new EX
-  val mem = new MEM
-  val wb  = new WB
+  val ifu = Module(new IFU(memoryFile))
+  val idu = Module(new IDU)
+  val ex  = Module(new EX)
+  val mem = Module(new MEM)
+  val wb  = Module(new WB)
 
   ifu.out <> idu.in
   idu.out <> ex.in

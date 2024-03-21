@@ -188,7 +188,7 @@ class MEMOutputIO(width: Int) extends Bundle {
 class MEM extends Module {
   val in  = IO(Flipped(Decoupled(new EXOutputIO)))
   val out = IO(Decoupled(new MEMOutputIO(width)))
-  val mem = Module(new Mem(width))
+  val mem = Module(new Dmem(width))
 
   val rmemdata = Wire(UInt(width.W))
 
@@ -267,17 +267,6 @@ class DatapathIO extends Bundle {
   val pc   = Output(UInt(width.W))
   val inst = Output(UInt(width.W))
 
-  // for testing purpose
-  // val x1           = Output(UInt(width.W))
-  // val x2           = Output(UInt(width.W))
-  // val x5           = Output(UInt(width.W))
-  // val x6           = Output(UInt(width.W))
-  // val x7           = Output(UInt(width.W))
-  // val x8           = Output(UInt(width.W))
-  // val x9           = Output(UInt(width.W))
-  // val x10          = Output(UInt(width.W))
-  // val writereg     = Output(UInt(5.W))
-  // val test_alu_res = Output(UInt(width.W))
 }
 
 class Datapath(memoryFile: String) extends Module {
@@ -308,9 +297,9 @@ class Datapath(memoryFile: String) extends Module {
   idu.data := wb.data
 }
 
-class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
+class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
-  addResource("/Mem.sv")
+  addResource("/Dmem.sv")
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

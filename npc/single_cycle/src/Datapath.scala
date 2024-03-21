@@ -269,7 +269,7 @@ class DatapathIO extends Bundle {
   // val x7           = Output(UInt(width.W))
   // val x8           = Output(UInt(width.W))
   // val x9           = Output(UInt(width.W))
-  // val x10          = Output(UInt(width.W))
+  val x10          = Output(UInt(width.W))
   // val writereg     = Output(UInt(5.W))
   // val test_alu_res = Output(UInt(width.W))
 }
@@ -292,11 +292,12 @@ class Datapath(memoryFile: String) extends Module {
   io.inst := ifu.out.bits.inst
   io.pc := ifu.out.bits.pc
 
-  // 诡异的连线，多个阶段之前相互连线，握手突出一个毫无意义
+  // 诡异的连线，上面执行阶段之间的握手突出一个毫无意义
   ifu.in.alu_res := ex.out.bits.alures
   ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc := 0.U
   ifu.in.csr_mtvec := 0.U
+  io.x10 := idu.regfile.io.x10
   
   idu.data := wb.data
 }

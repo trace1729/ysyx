@@ -60,6 +60,7 @@ class IDU extends Module {
   val data = IO(Input(UInt(width.W)))
   val in  = IO(Flipped(Decoupled(new IFUOutputIO)))
   val out = IO(DecoupledIO(new IDUOutputIO))
+  val x10 = IO(Output(UInt(width.W)))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -72,6 +73,7 @@ class IDU extends Module {
   regfile.io.writereg := in.bits.inst(11, 7)
   regfile.io.writeEn  := ctrlLogic.io.writeEn
   regfile.io.data := data
+  x10 := regfile.io.x10
 
   // 控制逻辑的连接
   ctrlLogic.io.inst := in.bits.inst
@@ -297,7 +299,7 @@ class Datapath(memoryFile: String) extends Module {
   ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc := 0.U
   ifu.in.csr_mtvec := 0.U
-  io.x10 := idu.regfile.io.x10
+  io.x10 := idu.x10
   
   idu.data := wb.data
 }

@@ -11,7 +11,7 @@ class top(memoryFile: String = "") extends Module {
   val datapath = Module(new Datapath(memoryFile))
   io.inst := datapath.io.inst
   io.pc := datapath.io.pc
-  io.x10 := datapath.io.x10
+  // io.x10 := datapath.io.x10
 
 //   val io = IO(new Bundle {
 //     val pc   = Output(UInt(width.W))

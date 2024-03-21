@@ -4,29 +4,46 @@ import chisel3._
 import cpu.config._
 import chisel3.util._
 
-class controlLogicIO(width: Int) extends  Bundle {
-    val inst = Input(UInt(width.W))
-    val rs1  = Input(UInt(width.W))
-    val rs2  = Input(UInt(width.W))
-    // selecting pc + 4 (0) or pc + imm (1)
-    val pcsel   = Output(UInt(3.W))
-    val writeEn = Output(Bool())
-    // generate imm based on instruction type
-    val immsel = Output(UInt(6.W))
-    // selecting alu operand1 (readreg1 or pc)
-    val asel = Output(Bool())
-    // selecting alu operand1 (readreg2 or imm)
-    val bsel      = Output(Bool())
-    val alusel    = Output(UInt(4.W))
-    val memRW     = Output(Bool())
-    val memEnable = Output(Bool())
-    val WBsel     = Output(UInt(3.W))
-    val optype    = Output(UInt(4.W))
+class ctrlSignals extends Bundle {
+  val pcsel         = Output(UInt(3.W))
+  val writeEn       = Output(Bool())
+  val immsel        = Output(UInt(6.W))
+  val asel          = Output(Bool())
+  val bsel          = Output(Bool())
+  val alusel        = Output(UInt(4.W))
+  val memRW         = Output(Bool())
+  val memEnable     = Output(Bool())
+  val WBsel         = Output(UInt(3.W))
+  val optype        = Output(UInt(4.W))
+  val isCsrInst     = Output(Bool())
+  val csrsWriteEn   = Output(Bool())
+  val mepcWriteEn   = Output(Bool())
+  val mcauseWriteEn = Output(Bool())
+}
 
-    val isCsrInst = Output(Bool())
-    val csrsWriteEn = Output(Bool())
-    val mepcWriteEn = Output(Bool())
-    val mcauseWriteEn = Output(Bool())
+class controlLogicIO(width: Int) extends Bundle {
+  val inst = Input(UInt(width.W))
+  val rs1  = Input(UInt(width.W))
+  val rs2  = Input(UInt(width.W))
+  // selecting pc + 4 (0) or pc + imm (1)
+  val pcsel   = Output(UInt(3.W))
+  val writeEn = Output(Bool())
+  // generate imm based on instruction type
+  val immsel = Output(UInt(6.W))
+  // selecting alu operand1 (readreg1 or pc)
+  val asel = Output(Bool())
+  // selecting alu operand1 (readreg2 or imm)
+  val bsel      = Output(Bool())
+  val alusel    = Output(UInt(4.W))
+  val memRW     = Output(Bool())
+  val memEnable = Output(Bool())
+  val WBsel     = Output(UInt(3.W))
+  val optype    = Output(UInt(4.W))
+
+  val isCsrInst     = Output(Bool())
+  val csrsWriteEn   = Output(Bool())
+  val mepcWriteEn   = Output(Bool())
+  val mcauseWriteEn = Output(Bool())
 }
 
 class controlLogic(width: Int) extends Module {
@@ -74,18 +91,18 @@ class controlLogic(width: Int) extends Module {
 
   io.optype := optype
   // default value
-  io.pcsel     := 0.U
-  io.writeEn   := 0.U
-  io.immsel    := 0.U
-  io.asel      := 0.U
-  io.bsel      := 0.U
-  io.alusel    := 0.U
-  io.memRW     := 0.U
-  io.memEnable := 0.U
-  io.WBsel     := 0.U
-  io.csrsWriteEn := 0.U
-  io.mepcWriteEn  := 0.U
-  io.mcauseWriteEn  := 0.U
+  io.pcsel         := 0.U
+  io.writeEn       := 0.U
+  io.immsel        := 0.U
+  io.asel          := 0.U
+  io.bsel          := 0.U
+  io.alusel        := 0.U
+  io.memRW         := 0.U
+  io.memEnable     := 0.U
+  io.WBsel         := 0.U
+  io.csrsWriteEn   := 0.U
+  io.mepcWriteEn   := 0.U
+  io.mcauseWriteEn := 0.U
 
   // csrrw, csrrs, ecall, mret
   io.isCsrInst := 0.U
@@ -211,36 +228,36 @@ class controlLogic(width: Int) extends Module {
     }
     // 目前只实现 csrr, 不需要考虑 set, 也即 csrs[csrno] = t | rs1
     is(type_I_CSRR) {
-      io.pcsel     := 0.U
-      io.writeEn   := 1.U
-      io.immsel    := type_I
-      io.asel      := 0.U
-      io.bsel      := 1.U
-      io.alusel    := 0.U
-      io.memRW     := DontCare
-      io.memEnable := 0.U
-      io.WBsel     := 3.U
+      io.pcsel       := 0.U
+      io.writeEn     := 1.U
+      io.immsel      := type_I
+      io.asel        := 0.U
+      io.bsel        := 1.U
+      io.alusel      := 0.U
+      io.memRW       := DontCare
+      io.memEnable   := 0.U
+      io.WBsel       := 3.U
       io.csrsWriteEn := 0.U
     }
     // 目前只实现 csrw, 不需要将 csr 的值写入寄存器文件
     is(type_I_CSRW) {
-      io.pcsel     := 0.U
-      io.writeEn   := 0.U
-      io.immsel    := type_I
-      io.asel      := 0.U
-      io.bsel      := 1.U
-      io.alusel    := 0.U
-      io.memRW     := DontCare
-      io.memEnable := 0.U
-      io.WBsel     := DontCare
+      io.pcsel       := 0.U
+      io.writeEn     := 0.U
+      io.immsel      := type_I
+      io.asel        := 0.U
+      io.bsel        := 1.U
+      io.alusel      := 0.U
+      io.memRW       := DontCare
+      io.memEnable   := 0.U
+      io.WBsel       := DontCare
       io.csrsWriteEn := 1.U
     }
     is(type_ECALL) {
-      io.pcsel := 3.U // mtvec
-      io.mepcWriteEn := 1.U
+      io.pcsel         := 3.U // mtvec
+      io.mepcWriteEn   := 1.U
       io.mcauseWriteEn := 1.U
     }
-    is (type_MRET) {
+    is(type_MRET) {
       io.pcsel := 2.U
     }
   }

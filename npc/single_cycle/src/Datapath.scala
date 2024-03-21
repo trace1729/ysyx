@@ -54,7 +54,7 @@ class IDUOutputIO extends Bundle {
   val rs1         = Output(UInt(width.W))
   val rs2         = Output(UInt(width.W))
   val immediate   = Output(UInt(width.W))
-  val ctrlsignals = Output(new controlLogicIO(width))
+  val ctrlsignals = Output(new ctrlSignals)
 
   val pc       = Output(UInt(width.W))
   val inst     = Output(UInt(width.W))

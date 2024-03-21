@@ -34,16 +34,19 @@ class IFU(memoryFile: String) extends Module {
       (in.pcsel === 3.U) -> in.csr_mtvec
     )
   )
+  val valid = RegInit(1.U)
+
   instMem.io.pc := out.bits.pc
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
   out.bits.inst := Cat(instMem.io.inst)
-  
+
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc     := out.bits.pc
   itrace.io.inst   := out.bits.inst
   itrace.io.nextpc := pcvalue
 
   // ready, valid 信号全部设置成1
+
   out.valid := 1.U
 }
 
@@ -63,9 +66,9 @@ class IDUOutputIO extends Bundle {
 
 class IDU extends Module {
   val data = IO(Input(UInt(width.W)))
-  val in  = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val out = IO(DecoupledIO(new IDUOutputIO))
-  val x10 = IO(Output(UInt(width.W)))
+  val in   = IO(Flipped(Decoupled(new IFUOutputIO)))
+  val out  = IO(DecoupledIO(new IDUOutputIO))
+  val x10  = IO(Output(UInt(width.W)))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -77,8 +80,8 @@ class IDU extends Module {
   regfile.io.readreg2 := in.bits.inst(24, 20)
   regfile.io.writereg := in.bits.inst(11, 7)
   regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
-  regfile.io.data := data
-  x10 := regfile.io.x10
+  regfile.io.data     := data
+  x10                 := regfile.io.x10
 
   // 控制逻辑的连接
   ctrlLogic.io.inst := in.bits.inst
@@ -97,12 +100,13 @@ class IDU extends Module {
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
   csr.io.mcauseWriteEn := ctrlLogic.io.ctrlsignals.mcauseWriteEn
+  csr.io.mepcData      := in.bits.pc
+  csr.io.mepcWriteEn   := ctrlLogic.io.ctrlsignals.mepcWriteEn
 
-  csr.io.mepcData    := in.bits.pc
-  csr.io.mepcWriteEn := ctrlLogic.io.ctrlsignals.mepcWriteEn
-
+  // 生成控制信号
   out.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
 
+  // idu 模块的输出
   out.bits.rs1       := regfile.io.rs1
   out.bits.rs2       := regfile.io.rs2
   out.bits.immediate := immgen.io.imm
@@ -111,7 +115,7 @@ class IDU extends Module {
   out.bits.csrvalue  := csr.io.csrValue
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -157,7 +161,7 @@ class EX extends Module {
   out.bits.rs2      := in.bits.rs2
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -211,14 +215,14 @@ class MEM extends Module {
     )
   )
 
-  out.bits.alures      := in.bits.alures     
-  out.bits.pc          := in.bits.pc         
-  out.bits.csrvalue    := in.bits.csrvalue   
+  out.bits.alures      := in.bits.alures
+  out.bits.pc          := in.bits.pc
+  out.bits.csrvalue    := in.bits.csrvalue
   out.bits.ctrlsignals := in.bits.ctrlsignals
-  out.bits.rdata := rmemdata
+  out.bits.rdata       := rmemdata
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -245,7 +249,7 @@ class WB extends Module {
   )
 
   in.ready := 1.U
-  out.wb := 1.U
+  out.wb   := 1.U
 }
 
 /** ****************** 数据通路 ****************************
@@ -270,17 +274,16 @@ class Datapath(memoryFile: String) extends Module {
   ex.out <> mem.in
   mem.out <> wb.in
 
-  
   io.inst := ifu.out.bits.inst
-  io.pc := ifu.out.bits.pc
+  io.pc   := ifu.out.bits.pc
 
   // 诡异的连线，上面执行阶段之间的握手突出一个毫无意义
-  ifu.in.alu_res := ex.out.bits.alures
-  ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
-  ifu.in.csr_mepc := 0.U
+  ifu.in.alu_res   := ex.out.bits.alures
+  ifu.in.pcsel     := idu.out.bits.ctrlsignals.pcsel
+  ifu.in.csr_mepc  := 0.U
   ifu.in.csr_mtvec := 0.U
   // io.x10 := idu.x10
-  
+
   idu.data := wb.data
 }
 

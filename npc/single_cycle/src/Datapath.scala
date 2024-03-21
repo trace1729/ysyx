@@ -255,7 +255,6 @@ class WB extends Module {
   // ready, valid 信号全部设置成1
   in.ready := 1.U
   out.valid := 1.U
-  out.ready := 1.U
 }
 
 /** ****************** 数据通路 ****************************

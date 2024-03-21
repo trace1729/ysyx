@@ -38,6 +38,10 @@ class IFU(memoryFile: String) extends Module {
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
   out.bits.inst := Cat(instMem.io.inst)
   
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := out.bits.pc
+  itrace.io.inst   := out.bits.inst
+  itrace.io.nextpc := pcvalue
   // 设置 vaild 信号
   out.valid := 1.U
 }
@@ -307,4 +311,13 @@ class Datapath(memoryFile: String) extends Module {
 class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
   addResource("/Mem.sv")
+}
+
+class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val pc     = Input(UInt(32.W))
+    val inst   = Input(UInt(32.W))
+    val nextpc = Input(UInt(32.W))
+  })
+  addResource("/Dpi_itrace.sv")
 }

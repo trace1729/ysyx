@@ -11,6 +11,20 @@ class top(memoryFile: String = "") extends Module {
   val datapath = Module(new Datapath(memoryFile))
   io.inst := datapath.io.inst
   io.pc := datapath.io.pc
+}
+
+
+
+class MemIO(width: Int) extends Bundle {
+  // val raddr = Input(UInt(width.W))
+  val addr      = Input(UInt(width.W))
+  val rdata     = Output(UInt(width.W))
+  val wdata     = Input(UInt(width.W))
+  val wmask     = Input(UInt(8.W))
+  val memEnable = Input(Bool())
+  val memRW     = Input(Bool())
+  // val waddr = Input(UInt(width.W))
+}
 
 //   val io = IO(new Bundle {
 //     val pc   = Output(UInt(width.W))
@@ -36,21 +50,6 @@ class top(memoryFile: String = "") extends Module {
 //   ftrace.io.ref_jalr := type_IJ
 //   ftrace.io.ref_jal := type_J
 //   ftrace.io.src1 := regfile.io.rs1
-
-}
-
-
-
-class MemIO(width: Int) extends Bundle {
-  // val raddr = Input(UInt(width.W))
-  val addr      = Input(UInt(width.W))
-  val rdata     = Output(UInt(width.W))
-  val wdata     = Input(UInt(width.W))
-  val wmask     = Input(UInt(8.W))
-  val memEnable = Input(Bool())
-  val memRW     = Input(Bool())
-  // val waddr = Input(UInt(width.W))
-}
 
 // class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
 //   val io = IO(new Bundle {

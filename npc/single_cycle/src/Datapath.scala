@@ -34,15 +34,19 @@ class IFU(memoryFile: String) extends Module {
       (in.pcsel === 3.U) -> in.csr_mtvec
     )
   )
+  val valid = RegInit(1.U)
+
   instMem.io.pc := out.bits.pc
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
   out.bits.inst := Cat(instMem.io.inst)
-  
+
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc     := out.bits.pc
   itrace.io.inst   := out.bits.inst
   itrace.io.nextpc := pcvalue
-  // 设置 vaild 信号
+
+  // ready, valid 信号全部设置成1
+
   out.valid := 1.U
 }
 
@@ -62,9 +66,9 @@ class IDUOutputIO extends Bundle {
 
 class IDU extends Module {
   val data = IO(Input(UInt(width.W)))
-  val in  = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val out = IO(DecoupledIO(new IDUOutputIO))
-  val x10 = IO(Output(UInt(width.W)))
+  val in   = IO(Flipped(Decoupled(new IFUOutputIO)))
+  val out  = IO(DecoupledIO(new IDUOutputIO))
+  val x10  = IO(Output(UInt(width.W)))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -75,9 +79,9 @@ class IDU extends Module {
   regfile.io.readreg1 := in.bits.inst(19, 15)
   regfile.io.readreg2 := in.bits.inst(24, 20)
   regfile.io.writereg := in.bits.inst(11, 7)
-  regfile.io.writeEn  := ctrlLogic.io.writeEn
-  regfile.io.data := data
-  x10 := regfile.io.x10
+  regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
+  regfile.io.data     := data
+  x10                 := regfile.io.x10
 
   // 控制逻辑的连接
   ctrlLogic.io.inst := in.bits.inst
@@ -86,36 +90,23 @@ class IDU extends Module {
 
   // 立即数生成器的连接
   immgen.io.inst   := in.bits.inst
-  immgen.io.immsel := ctrlLogic.io.immsel
+  immgen.io.immsel := ctrlLogic.io.ctrlsignals.immsel
 
   // csr 寄存器文件的连接
-  csr.io.csrsWriteEn := ctrlLogic.io.csrsWriteEn
+  csr.io.csrsWriteEn := ctrlLogic.io.ctrlsignals.csrsWriteEn
   csr.io.csrNo       := immgen.io.imm
   // 只考虑 csrw, 所以直接把 rs1 寄存器的值写入 CSRs[csr_no]
   csr.io.data := regfile.io.rs1
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
-  csr.io.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
+  csr.io.mcauseWriteEn := ctrlLogic.io.ctrlsignals.mcauseWriteEn
+  csr.io.mepcData      := in.bits.pc
+  csr.io.mepcWriteEn   := ctrlLogic.io.ctrlsignals.mepcWriteEn
 
-  csr.io.mepcData    := in.bits.pc
-  csr.io.mepcWriteEn := ctrlLogic.io.mepcWriteEn
+  // 生成控制信号
+  out.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
 
-  // 输出信号到外部模块，肯定可以简化，之后看看
-  out.bits.ctrlsignals.pcsel         := ctrlLogic.io.pcsel
-  out.bits.ctrlsignals.writeEn       := ctrlLogic.io.writeEn
-  out.bits.ctrlsignals.immsel        := ctrlLogic.io.immsel
-  out.bits.ctrlsignals.asel          := ctrlLogic.io.asel
-  out.bits.ctrlsignals.bsel          := ctrlLogic.io.bsel
-  out.bits.ctrlsignals.alusel        := ctrlLogic.io.alusel
-  out.bits.ctrlsignals.memRW         := ctrlLogic.io.memRW
-  out.bits.ctrlsignals.memEnable     := ctrlLogic.io.memEnable
-  out.bits.ctrlsignals.WBsel         := ctrlLogic.io.WBsel
-  out.bits.ctrlsignals.optype        := ctrlLogic.io.optype
-  out.bits.ctrlsignals.isCsrInst     := ctrlLogic.io.isCsrInst
-  out.bits.ctrlsignals.csrsWriteEn   := ctrlLogic.io.csrsWriteEn
-  out.bits.ctrlsignals.mepcWriteEn   := ctrlLogic.io.mepcWriteEn
-  out.bits.ctrlsignals.mcauseWriteEn := ctrlLogic.io.mcauseWriteEn
-
+  // idu 模块的输出
   out.bits.rs1       := regfile.io.rs1
   out.bits.rs2       := regfile.io.rs2
   out.bits.immediate := immgen.io.imm
@@ -124,7 +115,7 @@ class IDU extends Module {
   out.bits.csrvalue  := csr.io.csrValue
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -170,7 +161,7 @@ class EX extends Module {
   out.bits.rs2      := in.bits.rs2
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -188,7 +179,7 @@ class MEMOutputIO(width: Int) extends Bundle {
 class MEM extends Module {
   val in  = IO(Flipped(Decoupled(new EXOutputIO)))
   val out = IO(Decoupled(new MEMOutputIO(width)))
-  val mem = Module(new Mem(width))
+  val mem = Module(new Dmem(width))
 
   val rmemdata = Wire(UInt(width.W))
 
@@ -224,14 +215,14 @@ class MEM extends Module {
     )
   )
 
-  out.bits.alures      := in.bits.alures     
-  out.bits.pc          := in.bits.pc         
-  out.bits.csrvalue    := in.bits.csrvalue   
+  out.bits.alures      := in.bits.alures
+  out.bits.pc          := in.bits.pc
+  out.bits.csrvalue    := in.bits.csrvalue
   out.bits.ctrlsignals := in.bits.ctrlsignals
-  out.bits.rdata := rmemdata
+  out.bits.rdata       := rmemdata
 
   // ready, valid 信号全部设置成1
-  in.ready := 1.U
+  in.ready  := 1.U
   out.valid := 1.U
 }
 
@@ -258,7 +249,7 @@ class WB extends Module {
   )
 
   in.ready := 1.U
-  out.wb := 1.U
+  out.wb   := 1.U
 }
 
 /** ****************** 数据通路 ****************************
@@ -267,17 +258,6 @@ class DatapathIO extends Bundle {
   val pc   = Output(UInt(width.W))
   val inst = Output(UInt(width.W))
 
-  // for testing purpose
-  // val x1           = Output(UInt(width.W))
-  // val x2           = Output(UInt(width.W))
-  // val x5           = Output(UInt(width.W))
-  // val x6           = Output(UInt(width.W))
-  // val x7           = Output(UInt(width.W))
-  // val x8           = Output(UInt(width.W))
-  // val x9           = Output(UInt(width.W))
-  // val x10          = Output(UInt(width.W))
-  // val writereg     = Output(UInt(5.W))
-  // val test_alu_res = Output(UInt(width.W))
 }
 
 class Datapath(memoryFile: String) extends Module {
@@ -294,23 +274,22 @@ class Datapath(memoryFile: String) extends Module {
   ex.out <> mem.in
   mem.out <> wb.in
 
-  
   io.inst := ifu.out.bits.inst
-  io.pc := ifu.out.bits.pc
+  io.pc   := ifu.out.bits.pc
 
   // 诡异的连线，上面执行阶段之间的握手突出一个毫无意义
-  ifu.in.alu_res := ex.out.bits.alures
-  ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
-  ifu.in.csr_mepc := 0.U
+  ifu.in.alu_res   := ex.out.bits.alures
+  ifu.in.pcsel     := idu.out.bits.ctrlsignals.pcsel
+  ifu.in.csr_mepc  := 0.U
   ifu.in.csr_mtvec := 0.U
   // io.x10 := idu.x10
-  
+
   idu.data := wb.data
 }
 
-class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
+class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
-  addResource("/Mem.sv")
+  addResource("/Dmem.sv")
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

@@ -239,7 +239,7 @@ class WBOutputIO extends Bundle {
 
 class WB extends Module {
   val in   = IO(Flipped(Decoupled(new MEMOutputIO(width))))
-  val out  = IO(Decoupled(new WBOutputIO))
+  val out  = IO(new WBOutputIO)
   val data = IO(Output(UInt(width.W)))
   data := MuxCase(
     0.U,
@@ -251,10 +251,8 @@ class WB extends Module {
     )
   )
 
-  out.bits.wb := 1.U
-  // ready, valid 信号全部设置成1
   in.ready := 1.U
-  out.valid := 1.U
+  out.wb := 1.U
 }
 
 /** ****************** 数据通路 ****************************

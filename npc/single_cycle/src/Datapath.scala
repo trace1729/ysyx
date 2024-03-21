@@ -209,10 +209,10 @@ class MEM extends Module {
     )
   )
 
-  out.bits.alures      := in.bits.alures
-  out.bits.pc          := in.bits.alures
-  out.bits.csrvalue    := in.bits.alures
-  out.bits.ctrlsignals := in.bits.alures
+  out.bits.alures      := in.bits.alures     
+  out.bits.pc          := in.bits.pc         
+  out.bits.csrvalue    := in.bits.csrvalue   
+  out.bits.ctrlsignals := in.bits.ctrlsignals
 
 }
 

@@ -228,7 +228,7 @@ class MEM extends Module {
   out.bits.pc          := in.bits.pc         
   out.bits.csrvalue    := in.bits.csrvalue   
   out.bits.ctrlsignals := in.bits.ctrlsignals
-  out.bits.rdata := mem.io.rdata
+  out.bits.rdata := rmemdata
 
   // ready, valid 信号全部设置成1
   in.ready := 1.U

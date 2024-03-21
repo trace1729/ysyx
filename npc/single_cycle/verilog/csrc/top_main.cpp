@@ -103,7 +103,7 @@ void verilator_exec_once(Decode* s) {
     }
 #endif
     if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
-        NEMUTRAP(s->dnpc, top->io_x10);
+        NEMUTRAP(s->dnpc, cpu.gpr[10]);
     // 没实现的指令
     } else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
         INV(s->dnpc, next_inst);

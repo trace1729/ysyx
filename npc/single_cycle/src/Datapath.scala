@@ -222,6 +222,7 @@ class MEM extends Module {
   out.bits.pc          := in.bits.pc         
   out.bits.csrvalue    := in.bits.csrvalue   
   out.bits.ctrlsignals := in.bits.ctrlsignals
+  out.bits.rdata := mem.io.rdata
 
   // ready, valid 信号全部设置成1
   in.ready := 1.U
@@ -250,9 +251,11 @@ class WB extends Module {
     )
   )
 
+  out.bits.wb := 1.U
   // ready, valid 信号全部设置成1
   in.ready := 1.U
   out.valid := 1.U
+  out.ready := 1.U
 }
 
 /** ****************** 数据通路 ****************************

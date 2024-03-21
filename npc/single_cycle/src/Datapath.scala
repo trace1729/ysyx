@@ -37,6 +37,9 @@ class IFU(memoryFile: String) extends Module {
   instMem.io.pc := out.bits.pc
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
   out.bits.inst := Cat(instMem.io.inst)
+  
+  // 设置 vaild 信号
+  out.valid := 1.U
 }
 
 /** *******************IDU***************************
@@ -114,6 +117,9 @@ class IDU extends Module {
   out.bits.inst      := in.bits.inst
   out.bits.csrvalue  := csr.io.csrValue
 
+  // ready, valid 信号全部设置成1
+  in.ready := 1.U
+  out.valid := 1.U
 }
 
 /** *******************EX***************************
@@ -157,6 +163,9 @@ class EX extends Module {
   out.bits.csrvalue := in.bits.csrvalue
   out.bits.rs2      := in.bits.rs2
 
+  // ready, valid 信号全部设置成1
+  in.ready := 1.U
+  out.valid := 1.U
 }
 
 /** *******************MEM***************************
@@ -214,6 +223,9 @@ class MEM extends Module {
   out.bits.csrvalue    := in.bits.csrvalue   
   out.bits.ctrlsignals := in.bits.ctrlsignals
 
+  // ready, valid 信号全部设置成1
+  in.ready := 1.U
+  out.valid := 1.U
 }
 
 /** *******************WB***************************
@@ -237,6 +249,10 @@ class WB extends Module {
       (in.bits.ctrlsignals.WBsel === 3.U) -> in.bits.csrvalue
     )
   )
+
+  // ready, valid 信号全部设置成1
+  in.ready := 1.U
+  out.valid := 1.U
 }
 
 /** ****************** 数据通路 ****************************
@@ -273,16 +289,16 @@ class Datapath(memoryFile: String) extends Module {
   mem.out <> wb.in
 
   
+  io.inst := ifu.out.bits.inst
+  io.pc := ifu.out.bits.pc
+
+  // 诡异的连线，多个阶段之前相互连线，握手突出一个毫无意义
   ifu.in.alu_res := ex.out.bits.alures
   ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc := 0.U
   ifu.in.csr_mtvec := 0.U
   
   idu.data := wb.data
-
-  io.inst := ifu.out.bits.inst
-  io.pc := ifu.out.bits.pc
-
 }
 
 class Mem2(val width: Int) extends BlackBox with HasBlackBoxResource {

@@ -38,6 +38,10 @@ class IFU(memoryFile: String) extends Module {
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
   out.bits.inst := Cat(instMem.io.inst)
   
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := out.bits.pc
+  itrace.io.inst   := out.bits.inst
+  itrace.io.nextpc := pcvalue
   // 设置 vaild 信号
   out.valid := 1.U
 }
@@ -60,6 +64,7 @@ class IDU extends Module {
   val data = IO(Input(UInt(width.W)))
   val in  = IO(Flipped(Decoupled(new IFUOutputIO)))
   val out = IO(DecoupledIO(new IDUOutputIO))
+  val x10 = IO(Output(UInt(width.W)))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -72,6 +77,7 @@ class IDU extends Module {
   regfile.io.writereg := in.bits.inst(11, 7)
   regfile.io.writeEn  := ctrlLogic.io.writeEn
   regfile.io.data := data
+  x10 := regfile.io.x10
 
   // 控制逻辑的连接
   ctrlLogic.io.inst := in.bits.inst
@@ -222,7 +228,7 @@ class MEM extends Module {
   out.bits.pc          := in.bits.pc         
   out.bits.csrvalue    := in.bits.csrvalue   
   out.bits.ctrlsignals := in.bits.ctrlsignals
-  out.bits.rdata := mem.io.rdata
+  out.bits.rdata := rmemdata
 
   // ready, valid 信号全部设置成1
   in.ready := 1.U
@@ -292,11 +298,12 @@ class Datapath(memoryFile: String) extends Module {
   io.inst := ifu.out.bits.inst
   io.pc := ifu.out.bits.pc
 
-  // 诡异的连线，多个阶段之前相互连线，握手突出一个毫无意义
+  // 诡异的连线，上面执行阶段之间的握手突出一个毫无意义
   ifu.in.alu_res := ex.out.bits.alures
   ifu.in.pcsel := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc := 0.U
   ifu.in.csr_mtvec := 0.U
+  // io.x10 := idu.x10
   
   idu.data := wb.data
 }
@@ -304,4 +311,13 @@ class Datapath(memoryFile: String) extends Module {
 class Mem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
   addResource("/Mem.sv")
+}
+
+class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val pc     = Input(UInt(32.W))
+    val inst   = Input(UInt(32.W))
+    val nextpc = Input(UInt(32.W))
+  })
+  addResource("/Dpi_itrace.sv")
 }

@@ -29,9 +29,9 @@ class IFU(memoryFile: String) extends Module {
   itrace.io.inst   := if2id_out.bits.inst
   itrace.io.nextpc := wb2if_in.bits.wb_nextpc
 
+  wb2if_in.ready := wb2if_in.valid
   val valid = RegInit(1.U)
   if2id_out.valid := valid
-  wb2if_in.ready := wb2if_in.valid
   
   when (wb2if_in.valid) {
     valid := 1.U
@@ -246,7 +246,8 @@ class MEM extends Module {
 
   // ready, valid 信号全部设置成1
   in.ready  := 1.U
-  out.valid := 1.U
+  out.valid := 1.U  
+
 }
 
 /** *******************WB***************************
@@ -261,7 +262,11 @@ class WBOutputIO extends Bundle {
 class WB extends Module {
   val mem2wb_in   = IO(Flipped(Decoupled(new MEMOutputIO(width))))
   val wb2ifu_out  = IO(Decoupled(new WBOutputIO))
-  wb2ifu_out.bits.wb_data := MuxCase(
+
+  val wb_data_reg = RegNext(wb2ifu_out.bits.wb_data, 0.U)
+  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, 0.U)
+
+  wb_data_reg := MuxCase(
     0.U,
     Seq(
       (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
@@ -270,7 +275,7 @@ class WB extends Module {
       (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
     )
   )
-  wb2ifu_out.bits.wb_nextpc := MuxCase(
+  wb_nextpc_reg := MuxCase(
     0.U,
     Seq(
       (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.instLen.U),
@@ -288,6 +293,11 @@ class WB extends Module {
     wb_valid := 1.U
   }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
     wb_valid := 0.U
+  }
+
+  when (mem2wb_in.valid) {
+    wb2ifu_out.bits.wb_data := wb_data_reg
+    wb2ifu_out.bits.wb_data := wb_nextpc_reg
   }
 
 }
@@ -318,6 +328,7 @@ class Datapath(memoryFile: String) extends Module {
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data := wb.wb2ifu_out.bits.wb_data
 
+  // datapath 的输出
   io.inst := ifu.if2id_out.bits.inst
   io.pc   := ifu.if2id_out.bits.pc
 }

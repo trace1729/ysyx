@@ -30,13 +30,13 @@ class IFU(memoryFile: String) extends Module {
   itrace.io.nextpc := wb2if_in.bits.wb_nextpc
 
   wb2if_in.ready := wb2if_in.valid
-  val valid = RegInit(1.U)
-  if2id_out.valid := valid
+  val ifu_valid_reg = RegInit(1.U)
+  if2id_out.valid := ifu_valid_reg
   
   when (wb2if_in.valid) {
-    valid := 1.U
+    ifu_valid_reg := 1.U
   }.elsewhen(if2id_out.ready && if2id_out.valid) {
-    valid := 0.U
+    ifu_valid_reg := 0.U
   }
 }
 
@@ -70,16 +70,16 @@ class IDU extends Module {
   if2id_in.ready := if2id_in.valid
 
   // valid 信号
-  val valid = RegInit(0.U)
+  val idu_valid_reg = RegInit(0.U)
   val inst = RegInit(UInt(32.W), 0.U)
   val pc = RegInit(UInt(32.W), 0.U)
 
-  id2ex_out.valid := valid
+  id2ex_out.valid := idu_valid_reg
 
   when (if2id_in.valid) {
-    valid := 1.U
+    idu_valid_reg := 1.U
   }.elsewhen(id2ex_out.valid && id2ex_out.ready) {
-    valid := 0.U
+    idu_valid_reg := 0.U
   }
 
   when (if2id_in.valid) {
@@ -150,36 +150,46 @@ class EXOutputIO extends Bundle {
 }
 
 class EX extends Module {
-  val if2ex_in  = IO(Flipped(Decoupled(new IDUOutputIO)))
+  val id2ex_in  = IO(Flipped(Decoupled(new IDUOutputIO)))
   val ex2mem_out = IO(Decoupled(new EXOutputIO))
 
   val alu = Module(new Alu(width))
   // 因为控制逻辑是贯穿五个阶段的，所以每一个阶段(除了ID)都会有控制信号的输入
   // 这样就比较怪了，那我当前的阶段需要将控制信号传递给之后的阶段
 
-  alu.io.alusel := if2ex_in.bits.ctrlsignals.alusel
+  alu.io.alusel := id2ex_in.bits.ctrlsignals.alusel
   // 0 for rs1, 1 for pc
-  alu.io.A := Mux(!if2ex_in.bits.ctrlsignals.asel, if2ex_in.bits.rs1, if2ex_in.bits.pc)
+  alu.io.A := Mux(!id2ex_in.bits.ctrlsignals.asel, id2ex_in.bits.rs1, id2ex_in.bits.pc)
   // 0 for rs2, 1 for imm
-  alu.io.B := Mux(!if2ex_in.bits.ctrlsignals.bsel, if2ex_in.bits.rs2, if2ex_in.bits.immediate)
+  alu.io.B := Mux(!id2ex_in.bits.ctrlsignals.bsel, id2ex_in.bits.rs2, id2ex_in.bits.immediate)
 
   ex2mem_out.bits.carry       := alu.io.carry
   ex2mem_out.bits.overflow    := alu.io.overflow
   ex2mem_out.bits.alures      := alu.io.res
   ex2mem_out.bits.zero        := alu.io.zero
-  ex2mem_out.bits.ctrlsignals := if2ex_in.bits.ctrlsignals
+  ex2mem_out.bits.ctrlsignals := id2ex_in.bits.ctrlsignals
 
-  ex2mem_out.bits.pc       := if2ex_in.bits.pc
-  ex2mem_out.bits.inst     := if2ex_in.bits.inst
-  ex2mem_out.bits.csrvalue := if2ex_in.bits.csrvalue
-  ex2mem_out.bits.rs2      := if2ex_in.bits.rs2
+  ex2mem_out.bits.pc       := id2ex_in.bits.pc
+  ex2mem_out.bits.inst     := id2ex_in.bits.inst
+  ex2mem_out.bits.csrvalue := id2ex_in.bits.csrvalue
+  ex2mem_out.bits.rs2      := id2ex_in.bits.rs2
 
-  ex2mem_out.bits.mepc := if2ex_in.bits.mepc
-  ex2mem_out.bits.mtvec := if2ex_in.bits.mtvec
+  ex2mem_out.bits.mepc := id2ex_in.bits.mepc
+  ex2mem_out.bits.mtvec := id2ex_in.bits.mtvec
 
   // ready, valid 信号全部设置成1
-  if2ex_in.ready  := 1.U
+  id2ex_in.ready  := 1.U
   ex2mem_out.valid := 1.U
+
+  val exu_valid_reg = RegInit(0.U)
+  ex2mem_out.valid := ex2mem_out
+
+  when (id2ex_in.valid) {
+    exu_valid_reg := 1.U
+  }.elsewhen(ex2mem_out.ready && ex2mem_out.valid) {
+    exu_valid_reg := 0.U
+  }
+  
 }
 
 /** *******************MEM***************************
@@ -245,8 +255,14 @@ class MEM extends Module {
   out.bits.mtvec := in.bits.mtvec
 
   // ready, valid 信号全部设置成1
-  in.ready  := 1.U
-  out.valid := 1.U  
+  val mem_valid_reg = RegInit(0.U)
+  
+  when (in.valid) {
+    mem_valid_reg := 1.U
+  }.elsewhen(out.valid && out.ready) {
+    mem_valid_reg := 0.U
+  }
+
 
 }
 
@@ -296,7 +312,7 @@ class WB extends Module {
 
   when (mem2wb_in.valid) {
     wb_valid := 1.U
-  }.elsewhen(wb2ifu_out.valid) {
+  }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
     wb_valid := 0.U
   }
 
@@ -320,7 +336,7 @@ class Datapath(memoryFile: String) extends Module {
   val wb  = Module(new WB)
 
   ifu.if2id_out <> idu.if2id_in
-  idu.id2ex_out <> ex.if2ex_in
+  idu.id2ex_out <> ex.id2ex_in
   ex.ex2mem_out <> mem.in
   mem.out <> wb.mem2wb_in
   wb.wb2ifu_out <> ifu.wb2if_in

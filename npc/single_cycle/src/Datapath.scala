@@ -18,7 +18,6 @@ class IFU(memoryFile: String) extends Module {
   val in      = IO(Flipped(Decoupled(new WBOutputIO)))
   val out     = IO(Decoupled(new IFUOutputIO))
   val instMem = Module(new InstMem(memoryFile = memoryFile))
-  val en = IO(Input(Bool()))
 
   val valid = RegInit(1.U)
   out.valid := valid

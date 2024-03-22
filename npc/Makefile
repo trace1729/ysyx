@@ -37,7 +37,7 @@ run: verilog
 	cp $(BUILD_DIR)/sv-gen/*.sv $(NPC_HOME)/$(TARGET)/verilog/vsrc/
 #	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
-#	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
+	-gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
 
 
 gdb: verilog 

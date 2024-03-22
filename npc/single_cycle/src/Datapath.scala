@@ -274,6 +274,7 @@ class WB extends Module {
     )
   )
 
+  in.ready := 1.U
   out.wb   := 0.U
 }
 

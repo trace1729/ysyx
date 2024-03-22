@@ -257,7 +257,8 @@ class MEM extends Module {
 
 class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
-  val wb = Output(Bool())
+  val wb_valid = Output(Bool())
+  val wb_ready = Input(Bool())
 }
 
 class WB extends Module {
@@ -284,7 +285,7 @@ class WB extends Module {
   // }
 
   in.ready := in.valid
-  out.wb := 1.U
+  out.wb_valid := 1.U
 }
 
 /** ****************** 数据通路 ****************************
@@ -319,7 +320,7 @@ class Datapath(memoryFile: String) extends Module {
   ifu.in.csr_mtvec := 0.U
   idu.data := wb.data
 
-  ifu.in.en := RegNext(wb.out.wb, 1.U)
+  ifu.in.en := RegNext(wb.out.wb_valid, 1.U)
 
 }
 

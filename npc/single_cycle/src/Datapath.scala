@@ -10,8 +10,8 @@ import javax.swing.plaf.synth.Region
   */
 
 class IFUOutputIO extends Bundle {
-  val pc   = Output(UInt(width.W))
-  val inst = Output(UInt(width.W))
+  val ifu2idu_pc   = Output(UInt(width.W))
+  val ifu2idu_inst = Output(UInt(width.W))
 }
 
 class IFUInputIO extends Bundle {
@@ -30,7 +30,7 @@ class IFU(memoryFile: String) extends Module {
   pcvalue := MuxCase(
     0.U,
     Seq(
-      (in.pcsel === 0.U) -> (out.bits.pc + config.instLen.U),
+      (in.pcsel === 0.U) -> (out.bits.ifu2idu_pc + config.instLen.U),
       (in.pcsel === 1.U) -> in.alu_res,
       (in.pcsel === 2.U) -> in.csr_mepc,
       (in.pcsel === 3.U) -> in.csr_mtvec
@@ -40,13 +40,13 @@ class IFU(memoryFile: String) extends Module {
   val valid = RegInit(0.U)
   out.valid := valid
 
-  instMem.io.pc := out.bits.pc
-  out.bits.pc   := RegNext(pcvalue, config.startPC.U)
-  out.bits.inst := Cat(instMem.io.inst)
+  instMem.io.pc := out.bits.ifu2idu_pc
+  out.bits.ifu2idu_pc   := RegNext(pcvalue, config.startPC.U)
+  out.bits.ifu2idu_inst := Cat(instMem.io.inst)
 
   val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := out.bits.pc
-  itrace.io.inst   := out.bits.inst
+  itrace.io.pc     := out.bits.ifu2idu_pc
+  itrace.io.inst   := out.bits.ifu2idu_inst
   itrace.io.nextpc := pcvalue
 
   // ready, valid 信号全部设置成1
@@ -99,8 +99,8 @@ class IDU extends Module {
   }
 
   when (in.valid) {
-    inst := in.bits.inst
-    pc := in.bits.pc
+    inst := in.bits.ifu2idu_inst
+    pc := in.bits.ifu2idu_pc
   }  
 
   // 寄存器文件的连接
@@ -300,8 +300,8 @@ class Datapath(memoryFile: String) extends Module {
   ex.out <> mem.in
   mem.out <> wb.in
 
-  io.inst := ifu.out.bits.inst
-  io.pc   := ifu.out.bits.pc
+  io.inst := ifu.out.bits.ifu2idu_inst
+  io.pc   := ifu.out.bits.ifu2idu_pc
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   ifu.in.alu_res   := ex.out.bits.alures

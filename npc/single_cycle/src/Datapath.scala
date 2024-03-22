@@ -289,7 +289,8 @@ class Datapath(memoryFile: String) extends Module {
 
 class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
-  addResource("/Dmem.sv")
+  // addResource("/Dmem.sv")
+  val mem = SyncReadMem(256, UInt(width.W))
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

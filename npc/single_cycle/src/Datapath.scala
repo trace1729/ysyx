@@ -314,6 +314,7 @@ class Datapath(memoryFile: String) extends Module {
   idu.out <> ex.in
   ex.out <> mem.in
   mem.out <> wb.in
+  wb.out <> ifu.in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data := wb.out.bits.wb_data

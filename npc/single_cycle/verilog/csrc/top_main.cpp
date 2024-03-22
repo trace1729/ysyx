@@ -58,17 +58,16 @@ void sim_end() {
 }
 
 static void dummy() {
-  // for (int i = 0; i < 20; i++) {
-  //   top->clock = 0;
-  //   top->eval();
-  //   contextp->timeInc(1);
-  //   tfp->dump(contextp->time());
-  //   top->clock = 1;
-  //   top->eval();
-  //   contextp->timeInc(1);
-  //   tfp->dump(contextp->time());
-  // }
-
+  for (int i = 0; i < 20; i++) {
+    top->clock = 0;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+    top->clock = 1;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+  }
 }
 int main(int argc, char** argv, char** env) {
  

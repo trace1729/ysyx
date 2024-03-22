@@ -265,25 +265,29 @@ class WB extends Module {
 
   val wb_data_reg = RegNext(wb2ifu_out.bits.wb_data, 0.U)
   val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, 0.U)
+  wb2ifu_out.bits.wb_data := wb_data_reg
+  wb2ifu_out.bits.wb_data := wb_nextpc_reg
 
-  wb_data_reg := MuxCase(
-    0.U,
-    Seq(
-      (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
-      (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.instLen.U),
-      (mem2wb_in.bits.ctrlsignals.WBsel === 2.U) -> mem2wb_in.bits.rdata,
-      (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
+  when (mem2wb_in.valid) {
+    wb_data_reg := MuxCase(
+      0.U,
+      Seq(
+        (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
+        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.WBsel === 2.U) -> mem2wb_in.bits.rdata,
+        (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
+      )
     )
-  )
-  wb_nextpc_reg := MuxCase(
-    0.U,
-    Seq(
-      (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.instLen.U),
-      (mem2wb_in.bits.ctrlsignals.pcsel === 1.U) -> mem2wb_in.bits.alures,
-      (mem2wb_in.bits.ctrlsignals.pcsel === 2.U) -> mem2wb_in.bits.mepc,
-      (mem2wb_in.bits.ctrlsignals.pcsel === 3.U) -> mem2wb_in.bits.mtvec
+    wb_nextpc_reg := MuxCase(
+      0.U,
+      Seq(
+        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.pcsel === 1.U) -> mem2wb_in.bits.alures,
+        (mem2wb_in.bits.ctrlsignals.pcsel === 2.U) -> mem2wb_in.bits.mepc,
+        (mem2wb_in.bits.ctrlsignals.pcsel === 3.U) -> mem2wb_in.bits.mtvec
+      )
     )
-  )
+  }
 
   mem2wb_in.ready := mem2wb_in.valid
   val wb_valid = RegInit(0.U)
@@ -293,11 +297,6 @@ class WB extends Module {
     wb_valid := 1.U
   }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
     wb_valid := 0.U
-  }
-
-  when (mem2wb_in.valid) {
-    wb2ifu_out.bits.wb_data := wb_data_reg
-    wb2ifu_out.bits.wb_data := wb_nextpc_reg
   }
 
 }

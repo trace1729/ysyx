@@ -87,8 +87,8 @@ class IDU extends Module {
 
   // valid 信号
   val valid = RegInit(0.U)
-  val inst = RegInit(UInt(width.W))
-  val pc = RegInit(UInt(width.W))
+  val inst = RegInit(0.U, UInt(width.W))
+  val pc = RegInit(0.U, UInt(width.W))
 
   out.valid := valid
 
@@ -142,9 +142,7 @@ class IDU extends Module {
   out.bits.inst      := inst
   out.bits.csrvalue  := csr.io.csrValue
 
-  // ready, valid 信号全部设置成1
-  in.ready  := 1.U
-  out.valid := 1.U
+
 }
 
 /** *******************EX***************************

@@ -41,8 +41,12 @@ void sim_reset(Vtop* top) {
   top->reset = 1;
   top->clock = 0;
   top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
   top->clock = 1;
   top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
 

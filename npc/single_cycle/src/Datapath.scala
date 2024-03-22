@@ -281,8 +281,6 @@ class WB extends Module {
 
   when (in.valid) {
     wb_valid := 1.U
-  }.elsewhen(out.wb) {
-    wb_valid := 0.U
   }
 
 }

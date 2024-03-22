@@ -296,7 +296,7 @@ class WB extends Module {
 
   when (mem2wb_in.valid) {
     wb_valid := 1.U
-  }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
+  }.elsewhen(wb2ifu_out.valid) {
     wb_valid := 0.U
   }
 

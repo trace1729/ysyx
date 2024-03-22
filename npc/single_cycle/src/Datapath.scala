@@ -265,8 +265,9 @@ class WB extends Module {
 
   val wb_data_reg = RegNext(wb2ifu_out.bits.wb_data, 0.U)
   val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, 0.U)
+
   wb2ifu_out.bits.wb_data := wb_data_reg
-  wb2ifu_out.bits.wb_data := wb_nextpc_reg
+  wb2ifu_out.bits.wb_nextpc := wb_nextpc_reg
 
   when (mem2wb_in.valid) {
     wb_data_reg := MuxCase(

@@ -41,7 +41,7 @@ class IFU(memoryFile: String) extends Module {
   out.valid := valid
 
   instMem.io.pc := out.bits.ifu2idu_pc
-  out.bits.ifu2idu_pc   := RegNext(pcvalue, config.startPC.U)
+  out.bits.ifu2idu_pc   := RegNext(pcvalue, config.startPC.U - 4.U)
   out.bits.ifu2idu_inst := Cat(instMem.io.inst)
 
   val itrace = Module(new Dpi_itrace)

@@ -291,6 +291,7 @@ class Dmem(val width: Int) extends Module {
   val io = IO(new MemIO(width))
   // addResource("/Dmem.sv")
   val mem = SyncReadMem(256, UInt(width.W))
+  io.rdata := DontCare
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

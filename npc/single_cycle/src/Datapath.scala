@@ -258,7 +258,6 @@ class MEM extends Module {
 class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
   val wb_valid = Output(Bool())
-  val wb_ready = Input(Bool())
 }
 
 class WB extends Module {

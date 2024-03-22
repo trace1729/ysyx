@@ -182,7 +182,7 @@ class EX extends Module {
   ex2mem_out.valid := 1.U
 
   val exu_valid_reg = RegInit(0.U)
-  ex2mem_out.valid := ex2mem_out
+  ex2mem_out.valid := exu_valid_reg
 
   when (id2ex_in.valid) {
     exu_valid_reg := 1.U
@@ -256,6 +256,8 @@ class MEM extends Module {
 
   // ready, valid 信号全部设置成1
   val mem_valid_reg = RegInit(0.U)
+  out.valid := mem_valid_reg
+  
   
   when (in.valid) {
     mem_valid_reg := 1.U

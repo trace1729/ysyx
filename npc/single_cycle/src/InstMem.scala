@@ -20,12 +20,11 @@ class InstMemIO (width: Int, ilen: Int) extends Bundle {
 }
 
 class InstMem(val memoryFile: String = "") extends Module {
-    // val memSize = 8192 * 4 * 8
-    val memSize = 256
+    val memSize = 8192 * 4 * 8
     val ilen = width / InstMem.byte_len
 
     val io = IO(new InstMemIO(width, ilen))
-    val mem = Mem(memSize, UInt(width.W))
+    val mem = Mem(memSize, UInt(InstMem.byte_len.W))
 
     // Initialize memory
     if (memoryFile.trim().nonEmpty) {

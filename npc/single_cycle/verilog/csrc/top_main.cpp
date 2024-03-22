@@ -59,7 +59,17 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  sdb_mainloop();
+  // sdb_mainloop();
+  for (int i = 0; i < 20; i++) {
+    top->clock = 0;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+    top->clock = 1;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+  }
   sim_end();
 
   return is_exit_status_bad();

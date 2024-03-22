@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 import cpu.utils._
+import javax.swing.plaf.synth.Region
 
 /** ********************IFU**************************
   */
@@ -14,6 +15,7 @@ class IFUOutputIO extends Bundle {
 }
 
 class IFUInputIO extends Bundle {
+  val en  = Input(Bool())
   val pcsel     = Input(UInt(3.W))
   val alu_res   = Input(UInt(width.W))
   val csr_mepc  = Input(UInt(width.W))
@@ -34,7 +36,9 @@ class IFU(memoryFile: String) extends Module {
       (in.pcsel === 3.U) -> in.csr_mtvec
     )
   )
-  val valid = RegInit(1.U)
+
+  val valid = RegInit(0.U)
+  out.valid := valid
 
   instMem.io.pc := out.bits.pc
   out.bits.pc   := RegNext(pcvalue, config.startPC.U)
@@ -46,8 +50,11 @@ class IFU(memoryFile: String) extends Module {
   itrace.io.nextpc := pcvalue
 
   // ready, valid 信号全部设置成1
-
-  out.valid := 1.U
+  when (in.en) {
+    valid := 1.U
+  }.elsewhen(out.ready && out.valid) {
+    valid := 0.U
+  }
 }
 
 /** *******************IDU***************************
@@ -75,21 +82,42 @@ class IDU extends Module {
   val immgen    = Module(new ImmGen(width))
   val csr       = Module(new CSR(10, width))
 
+  // 输入的 ready 跟随 valid
+  in.ready := in.valid
+
+  // valid 信号
+  val valid = RegInit(0.U)
+  val inst = RegInit(UInt(width.W))
+  val pc = RegInit(UInt(width.W))
+
+  out.valid := valid
+
+  when (in.valid) {
+    valid := 1.U
+  }.elsewhen(out.valid && out.ready) {
+    valid := 0.U
+  }
+
+  when (in.valid) {
+    inst := in.bits.inst
+    pc := in.bits.pc
+  }  
+
   // 寄存器文件的连接
-  regfile.io.readreg1 := in.bits.inst(19, 15)
-  regfile.io.readreg2 := in.bits.inst(24, 20)
-  regfile.io.writereg := in.bits.inst(11, 7)
+  regfile.io.readreg1 := inst(19, 15)
+  regfile.io.readreg2 := inst(24, 20)
+  regfile.io.writereg := inst(11, 7)
   regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
   regfile.io.data     := data
   x10                 := regfile.io.x10
 
   // 控制逻辑的连接
-  ctrlLogic.io.inst := in.bits.inst
+  ctrlLogic.io.inst := inst
   ctrlLogic.io.rs1  := regfile.io.rs1
   ctrlLogic.io.rs2  := regfile.io.rs2
 
   // 立即数生成器的连接
-  immgen.io.inst   := in.bits.inst
+  immgen.io.inst   := inst
   immgen.io.immsel := ctrlLogic.io.ctrlsignals.immsel
 
   // csr 寄存器文件的连接
@@ -100,7 +128,7 @@ class IDU extends Module {
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
   csr.io.mcauseWriteEn := ctrlLogic.io.ctrlsignals.mcauseWriteEn
-  csr.io.mepcData      := in.bits.pc
+  csr.io.mepcData      := pc
   csr.io.mepcWriteEn   := ctrlLogic.io.ctrlsignals.mepcWriteEn
 
   // 生成控制信号
@@ -110,8 +138,8 @@ class IDU extends Module {
   out.bits.rs1       := regfile.io.rs1
   out.bits.rs2       := regfile.io.rs2
   out.bits.immediate := immgen.io.imm
-  out.bits.pc        := in.bits.pc
-  out.bits.inst      := in.bits.inst
+  out.bits.pc        := pc
+  out.bits.inst      := inst
   out.bits.csrvalue  := csr.io.csrValue
 
   // ready, valid 信号全部设置成1
@@ -277,14 +305,15 @@ class Datapath(memoryFile: String) extends Module {
   io.inst := ifu.out.bits.inst
   io.pc   := ifu.out.bits.pc
 
-  // 诡异的连线，上面执行阶段之间的握手突出一个毫无意义
+  // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   ifu.in.alu_res   := ex.out.bits.alures
   ifu.in.pcsel     := idu.out.bits.ctrlsignals.pcsel
   ifu.in.csr_mepc  := 0.U
   ifu.in.csr_mtvec := 0.U
-  // io.x10 := idu.x10
-
   idu.data := wb.data
+
+  ifu.in.en := RegNext(wb.out.wb, 1.U)
+
 }
 
 class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {

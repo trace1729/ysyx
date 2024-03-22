@@ -31,8 +31,7 @@ class IFU(memoryFile: String) extends Module {
 
   wb2if_in.ready := wb2if_in.valid
 
-  val tmp = RegInit(1.U)
-  val ifu_valid_reg = RegNext(tmp, 0.U)
+  val ifu_valid_reg = RegInit(1.U)
 
   if2id_out.valid := ifu_valid_reg
   

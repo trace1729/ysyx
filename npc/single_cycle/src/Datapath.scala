@@ -19,11 +19,11 @@ class IFU(memoryFile: String) extends Module {
   val out     = IO(Decoupled(new IFUOutputIO))
   val instMem = Module(new InstMem(memoryFile = memoryFile))
 
-  val valid = RegInit(1.U)
+  val valid = RegInit(0.U)
   out.valid := valid
 
   instMem.io.pc := out.bits.ifu2idu_pc
-  out.bits.ifu2idu_pc   := RegNext(in.bits.wb_nextpc, config.startPC.U)
+  out.bits.ifu2idu_pc   := RegNext(in.bits.wb_nextpc, config.startPC.U - 4.U)
   out.bits.ifu2idu_inst := Cat(instMem.io.inst)
 
   val itrace = Module(new Dpi_itrace)

@@ -30,7 +30,10 @@ class IFU(memoryFile: String) extends Module {
   itrace.io.nextpc := wb2if_in.bits.wb_nextpc
 
   wb2if_in.ready := wb2if_in.valid
+  val tmp = RegInit(1.U)
   val ifu_valid_reg = RegInit(0.U)
+  
+  ifu_valid_reg := tmp
   if2id_out.valid := ifu_valid_reg
   
   when (wb2if_in.valid) {

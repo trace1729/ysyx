@@ -274,15 +274,17 @@ class WB extends Module {
     )
   )
 
-  val wb_valid = RegInit(0.U)
-  out.wb := wb_valid
+  // val wb_valid = RegInit(0.U)
+  // out.wb := wb_valid
   
+  // in.ready := in.valid
+
+  // when (in.valid) {
+  //   wb_valid := 1.U
+  // }
+
   in.ready := in.valid
-
-  when (in.valid) {
-    wb_valid := 1.U
-  }
-
+  out.wb := 1.U
 }
 
 /** ****************** 数据通路 ****************************

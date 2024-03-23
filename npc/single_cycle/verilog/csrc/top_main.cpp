@@ -58,7 +58,7 @@ void sim_end() {
 }
 
 static void dummy() {
-  for (int i = 0; i < 20; i++) {
+  while(1){
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -67,6 +67,12 @@ static void dummy() {
     top->eval();
     contextp->timeInc(1);
     tfp->dump(contextp->time());
+
+    if (nemu_state.state == NEMU_END) {
+      Log("execution ended");
+      break;
+    // 没实现的指令
+    } 
   }
 }
 int main(int argc, char** argv, char** env) {
@@ -75,8 +81,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  sdb_mainloop();
-  // dummy();
+  // sdb_mainloop();
+  dummy();
   sim_end();
 
   return is_exit_status_bad();

@@ -41,8 +41,12 @@ void sim_reset(Vtop* top) {
   top->reset = 1;
   top->clock = 0;
   top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
   top->clock = 1;
   top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
 
@@ -53,13 +57,26 @@ void sim_end() {
   tfp->close();
 }
 
+static void dummy() {
+  for (int i = 0; i < 20; i++) {
+    top->clock = 0;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+    top->clock = 1;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+  }
+}
 int main(int argc, char** argv, char** env) {
  
   sim_init(argc, argv);
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  sdb_mainloop();
+  // sdb_mainloop();
+  dummy();
   sim_end();
 
   return is_exit_status_bad();

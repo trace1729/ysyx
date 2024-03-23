@@ -59,7 +59,7 @@ void sim_end() {
 
 static void dummy() {
   int num_i = 0;
-  for (int i = 0; i < 120; i++)
+  for (int i = 0; i < 123; i++)
   {
     Log("%d clock cycle", num_i++);
     top->clock = 0;
@@ -85,7 +85,7 @@ int main(int argc, char** argv, char** env) {
 
   init_monitor(argc, argv);
   // sdb_mainloop();
-  dummy();
+  // dummy();
   sim_end();
 
   return is_exit_status_bad();

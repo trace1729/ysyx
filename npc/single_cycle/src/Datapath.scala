@@ -68,7 +68,7 @@ class IDU extends Module {
 
   // valid 信号
   val idu_valid_reg = RegInit(0.U)
-  val inst = RegInit(UInt(32.W), 0.U)
+  val inst = RegInit(UInt(32.W), config.NOP)
   val pc = RegInit(UInt(32.W), 0.U)
 
   id2ex_out.valid := idu_valid_reg

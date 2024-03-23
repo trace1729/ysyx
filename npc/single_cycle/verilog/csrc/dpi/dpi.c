@@ -37,7 +37,9 @@ extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int 
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #if CONFIG_MTRACE
-  assert(raddr != 0);
+  if (raddr == 0) {
+    return 0;
+  }
   if (raddr >= 0x80021000) {
     printf("paddr_read: Accessing memory at location %02x\n", raddr);
   }

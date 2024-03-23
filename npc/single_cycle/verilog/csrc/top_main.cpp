@@ -58,9 +58,10 @@ void sim_end() {
 }
 
 static void dummy() {
+  int num_i = 0;
   while(1)
   {
-    Log("Executing One Clock Cycle");
+    Log("%d clock cycle", num_i);
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);

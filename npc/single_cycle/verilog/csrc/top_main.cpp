@@ -58,7 +58,7 @@ void sim_end() {
 }
 
 static void dummy() {
-  for (int i = 0; i < 10; i++)
+  while(1)
   {
     Log("Executing One Clock Cycle");
     top->clock = 0;

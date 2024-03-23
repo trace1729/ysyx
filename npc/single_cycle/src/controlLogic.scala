@@ -53,6 +53,7 @@ class controlLogic(width: Int) extends Module {
   optype := MuxCase(
     type_N,
     Seq(
+      (io.inst === "h00000000".U) -> type_NOP,
       (io.inst === config.NOP) -> type_NOP,
       // load
       (io.inst(6, 0) === "b0000011".asUInt) -> type_IL,

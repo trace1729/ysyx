@@ -53,7 +53,7 @@ class controlLogic(width: Int) extends Module {
   optype := MuxCase(
     type_N,
     Seq(
-      // (io.inst === csrInst.EBREAK) -> type_EBREAK,
+      (io.inst === csrInst.EBREAK) -> type_EBREAK,
       (io.inst === config.NOP) -> type_NOP,
       // load
       (io.inst(6, 0) === "b0000011".asUInt) -> type_IL,
@@ -253,7 +253,7 @@ class controlLogic(width: Int) extends Module {
 
   val stop = Module(new BlackBoxRealAdd)
   stop.io.inst_type := optype
-  stop.io.inst_ref  := type_N
+  stop.io.inst_ref  := type_EBREAK
   // 找规律
 
 }

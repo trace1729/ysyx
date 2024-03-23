@@ -87,7 +87,8 @@ int main(int argc, char** argv, char** env) {
   // sdb_mainloop();
   // dummy();
   sim_end();
-
+  Log("gracefully quit");
+  
   return is_exit_status_bad();
 }
 void verilator_exec_once(Decode* s) {

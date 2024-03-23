@@ -11,7 +11,7 @@ extern Ftrace ftrace_block; // define in top
 
 extern "C" void stop() 
 {
-  Log("ebreak encounterd, execution ended");
+  // Log("ebreak encounterd, execution ended");
   nemu_state.state = NEMU_END;
 }
 

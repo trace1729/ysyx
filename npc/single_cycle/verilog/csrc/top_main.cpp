@@ -49,7 +49,7 @@ void sim_reset(Vtop* top) {
     tfp->dump(contextp->time());
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
-
+  nemu_state.state = NEMU_RUNNING;
 }
 
 void sim_end() {

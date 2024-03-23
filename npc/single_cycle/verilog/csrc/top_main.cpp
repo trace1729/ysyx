@@ -60,7 +60,7 @@ void sim_end() {
 static void dummy() {
   for (int i = 0; i < 10; i++)
   {
-    Log("Executing One Cycle");
+    Log("Executing One Clock Cycle");
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);

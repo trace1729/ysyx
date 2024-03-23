@@ -59,7 +59,7 @@ void sim_end() {
 
 static void dummy() {
   int num_i = 0;
-  for (int i = 0; i < 124; i++)
+  for (int i = 0; i < 125; i++)
   {
     Log("%d clock cycle", num_i++);
     top->clock = 0;

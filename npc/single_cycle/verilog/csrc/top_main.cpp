@@ -58,7 +58,8 @@ void sim_end() {
 }
 
 static void dummy() {
-  while(1){
+  for (int i = 0; i < 10; i++)
+  {
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);

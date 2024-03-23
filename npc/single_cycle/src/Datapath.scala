@@ -24,11 +24,6 @@ class IFU(memoryFile: String) extends Module {
   if2id_out.bits.pc   := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
   if2id_out.bits.inst := Cat(instMem.io.inst)
 
-  val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := if2id_out.bits.pc
-  itrace.io.inst   := if2id_out.bits.inst
-  itrace.io.nextpc := wb2if_in.bits.wb_nextpc
-
   wb2if_in.ready := wb2if_in.valid
 
   val ifu_valid_reg = RegInit(1.U)
@@ -73,7 +68,7 @@ class IDU extends Module {
 
   // valid 信号
   val idu_valid_reg = RegInit(0.U)
-  val inst = RegInit(UInt(32.W), 0.U)
+  val inst = RegInit(UInt(32.W), config.NOP)
   val pc = RegInit(UInt(32.W), 0.U)
 
   id2ex_out.valid := idu_valid_reg
@@ -88,6 +83,7 @@ class IDU extends Module {
     inst := if2id_in.bits.inst
     pc := if2id_in.bits.pc
   }  
+
 
   // 寄存器文件的连接
   regfile.io.readreg1 := inst(19, 15)
@@ -200,6 +196,7 @@ class EX extends Module {
 
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
+  val inst          = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
   val alures      = Output(UInt(width.W))
@@ -252,6 +249,7 @@ class MEM extends Module {
   out.bits.csrvalue    := in.bits.csrvalue
   out.bits.ctrlsignals := in.bits.ctrlsignals
   out.bits.rdata       := rmemdata
+  out.bits.inst := in.bits.inst
 
   //csr
   out.bits.mepc := in.bits.mepc
@@ -295,7 +293,7 @@ class WB extends Module {
       0.U,
       Seq(
         (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
-        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
         (mem2wb_in.bits.ctrlsignals.WBsel === 2.U) -> mem2wb_in.bits.rdata,
         (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
       )
@@ -303,13 +301,18 @@ class WB extends Module {
     wb_nextpc_reg := MuxCase(
       0.U,
       Seq(
-        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
         (mem2wb_in.bits.ctrlsignals.pcsel === 1.U) -> mem2wb_in.bits.alures,
         (mem2wb_in.bits.ctrlsignals.pcsel === 2.U) -> mem2wb_in.bits.mepc,
         (mem2wb_in.bits.ctrlsignals.pcsel === 3.U) -> mem2wb_in.bits.mtvec
       )
     )
   }
+
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := mem2wb_in.bits.pc
+  itrace.io.inst   := mem2wb_in.bits.inst
+  itrace.io.nextpc := wb_nextpc_reg
 
   mem2wb_in.ready := mem2wb_in.valid
   val wb_valid = RegInit(0.U)

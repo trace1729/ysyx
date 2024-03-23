@@ -1,4 +1,5 @@
 #include "common.h"
+#include <cstdio>
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <dpi.h>
@@ -10,6 +11,8 @@ extern Ftrace ftrace_block; // define in top
 
 extern "C" void stop() 
 {
+  // Log("ebreak encounterd, execution ended");
+  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
   nemu_state.state = NEMU_END;
 }
 

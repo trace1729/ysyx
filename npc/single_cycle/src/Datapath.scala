@@ -24,11 +24,6 @@ class IFU(memoryFile: String) extends Module {
   if2id_out.bits.pc   := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
   if2id_out.bits.inst := Cat(instMem.io.inst)
 
-  val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := if2id_out.bits.pc
-  itrace.io.inst   := if2id_out.bits.inst
-  itrace.io.nextpc := wb2if_in.bits.wb_nextpc
-
   wb2if_in.ready := wb2if_in.valid
 
   val ifu_valid_reg = RegInit(1.U)
@@ -88,6 +83,11 @@ class IDU extends Module {
     inst := if2id_in.bits.inst
     pc := if2id_in.bits.pc
   }  
+
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := pc
+  itrace.io.inst   := inst
+  itrace.io.nextpc := pc + 4.U
 
   // 寄存器文件的连接
   regfile.io.readreg1 := inst(19, 15)
@@ -295,7 +295,7 @@ class WB extends Module {
       0.U,
       Seq(
         (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
-        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
         (mem2wb_in.bits.ctrlsignals.WBsel === 2.U) -> mem2wb_in.bits.rdata,
         (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
       )
@@ -303,7 +303,7 @@ class WB extends Module {
     wb_nextpc_reg := MuxCase(
       0.U,
       Seq(
-        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.instLen.U),
+        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
         (mem2wb_in.bits.ctrlsignals.pcsel === 1.U) -> mem2wb_in.bits.alures,
         (mem2wb_in.bits.ctrlsignals.pcsel === 2.U) -> mem2wb_in.bits.mepc,
         (mem2wb_in.bits.ctrlsignals.pcsel === 3.U) -> mem2wb_in.bits.mtvec

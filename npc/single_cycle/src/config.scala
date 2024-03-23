@@ -4,7 +4,7 @@ import chisel3._
 import chisel3.util._
 
 object config {
-  val instLen = 4
+  val XLEN = 4
   val regsNum = 32
   val startPC: String  = "h80000000" 
   val width: Int = 32

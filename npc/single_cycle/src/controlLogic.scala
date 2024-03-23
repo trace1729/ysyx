@@ -72,7 +72,8 @@ class controlLogic(width: Int) extends Module {
       (io.inst === csrInst.CSRRW) -> type_I_CSRW,
       (io.inst === csrInst.CSRRS) -> type_I_CSRR,
       (io.inst === csrInst.ECALL) -> type_ECALL,
-      (io.inst === csrInst.MRET) -> type_MRET
+      (io.inst === csrInst.MRET) -> type_MRET,
+      (io.inst === config.NOP) -> type_NOP
     )
   )
 

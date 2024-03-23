@@ -84,10 +84,6 @@ class IDU extends Module {
     pc := if2id_in.bits.pc
   }  
 
-  val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := pc
-  itrace.io.inst   := inst
-  itrace.io.nextpc := pc + 4.U
 
   // 寄存器文件的连接
   regfile.io.readreg1 := inst(19, 15)
@@ -200,6 +196,7 @@ class EX extends Module {
 
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
+  val inst          = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
   val alures      = Output(UInt(width.W))
@@ -252,6 +249,7 @@ class MEM extends Module {
   out.bits.csrvalue    := in.bits.csrvalue
   out.bits.ctrlsignals := in.bits.ctrlsignals
   out.bits.rdata       := rmemdata
+  out.bits.inst := in.bits.inst
 
   //csr
   out.bits.mepc := in.bits.mepc
@@ -310,6 +308,11 @@ class WB extends Module {
       )
     )
   }
+
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := mem2wb_in.bits.pc
+  itrace.io.inst   := mem2wb_in.bits.inst
+  itrace.io.nextpc := wb_nextpc_reg
 
   mem2wb_in.ready := mem2wb_in.valid
   val wb_valid = RegInit(0.U)

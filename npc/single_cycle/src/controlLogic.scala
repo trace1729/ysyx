@@ -18,7 +18,7 @@ class ctrlSignals extends Bundle {
   val memRW     = Output(Bool())
   val memEnable = Output(Bool())
   val WBsel     = Output(UInt(3.W))
-  val optype    = Output(UInt(4.W))
+  val optype    = Output(UInt(type_width.W))
 
   val isCsrInst     = Output(Bool())
   val csrsWriteEn   = Output(Bool())
@@ -42,7 +42,7 @@ class controlLogic(width: Int) extends Module {
   // io.alusel  := 0.U
 
   // 定义指令类型
-  val optype = Wire(UInt(4.W))
+  val optype = Wire(UInt(type_width.W))
 
   // func3 7
   val func3 = Wire(UInt(3.W))
@@ -53,6 +53,8 @@ class controlLogic(width: Int) extends Module {
   optype := MuxCase(
     type_N,
     Seq(
+      (io.inst === csrInst.EBREAK) -> type_EBREAK,
+      (io.inst === config.NOP) -> type_NOP,
       // load
       (io.inst(6, 0) === "b0000011".asUInt) -> type_IL,
       // jalr
@@ -251,7 +253,7 @@ class controlLogic(width: Int) extends Module {
 
   val stop = Module(new BlackBoxRealAdd)
   stop.io.inst_type := optype
-  stop.io.inst_ref  := type_N
+  stop.io.inst_ref  := type_EBREAK
   // 找规律
 
 }
@@ -272,8 +274,8 @@ class Comparator extends Module {
 
 class BlackBoxRealAdd extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
-    val inst_ref  = Input(UInt(4.W))
-    val inst_type = Input(UInt(4.W))
+    val inst_ref  = Input(UInt(type_width.W))
+    val inst_type = Input(UInt(type_width.W))
   })
   addResource("/halt_handler.sv")
 }

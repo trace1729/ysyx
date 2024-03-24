@@ -49,7 +49,7 @@ void sim_reset(Vtop* top) {
     tfp->dump(contextp->time());
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
-
+  // nemu_state.state = NEMU_RUNNING;
 }
 
 void sim_end() {
@@ -58,7 +58,10 @@ void sim_end() {
 }
 
 static void dummy() {
-  for (int i = 0; i < 20; i++) {
+  int num_i = 0;
+  while(1)
+  {
+    Log("%d clock cycle", num_i++);
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -67,6 +70,12 @@ static void dummy() {
     top->eval();
     contextp->timeInc(1);
     tfp->dump(contextp->time());
+
+    if (nemu_state.state == NEMU_END) {
+      Log("execution ended");
+      break;
+    // 没实现的指令
+    } 
   }
 }
 int main(int argc, char** argv, char** env) {
@@ -78,7 +87,8 @@ int main(int argc, char** argv, char** env) {
   // sdb_mainloop();
   dummy();
   sim_end();
-
+  Log("gracefully quit");
+  
   return is_exit_status_bad();
 }
 void verilator_exec_once(Decode* s) {

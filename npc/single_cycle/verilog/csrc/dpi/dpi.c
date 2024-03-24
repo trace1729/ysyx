@@ -9,7 +9,14 @@
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
+extern bool next_inst;
 
+extern "C" void Next_inst() 
+{
+  // Log("ebreak encounterd, execution ended");
+  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
+  next_inst = true;
+}
 extern "C" void stop() 
 {
   // Log("ebreak encounterd, execution ended");

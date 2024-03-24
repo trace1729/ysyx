@@ -26,6 +26,7 @@ VerilatedVcdC* tfp = new VerilatedVcdC;
 Decode itrace;
 Ftrace ftrace_block;
 extern CPU_state cpu;
+bool next_inst = false;
 
 void sim_init(char argc, char* argv[]) {
   contextp = std::make_unique<VerilatedContext>();
@@ -85,8 +86,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  // sdb_mainloop();
-  dummy();
+  sdb_mainloop();
+  // dummy();
   sim_end();
   Log("gracefully quit");
   
@@ -94,18 +95,29 @@ int main(int argc, char** argv, char** env) {
 }
 void verilator_exec_once(Decode* s) {
     ftrace_block.is_next_ins_j = false;
-    /* ======================================================================  */
-    // ===============   current instruction state =========================
-    /* ======================================================================  */
-    top->clock = 0;
-    top->eval();
-    contextp->timeInc(1);
-    // printf("================= current state =====================\n");
-    tfp->dump(contextp->time());
+    next_inst = false;
+    while (!next_inst) {
+      // tick = 0
+      top->clock = 0;
+      top->eval();
+      contextp->timeInc(1);
+      tfp->dump(contextp->time());
+      // tick = 1
+      top->clock = 1;
+      top->eval();
+      contextp->timeInc(1);
+      tfp->dump(contextp->time());
+      // 结束检测
+      if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
+          NEMUTRAP(s->dnpc, cpu.gpr[10]);
+      // 没实现的指令
+      } else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
+          INV(s->dnpc, next_inst);
+      }
+    }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
     s->snpc = s->pc + 4;
-    // for ftrace
     s->dnpc = itrace.dnpc;
 #if CONFIG_FTRACE
     if (ftrace_block.ftrace_flag) {
@@ -113,16 +125,6 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = false;
     }
 #endif
-    /* ======================================================================  */
-    // ********************  next instruction state ********************
-    /* ======================================================================  */
-    // printf("============ next state ===================\n");
-    top->clock = 1;
-    top->eval();
-    contextp->timeInc(1);
-
-    tfp->dump(contextp->time());
-    // s->dnpc = itrace.pc;
     unsigned next_inst = itrace.isa.inst.val;
 #if CONFIG_FTRACE
     // ftrace
@@ -130,11 +132,5 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = true;
     }
 #endif
-    if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
-        NEMUTRAP(s->dnpc, cpu.gpr[10]);
-    // 没实现的指令
-    } else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
-        INV(s->dnpc, next_inst);
-    }
 }
 

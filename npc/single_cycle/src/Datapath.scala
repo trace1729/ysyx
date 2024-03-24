@@ -315,6 +315,9 @@ class WB extends Module {
   itrace.io.pc     := lsu2wb_in.bits.pc
   itrace.io.inst   := lsu2wb_in.bits.inst
   itrace.io.nextpc := wb_nextpc_reg
+  val next_inst = Module(new Next_inst)
+  next_inst.io.ready := wb2ifu_out.ready
+  next_inst.io.valid := wb2ifu_out.valid
 
   lsu2wb_in.ready := lsu2wb_in.valid
   val wb_valid = RegInit(0.U)
@@ -327,6 +330,7 @@ class WB extends Module {
   }
   
   wb2ifu_out.bits.regfileWriteEn := wb_valid & lsu2wb_in.bits.ctrlsignals.writeEn
+
 }
 
 /** ****************** 数据通路 ****************************
@@ -373,4 +377,12 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
     val nextpc = Input(UInt(32.W))
   })
   addResource("/Dpi_itrace.sv")
+}
+
+class Next_inst extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val valid = Output(Bool())
+    val ready = Output(Bool())
+  })
+  addResource("/Next_inst.sv")
 }

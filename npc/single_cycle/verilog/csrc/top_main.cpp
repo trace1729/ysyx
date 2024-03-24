@@ -62,6 +62,7 @@ static void dummy() {
   while(1)
   {
     // Log("%d clock cycle", num_i++);
+    num_i++;
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -72,7 +73,7 @@ static void dummy() {
     tfp->dump(contextp->time());
 
     if (nemu_state.state == NEMU_END) {
-      Log("execution ended");
+      Log("execution ended at cycle %d", num_i);
       break;
     // 没实现的指令
     } 

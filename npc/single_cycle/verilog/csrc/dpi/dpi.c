@@ -9,7 +9,14 @@
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
+extern bool next_inst;
 
+extern "C" void Next_inst() 
+{
+  // Log("ebreak encounterd, execution ended");
+  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
+  next_inst = true;
+}
 extern "C" void stop() 
 {
   // Log("ebreak encounterd, execution ended");
@@ -47,14 +54,16 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
@@ -83,7 +92,8 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return; 
   }

@@ -4,7 +4,6 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 import cpu.utils._
-import javax.swing.plaf.synth.Region
 
 /** ********************IFU**************************
   */
@@ -68,8 +67,8 @@ class IDU extends Module {
 
   // valid 信号
   val idu_valid_reg = RegInit(0.U)
-  val inst = RegInit(UInt(32.W), config.NOP)
-  val pc = RegInit(UInt(32.W), 0.U)
+  val idu_inst_reg = RegInit(UInt(32.W), config.NOP)
+  val idu_pc_reg = RegInit(UInt(32.W), 0.U)
 
   id2ex_out.valid := idu_valid_reg
 
@@ -80,25 +79,25 @@ class IDU extends Module {
   }
 
   when (if2id_in.valid) {
-    inst := if2id_in.bits.inst
-    pc := if2id_in.bits.pc
+    idu_inst_reg := if2id_in.bits.inst
+    idu_pc_reg := if2id_in.bits.pc
   }  
 
 
   // 寄存器文件的连接
-  regfile.io.readreg1 := inst(19, 15)
-  regfile.io.readreg2 := inst(24, 20)
-  regfile.io.writereg := inst(11, 7)
+  regfile.io.readreg1 := idu_inst_reg(19, 15)
+  regfile.io.readreg2 := idu_inst_reg(24, 20)
+  regfile.io.writereg := idu_inst_reg(11, 7)
   regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
   regfile.io.data     := data
 
   // 控制逻辑的连接
-  ctrlLogic.io.inst := inst
+  ctrlLogic.io.inst := idu_inst_reg
   ctrlLogic.io.rs1  := regfile.io.rs1
   ctrlLogic.io.rs2  := regfile.io.rs2
 
   // 立即数生成器的连接
-  immgen.io.inst   := inst
+  immgen.io.inst   := idu_inst_reg
   immgen.io.immsel := ctrlLogic.io.ctrlsignals.immsel
 
   // csr 寄存器文件的连接
@@ -109,7 +108,7 @@ class IDU extends Module {
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
   csr.io.mcauseWriteEn := ctrlLogic.io.ctrlsignals.mcauseWriteEn
-  csr.io.mepcData      := pc
+  csr.io.mepcData      := idu_pc_reg
   csr.io.mepcWriteEn   := ctrlLogic.io.ctrlsignals.mepcWriteEn
 
   // 生成控制信号
@@ -119,8 +118,8 @@ class IDU extends Module {
   id2ex_out.bits.rs1       := regfile.io.rs1
   id2ex_out.bits.rs2       := regfile.io.rs2
   id2ex_out.bits.immediate := immgen.io.imm
-  id2ex_out.bits.pc        := pc
-  id2ex_out.bits.inst      := inst
+  id2ex_out.bits.pc        := idu_pc_reg
+  id2ex_out.bits.inst      := idu_inst_reg
   id2ex_out.bits.csrvalue  := csr.io.csrValue
 
   id2ex_out.bits.mepc := csr.io.mepc
@@ -205,30 +204,31 @@ class MEMOutputIO(width: Int) extends Bundle {
   val mtvec = Output(UInt(width.W))
 }
 
-class MEM extends Module {
+class LSU extends Module {
   val in  = IO(Flipped(Decoupled(new EXOutputIO)))
   val out = IO(Decoupled(new MEMOutputIO(width)))
-  val mem = Module(new Dmem(width))
+  val dmem = Module(new Dmem(width))
 
   val rmemdata = Wire(UInt(width.W))
+  val mem_valid_reg = RegInit(0.U)
 
-  mem.io.addr := in.bits.alures
+  dmem.io.addr := in.bits.alures
   // determined by control logic
-  mem.io.memEnable := in.bits.ctrlsignals.memEnable
-  mem.io.memRW     := in.bits.ctrlsignals.memRW
+  dmem.io.memEnable := mem_valid_reg & in.bits.ctrlsignals.memEnable
+  dmem.io.memRW     := in.bits.ctrlsignals.memRW
   // if (mem.io.memRW) set wmask to 0b0000
   // mem.io.memRW = 0, read, set to 0
-  mem.io.wmask := Mux(!mem.io.memRW, 0.U, wmaskGen(in.bits.inst(14, 12), mem.io.addr(1, 0)))
-  mem.io.wdata := in.bits.rs2
+  dmem.io.wmask := Mux(!dmem.io.memRW, 0.U, wmaskGen(in.bits.inst(14, 12), dmem.io.addr(1, 0)))
+  dmem.io.wdata := in.bits.rs2
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))
-  imm_byte := readDataGen(mem.io.addr(1, 0), 1, mem.io.rdata)
-  imm_half := readDataGen(mem.io.addr(1, 0), 2, mem.io.rdata)
+  imm_byte := readDataGen(dmem.io.addr(1, 0), 1, dmem.io.rdata)
+  imm_half := readDataGen(dmem.io.addr(1, 0), 2, dmem.io.rdata)
   rmemdata := Mux(
     in.bits.inst(14),
     // io.inst(14) == 1, unsigned 直接截断就好
     MuxCase(
-      mem.io.rdata,
+      dmem.io.rdata,
       Seq(
         (in.bits.inst(13, 12) === 0.U) -> imm_byte,
         (in.bits.inst(13, 12) === 1.U) -> imm_half
@@ -236,7 +236,7 @@ class MEM extends Module {
     ),
     // io.inst(14) == 0, signed 还需符号扩展
     MuxCase(
-      mem.io.rdata,
+      dmem.io.rdata,
       Seq(
         (in.bits.inst(13, 12) === 0.U) -> Cat(padding(24, imm_byte(7)), imm_byte),
         (in.bits.inst(13, 12) === 1.U) -> Cat(padding(16, imm_half(15)), imm_half)
@@ -257,7 +257,6 @@ class MEM extends Module {
 
   // ready, valid 信号全部设置成1
   in.ready := in.valid
-  val mem_valid_reg = RegInit(0.U)
   out.valid := mem_valid_reg
   
   when (in.valid) {
@@ -340,7 +339,7 @@ class Datapath(memoryFile: String) extends Module {
   val ifu = Module(new IFU(memoryFile))
   val idu = Module(new IDU)
   val ex  = Module(new EX)
-  val mem = Module(new MEM)
+  val mem = Module(new LSU)
   val wb  = Module(new WB)
 
   ifu.if2id_out <> idu.if2id_in

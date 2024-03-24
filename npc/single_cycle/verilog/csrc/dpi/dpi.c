@@ -54,14 +54,14 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
@@ -90,7 +90,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    // difftest_skip_next_ref();
 #endif
     return; 
   }

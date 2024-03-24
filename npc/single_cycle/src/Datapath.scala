@@ -54,6 +54,7 @@ class IDUOutputIO extends Bundle {
 
 class IDU extends Module {
   val data = IO(Input(UInt(width.W)))
+  val regfileWriteEn = IO(Input(Bool()))
   val if2id_in   = IO(Flipped(Decoupled(new IFUOutputIO)))
   val id2ex_out  = IO(DecoupledIO(new IDUOutputIO))
 
@@ -88,7 +89,7 @@ class IDU extends Module {
   regfile.io.readreg1 := idu_inst_reg(19, 15)
   regfile.io.readreg2 := idu_inst_reg(24, 20)
   regfile.io.writereg := idu_inst_reg(11, 7)
-  regfile.io.writeEn  := ctrlLogic.io.ctrlsignals.writeEn
+  regfile.io.writeEn  := regfileWriteEn
   regfile.io.data     := data
 
   // 控制逻辑的连接
@@ -210,11 +211,11 @@ class LSU extends Module {
   val dmem = Module(new Dmem(width))
 
   val rmemdata = Wire(UInt(width.W))
-  val mem_valid_reg = RegInit(0.U)
+  val lsu_valid_reg = RegInit(0.U)
 
   dmem.io.addr := in.bits.alures
   // determined by control logic
-  dmem.io.memEnable := mem_valid_reg & in.bits.ctrlsignals.memEnable
+  dmem.io.memEnable := lsu_valid_reg & in.bits.ctrlsignals.memEnable
   dmem.io.memRW     := in.bits.ctrlsignals.memRW
   // if (mem.io.memRW) set wmask to 0b0000
   // mem.io.memRW = 0, read, set to 0
@@ -257,12 +258,12 @@ class LSU extends Module {
 
   // ready, valid 信号全部设置成1
   in.ready := in.valid
-  out.valid := mem_valid_reg
+  out.valid := lsu_valid_reg
   
   when (in.valid) {
-    mem_valid_reg := 1.U
+    lsu_valid_reg := 1.U
   }.elsewhen(out.valid && out.ready) {
-    mem_valid_reg := 0.U
+    lsu_valid_reg := 0.U
   }
 
 
@@ -275,10 +276,12 @@ class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
   val wb_data = Output(UInt(32.W))
   val wb_nextpc = Output(UInt(32.W))
+  val regfileWriteEn = Output(Bool())
+  // 目前没有必要把 write_rd 也传过来, 因为这个写入地址是不会变的
 }
 
 class WB extends Module {
-  val mem2wb_in   = IO(Flipped(Decoupled(new MEMOutputIO(width))))
+  val lsu2wb_in   = IO(Flipped(Decoupled(new MEMOutputIO(width))))
   val wb2ifu_out  = IO(Decoupled(new WBOutputIO))
 
   val wb_data_reg = RegNext(wb2ifu_out.bits.wb_data, 0.U)
@@ -287,42 +290,43 @@ class WB extends Module {
   wb2ifu_out.bits.wb_data := wb_data_reg
   wb2ifu_out.bits.wb_nextpc := wb_nextpc_reg
 
-  when (mem2wb_in.valid) {
+  when (lsu2wb_in.valid) {
     wb_data_reg := MuxCase(
       0.U,
       Seq(
-        (mem2wb_in.bits.ctrlsignals.WBsel === 0.U) -> mem2wb_in.bits.alures,
-        (mem2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
-        (mem2wb_in.bits.ctrlsignals.WBsel === 2.U) -> mem2wb_in.bits.rdata,
-        (mem2wb_in.bits.ctrlsignals.WBsel === 3.U) -> mem2wb_in.bits.csrvalue
+        (lsu2wb_in.bits.ctrlsignals.WBsel === 0.U) -> lsu2wb_in.bits.alures,
+        (lsu2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (lsu2wb_in.bits.pc + config.XLEN.U),
+        (lsu2wb_in.bits.ctrlsignals.WBsel === 2.U) -> lsu2wb_in.bits.rdata,
+        (lsu2wb_in.bits.ctrlsignals.WBsel === 3.U) -> lsu2wb_in.bits.csrvalue
       )
     )
     wb_nextpc_reg := MuxCase(
       0.U,
       Seq(
-        (mem2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (mem2wb_in.bits.pc + config.XLEN.U),
-        (mem2wb_in.bits.ctrlsignals.pcsel === 1.U) -> mem2wb_in.bits.alures,
-        (mem2wb_in.bits.ctrlsignals.pcsel === 2.U) -> mem2wb_in.bits.mepc,
-        (mem2wb_in.bits.ctrlsignals.pcsel === 3.U) -> mem2wb_in.bits.mtvec
+        (lsu2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wb_in.bits.pc + config.XLEN.U),
+        (lsu2wb_in.bits.ctrlsignals.pcsel === 1.U) -> lsu2wb_in.bits.alures,
+        (lsu2wb_in.bits.ctrlsignals.pcsel === 2.U) -> lsu2wb_in.bits.mepc,
+        (lsu2wb_in.bits.ctrlsignals.pcsel === 3.U) -> lsu2wb_in.bits.mtvec
       )
     )
   }
 
   val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := mem2wb_in.bits.pc
-  itrace.io.inst   := mem2wb_in.bits.inst
+  itrace.io.pc     := lsu2wb_in.bits.pc
+  itrace.io.inst   := lsu2wb_in.bits.inst
   itrace.io.nextpc := wb_nextpc_reg
 
-  mem2wb_in.ready := mem2wb_in.valid
+  lsu2wb_in.ready := lsu2wb_in.valid
   val wb_valid = RegInit(0.U)
   wb2ifu_out.valid := wb_valid
 
-  when (mem2wb_in.valid) {
+  when (lsu2wb_in.valid) {
     wb_valid := 1.U
   }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
     wb_valid := 0.U
   }
-
+  
+  wb2ifu_out.bits.regfileWriteEn := wb_valid & lsu2wb_in.bits.ctrlsignals.writeEn
 }
 
 /** ****************** 数据通路 ****************************
@@ -345,11 +349,12 @@ class Datapath(memoryFile: String) extends Module {
   ifu.if2id_out <> idu.if2id_in
   idu.id2ex_out <> ex.id2ex_in
   ex.ex2mem_out <> mem.in
-  mem.out <> wb.mem2wb_in
+  mem.out <> wb.lsu2wb_in
   wb.wb2ifu_out <> ifu.wb2if_in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data := wb.wb2ifu_out.bits.wb_data
+  idu.regfileWriteEn := wb.wb2ifu_out.bits.regfileWriteEn
 
   // datapath 的输出
   io.inst := ifu.if2id_out.bits.inst

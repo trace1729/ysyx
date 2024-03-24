@@ -90,7 +90,7 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
 #if CONFIG_DIFFTEST
-    // difftest_skip_next_ref();
+    difftest_skip_next_ref();
 #endif
     return; 
   }

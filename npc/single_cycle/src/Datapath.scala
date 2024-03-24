@@ -381,8 +381,8 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
 
 class Next_inst extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
-    val valid = Output(Bool())
-    val ready = Output(Bool())
+    val valid = Input(Bool())
+    val ready = Input(Bool())
   })
   addResource("/Next_inst.sv")
 }

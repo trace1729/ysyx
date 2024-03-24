@@ -34,6 +34,9 @@ class IFU(memoryFile: String) extends Module {
   }.elsewhen(if2id_out.ready && if2id_out.valid) {
     ifu_valid_reg := 0.U
   }
+  val next_inst = Module(new Next_inst)
+  next_inst.io.ready := if2id_out.ready
+  next_inst.io.valid := if2id_out.valid
 }
 
 /** *******************IDU***************************
@@ -315,9 +318,6 @@ class WB extends Module {
   itrace.io.pc     := lsu2wb_in.bits.pc
   itrace.io.inst   := lsu2wb_in.bits.inst
   itrace.io.nextpc := wb_nextpc_reg
-  val next_inst = Module(new Next_inst)
-  next_inst.io.ready := wb2ifu_out.ready
-  next_inst.io.valid := wb2ifu_out.valid
 
   lsu2wb_in.ready := lsu2wb_in.valid
   val wb_valid = RegInit(0.U)

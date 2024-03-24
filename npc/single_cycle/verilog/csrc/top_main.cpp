@@ -86,8 +86,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  // sdb_mainloop();
-  dummy();
+  sdb_mainloop();
+  // dummy();
   sim_end();
   Log("gracefully quit");
   
@@ -107,14 +107,6 @@ void verilator_exec_once(Decode* s) {
       top->eval();
       contextp->timeInc(1);
       tfp->dump(contextp->time());
-      // 结束检测
-      if (nemu_state.state == NEMU_END) {
-          NEMUTRAP(s->dnpc, cpu.gpr[10]);
-      // 没实现的指令
-      } 
-      // else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
-      //     INV(s->dnpc, next_inst);
-      // }
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
@@ -133,5 +125,13 @@ void verilator_exec_once(Decode* s) {
       ftrace_block.ftrace_flag = true;
     }
 #endif
+    // 结束检测
+    if (nemu_state.state == NEMU_END) {
+        NEMUTRAP(s->dnpc, cpu.gpr[10]);
+    // 没实现的指令
+    } 
+    // else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
+    //     INV(s->dnpc, next_inst);
+    // }
 }
 

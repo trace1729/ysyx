@@ -108,12 +108,13 @@ void verilator_exec_once(Decode* s) {
       contextp->timeInc(1);
       tfp->dump(contextp->time());
       // 结束检测
-      if (nemu_state.state == NEMU_END && next_inst == 0x00100073) {
+      if (nemu_state.state == NEMU_END) {
           NEMUTRAP(s->dnpc, cpu.gpr[10]);
       // 没实现的指令
-      } else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
-          INV(s->dnpc, next_inst);
-      }
+      } 
+      // else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
+      //     INV(s->dnpc, next_inst);
+      // }
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;

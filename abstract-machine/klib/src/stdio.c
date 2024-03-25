@@ -33,7 +33,7 @@ int int2str(char *out, int n, int idx, int base) {
 	  return idx;
   }
   long long num = n;
-  if (n < 0) {
+  if (base == 10 && n < 0) {
     out[idx++] = '-';
     num = -num;
   }

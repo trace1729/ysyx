@@ -9,6 +9,7 @@
 # define Elf_Phdr Elf32_Phdr
 #endif
 
+#define ELF_MAGIC 0x464C457FU
 extern uint8_t ramdisk_start;
 extern uint8_t ramdisk_end;
 
@@ -30,9 +31,11 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
   // check size
   assert(size == sizeof(e_hdr));
   // check elf header magic number
-  assert(*(uint32_t*)e_hdr.e_ident == 0x464C457FU);
+  assert(*(uint32_t*)e_hdr.e_ident == ELF_MAGIC);
   // begin iterate through header table
   printf("virtual address memory layout (%x %x)\n", &ramdisk_start, &ramdisk_end);
+  printf("program header table:\n");
+
   for (int i = 0; i < e_hdr.e_phnum; i++) {
     Elf_Phdr p_hdr;
     size = ramdisk_read(&p_hdr, e_hdr.e_phoff + i * e_hdr.e_phentsize, e_hdr.e_phentsize);
@@ -42,7 +45,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
       continue;
     }
 
-    printf("ph_addr = %x\n", p_hdr.p_vaddr);
+    printf("offset: %d, p_vaddr: %x, p_paddr: %x, Filesize: %x, Memsiz:%x\n", p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
   }
 
   return 0;

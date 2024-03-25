@@ -24,6 +24,9 @@ static char tochar(int num) {
   else return 'A' + num - 10;
 }
 
+static long long abs_l(long long num) {
+  return num > 0? num: -num;
+}
 int int2str(char *out, int n, int idx, int base) {
   if (n == 0) {
 	  out[idx++] = '0';
@@ -36,6 +39,7 @@ int int2str(char *out, int n, int idx, int base) {
   }
   if (base == 16) {
     out[idx++] = '0'; out[idx++] = 'x';
+    num = abs_l(num);
   }
   int len = -1;
   char buf[32];

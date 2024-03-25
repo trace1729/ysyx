@@ -2,20 +2,18 @@ package cpu
 import chisel3._
 import chisel3.util._
 
-class AluIO(width: Int) extends Bundle {
-  val alusel   = Input(UInt(4.W))
-  val A        = Input(UInt(width.W))
-  val B        = Input(UInt(width.W))
-  val res      = Output(UInt(width.W))
-  val overflow = Output(Bool())
-  val carry    = Output(Bool())
-  val zero     = Output(Bool())
-  
-}
+class ALU(width: Int = 32) extends Module {
 
-class Alu(width: Int) extends Module {
+  val io = IO(new Bundle {
+    val alusel   = Input(UInt(4.W))
+    val A        = Input(UInt(width.W))
+    val B        = Input(UInt(width.W))
+    val res      = Output(UInt(width.W))
+    val overflow = Output(Bool())
+    val carry    = Output(Bool())
+    val zero     = Output(Bool())
+  })
 
-  val io = IO(new AluIO(width))
   /* 加法器 */
   val add       = Module(new adder(width))
   val adder_res = Wire(UInt(width.W))

@@ -20,7 +20,7 @@ NAME    = $(GUEST_ISA)-nemu-$(ENGINE)
 CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(CONFIG_ITRACE_COND)),true)
 
 # source files
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.v" -or -name "*.sv")
+VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
 CSRCS = $(NPC_HOME)/single_cycle/verilog/csrc/utils/disasm.cc
 CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 

@@ -3,17 +3,16 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 
-class ImmGenIO(width: Int) extends Bundle {
-    val inst = Input(UInt(width.W))
-    val immsel = Input(UInt(6.W))
-    val imm = Output(UInt(width.W))
-}
-
-class ImmGen(width: Int) extends Module {
+class ImmGen(width: Int = 32) extends Module {
 
     def padding(len:Int): UInt = Cat(Seq.fill(len)(0.U(1.W)))
 
-    val io = IO(new ImmGenIO(width))    
+    val io = IO(new Bundle {
+        val inst = Input(UInt(width.W))
+        val immsel = Input(UInt(6.W))
+        val imm = Output(UInt(width.W))
+    })
+    
     val sign_imm = Wire(SInt(width.W))
 
     // sign-extending

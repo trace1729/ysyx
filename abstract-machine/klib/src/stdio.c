@@ -35,7 +35,6 @@ int int2str(char *out, int n, int idx, int base) {
   long long num = n;
   if (base == 10 && n < 0) {
     out[idx++] = '-';
-    num = -num;
   }
   if (base == 16) {
     out[idx++] = '0'; out[idx++] = 'x';

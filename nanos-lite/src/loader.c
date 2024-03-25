@@ -33,7 +33,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
   // check elf header magic number
   assert(*(uint32_t*)e_hdr.e_ident == ELF_MAGIC);
   // begin iterate through header table
-  printf("virtual address memory layout (%x %x)\n", &ramdisk_start, &ramdisk_end);
+  printf("virtual address memory layout (%d %d)\n", &ramdisk_start, &ramdisk_end);
   printf("program header table:\n");
 
   for (int i = 0; i < e_hdr.e_phnum; i++) {
@@ -43,7 +43,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
-    printf("p_vaddr: %d, p_paddr: %d, Filesize: %x, Memsize:%x\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
+    printf("p_vaddr: %d, p_paddr: %d, Filesize: %d, Memsize:%d\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
 
   }
 

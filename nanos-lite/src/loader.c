@@ -41,16 +41,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
       continue;
     }
     
-
-    
   }
-
-
-
-
-  // 读取 elf header table
-  // iterate through elf header entry
-  //   load data to specified location
 
   return 0;
 }

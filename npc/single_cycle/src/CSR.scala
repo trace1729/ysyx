@@ -60,7 +60,6 @@ class CSR_IO extends Bundle {
 
   val mcauseData    = Flipped(UInt(32.W))
   val mcauseWriteEn = Flipped(Bool())
-
   val csrValue = UInt(32.W)
   val mepc = UInt(32.W)
   val mtvec = UInt(32.W)
@@ -103,6 +102,7 @@ class CSR(regNum: Int = 10, width: Int) extends Module {
       }
     }
   }
+
 
   when(io.mepcWriteEn) {
     mepc := io.mepcData

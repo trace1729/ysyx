@@ -20,6 +20,7 @@
 #include "../monitor/sdb/watchpoint.h"
 #include "../monitor/sdb/sdb.h"
 #include "cpu/ifetch.h"
+#include "memory/paddr.h"
 #include "utils.h"
 
 /* The assembly code of instructions executed is only output to the screen
@@ -57,6 +58,10 @@ static void decode_last_inst () {
   p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
   int ilen = 4;
   int i;
+  if (!in_pmem(cpu.pc)) {
+    printf("\t\tpc(0x%x) is invaild\n", cpu.pc);
+    return;
+  }
   uint32_t val = inst_fetch(&cpu.pc, 4);
   uint8_t *inst = (uint8_t *)&val;
   for (i = ilen - 1; i >= 0; i --) {
@@ -72,11 +77,11 @@ static void decode_last_inst () {
   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
   disassemble(p, RING + sizeof(RING) - p,
       cpu.pc, (uint8_t *)&val, ilen);
-  
+
   printf("------> %s\n", RING);
 }
 
-static void iringbuffer_display() {
+void iringbuffer_display() {
   int front = iringbuffer.read;
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
@@ -165,6 +170,9 @@ static void statistic() {
 
 
 void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
+  iringbuffer_display();
+#endif
   isa_reg_display();
   statistic();
 }

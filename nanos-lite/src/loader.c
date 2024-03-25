@@ -40,10 +40,10 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
     Elf_Phdr p_hdr;
     size = ramdisk_read(&p_hdr, e_hdr.e_phoff + i * e_hdr.e_phentsize, e_hdr.e_phentsize);
     assert(size == e_hdr.e_phentsize);
-    printf("offset: %x, p_vaddr: %x, p_paddr: %x, Filesize: %x, Memsiz:%x\n", p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
+    printf("p_vaddr: %x, p_paddr: %x, Filesize: %x, Memsiz:%x\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
 
   }
 

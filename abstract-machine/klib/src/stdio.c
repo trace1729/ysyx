@@ -3,10 +3,11 @@
 #include <klib-macros.h>
 #include <stdarg.h>
 
+#define SIZE 2000
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-	char out[128];
+	char out[SIZE];
 	va_list args;
 	va_start(args, fmt);
 	int size = vsprintf(out, fmt, args);

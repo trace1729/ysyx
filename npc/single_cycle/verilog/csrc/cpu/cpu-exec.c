@@ -60,6 +60,10 @@ static void decode_last_inst () {
   p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
   int ilen = 4;
   int i;
+  if (!in_pmem(cpu.pc)) {
+    printf("\t\tpc(0x%x) is invaild\n", cpu.pc);
+    return;
+  }
   uint32_t val = inst_fetch(&cpu.pc, 4);
   uint8_t *inst = (uint8_t *)&val;
   for (i = ilen - 1; i >= 0; i --) {
@@ -165,6 +169,9 @@ static void statistic() {
 
 
 void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
+  iringbuffer_display();
+#endif
   isa_reg_display();
   statistic();
 }

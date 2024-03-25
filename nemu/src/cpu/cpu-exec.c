@@ -59,7 +59,7 @@ static void decode_last_inst () {
   int ilen = 4;
   int i;
   if (!in_pmem(cpu.pc)) {
-    printf("pc(%x) is invaild\n", cpu.pc);
+    printf("\t\tpc(0x%x) is invaild\n", cpu.pc);
     return;
   }
   uint32_t val = inst_fetch(&cpu.pc, 4);

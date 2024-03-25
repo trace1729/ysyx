@@ -43,7 +43,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
-    printf("p_vaddr: %x, p_paddr: %x, Filesize: %x, Memsize:%x\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
+    printf("p_vaddr: %d, p_paddr: %d, Filesize: %x, Memsize:%x\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
 
   }
 

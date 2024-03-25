@@ -52,31 +52,31 @@ static struct {
   int write;
 } iringbuffer;
 
-static void decode_last_inst () {
-  char *p = RING;
-  p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc);
-  int ilen = 4;
-  int i;
-  uint32_t val = inst_fetch(&cpu.pc, 4);
-  uint8_t *inst = (uint8_t *)&val;
-  for (i = ilen - 1; i >= 0; i --) {
-    p += snprintf(p, 4, " %02x", inst[i]);
-  }
-  int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4);
-  int space_len = ilen_max - ilen;
-  if (space_len < 0) space_len = 0;
-  space_len = space_len * 3 + 1;
-  memset(p, ' ', space_len);
-  p += space_len;
+/* static void decode_last_inst () { */
+/*   char *p = RING; */
+/*   p += snprintf(p, sizeof(RING), FMT_WORD ":", cpu.pc); */
+/*   int ilen = 4; */
+/*   int i; */
+/*   uint32_t val = inst_fetch(&cpu.pc, 4); */
+/*   uint8_t *inst = (uint8_t *)&val; */
+/*   for (i = ilen - 1; i >= 0; i --) { */
+/*     p += snprintf(p, 4, " %02x", inst[i]); */
+/*   } */
+/*   int ilen_max = MUXDEF(CONFIG_ISA_x86, 8, 4); */
+/*   int space_len = ilen_max - ilen; */
+/*   if (space_len < 0) space_len = 0; */
+/*   space_len = space_len * 3 + 1; */
+/*   memset(p, ' ', space_len); */
+/*   p += space_len; */
+/*  */
+/*   void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte); */
+/*   disassemble(p, RING + sizeof(RING) - p, */
+/*       cpu.pc, (uint8_t *)&val, ilen); */
+/*    */
+/*   printf("------> %s\n", RING); */
+/* } */
 
-  void disassemble(char *str, int size, uint64_t pc, uint8_t *code, int nbyte);
-  disassemble(p, RING + sizeof(RING) - p,
-      cpu.pc, (uint8_t *)&val, ilen);
-  
-  printf("------> %s\n", RING);
-}
-
-static void iringbuffer_display() {
+void iringbuffer_display() {
   int front = iringbuffer.read;
   int end = iringbuffer.write;
   char (*buffer)[128] = iringbuffer.buffer;
@@ -84,7 +84,7 @@ static void iringbuffer_display() {
   for (; front != end; ADVANCE(front)) {
     printf("\t%s\n", buffer[front]);
   }
-  decode_last_inst();
+  // decode_last_inst();
   printf("*============ Instruction traceback ===================*\n");
 }
 #endif
@@ -165,6 +165,9 @@ static void statistic() {
 
 
 void assert_fail_msg() {
+#ifdef CONFIG_ITRACE
+  iringbuffer_display();
+#endif
   isa_reg_display();
   statistic();
 }

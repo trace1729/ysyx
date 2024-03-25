@@ -35,6 +35,9 @@ object csrInst {
    */
   def MRET = BitPat("b00110000001000000000000001110011")
   // 对应到 rtl 就是将 csr_no 设置为 0x341, 选择 csrValue 作为 pc 的值
+
+  def EBREAK = BitPat("b00000000000100000000000001110011")
+
 }
 
 object Cause {
@@ -118,5 +121,5 @@ class Csrs_display extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val regs = Input(Vec(4, UInt(32.W)))
   })
-  addResource("/Csrs_display.v")
+  addResource("/Csrs_display.sv")
 }

@@ -1,4 +1,6 @@
 #include "common.h"
+#include <cassert>
+#include <cstdio>
 #include <memory/host.h>
 #include <memory/paddr.h>
 #include <dpi.h>
@@ -7,9 +9,18 @@
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
+extern bool next_inst;
 
+extern "C" void Next_inst() 
+{
+  // Log("ebreak encounterd, execution ended");
+  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
+  next_inst = true;
+}
 extern "C" void stop() 
 {
+  // Log("ebreak encounterd, execution ended");
+  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
   nemu_state.state = NEMU_END;
 }
 
@@ -33,19 +44,26 @@ extern "C" void Dpi_ftrace(unsigned char optype, unsigned char rd, unsigned int 
 
 extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #if CONFIG_MTRACE
-  // printf("paddr_read: Accessing memory at location %02x\n", raddr);
+  // if (raddr >= 0x80021000) {
+    printf("paddr_read: Accessing memory at location %02x\n", raddr);
+  // }
+  if (raddr == 0) {
+    return 0;
+  }
 #endif
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return us;
   }
@@ -74,7 +92,8 @@ extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned 
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
 #if CONFIG_DIFFTEST
-    difftest_skip_next_ref();
+    difftest_skip_ref();
+    // difftest_skip_next_ref();
 #endif
     return; 
   }

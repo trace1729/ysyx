@@ -14,7 +14,7 @@ object topSpec extends ChiselUtestTester {
   println(regfile_test_data)
   val tests = Tests {
     test("regfile") {
-      testCircuit(new Regfile) {
+      testCircuit(new Regfile(32, 32)) {
         dut => 
           // 不可写
           dut.io.writeEn.poke(0.U)
@@ -48,7 +48,7 @@ object topSpec extends ChiselUtestTester {
           }
       }
       test("alu-add/sub") {
-        testCircuit(new ALU(32)) {
+        testCircuit(new Alu(32)) {
           dut =>
             // 加法
             dut.io.alusel.poke(0.U)
@@ -67,7 +67,7 @@ object topSpec extends ChiselUtestTester {
         }
       }
       test("alu-shifter") {
-        testCircuit(new ALU(32)) {
+        testCircuit(new Alu(32)) {
           dut =>
             // 左移
             dut.io.alusel.poke("b0001".asUInt)
@@ -97,7 +97,7 @@ object topSpec extends ChiselUtestTester {
         }
       }
       test("cmp") {
-        testCircuit(new ALU(32)) {
+        testCircuit(new Alu(32)) {
           dut =>
             // signed cmp A < B
             dut.io.alusel.poke("b0010".asUInt)

@@ -2,8 +2,7 @@ package cpu
 import chisel3._
 import chisel3.util._
  
-class Regfile (num: Int = 32, width: Int = 32) extends Module {
-  val io = IO(new Bundle {
+class RegfileIO(num: Int, width: Int) extends Bundle {
     val rs1 = Output(UInt(num.W))
     val rs2 = Output(UInt(num.W))
 
@@ -23,9 +22,13 @@ class Regfile (num: Int = 32, width: Int = 32) extends Module {
     val data     = Input(UInt(num.W))
     val writeEn  = Input(Bool())
 
-  })
+}
+class Regfile (num: Int, width: Int) extends Module {
+
+  val io = IO(new RegfileIO(num=num, width=width))
 
   val regs = RegInit(VecInit(Seq.fill(num)(0.U(width.W))))
+
   io.rs1 := 0.U
   io.rs2 := 0.U
   regs.zipWithIndex.foreach {
@@ -58,5 +61,5 @@ class Regs_display extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {
     val regs = Input(Vec(32, UInt(32.W)))
   })
-  addResource("/Regs_display.v")
+  addResource("/Regs_display.sv")
 }

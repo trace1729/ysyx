@@ -3,16 +3,19 @@
 #include <klib-macros.h>
 #include <stdarg.h>
 
-#define SIZE 2000
+#define BUFSIZE 4000
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-	char out[SIZE];
+	char out[BUFSIZE];
 	va_list args;
 	va_start(args, fmt);
 	int size = vsprintf(out, fmt, args);
 	va_end(args);
     putstr(out);
+    if (size >= BUFSIZE) {
+      panic("printf buffer overflow");
+    }
 	return size;
 }
 

@@ -32,6 +32,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
   // check elf header magic number
   assert(*(uint32_t*)e_hdr.e_ident == 0x464C457FU);
   // begin iterate through header table
+  printf("virtual address memory layout (%x %x)\n", &ramdisk_start, &ramdisk_end);
   for (int i = 0; i < e_hdr.e_phnum; i++) {
     Elf_Phdr p_hdr;
     size = ramdisk_read(&p_hdr, e_hdr.e_phoff + i * e_hdr.e_phentsize, e_hdr.e_phentsize);
@@ -40,7 +41,8 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
-    
+
+    printf("ph_addr = %x\n", p_hdr.p_vaddr);
   }
 
   return 0;

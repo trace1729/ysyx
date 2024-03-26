@@ -1,5 +1,7 @@
 #include <proc.h>
 #include <elf.h>
+#include <stdint.h>
+#include <string.h>
 
 #ifdef __LP64__
 # define Elf_Ehdr Elf64_Ehdr
@@ -10,8 +12,6 @@
 #endif
 
 #define ELF_MAGIC 0x464C457FU
-extern uint8_t ramdisk_start;
-extern uint8_t ramdisk_end;
 
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
@@ -33,21 +33,27 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
   // check elf header magic number
   assert(*(uint32_t*)e_hdr.e_ident == ELF_MAGIC);
   // begin iterate through header table
-  printf("virtual address memory layout (%d %d)\n", &ramdisk_start, &ramdisk_end);
   printf("program header table:\n");
 
   for (int i = 0; i < e_hdr.e_phnum; i++) {
     Elf_Phdr p_hdr;
     size = ramdisk_read(&p_hdr, e_hdr.e_phoff + i * e_hdr.e_phentsize, e_hdr.e_phentsize);
     assert(size == e_hdr.e_phentsize);
+
+    // load segment only when segment type is PT_LOAD
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
     printf("p_vaddr: %d, p_paddr: %d, Filesize: %x, Memsize:%x\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
+  
+    // 将程序从 elf 文件拷贝到 对应的物理地址 (这里物理地址和虚拟地址是一样的)
+    ramdisk_read((void *)(uintptr_t)(p_hdr.p_paddr), p_hdr.p_offset, p_hdr.p_filesz);
+    // 将多余的空间设置为0
+    memset((void *)(uintptr_t)(&p_hdr.p_paddr + p_hdr.p_filesz), 0, p_hdr.p_memsz - p_hdr.p_filesz);
 
   }
 
-  return 0;
+  return e_hdr.e_entry;
 }
 
 void naive_uload(PCB *pcb, const char *filename) {

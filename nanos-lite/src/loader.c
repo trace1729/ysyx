@@ -13,6 +13,12 @@
 
 #define ELF_MAGIC 0x464C457FU
 
+#if defined(__ISA_AM_NATIVE__)
+ #define EXPECTED_TYPE EM_X86_64
+#elif defined(__ISA_RISCV32__)
+ #define EXPECTED_TYPE EM_RISCV
+#endif
+
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
@@ -34,6 +40,7 @@ size_t ramdisk_write(const void *buf, size_t offset, size_t len);
   assert(*(uint32_t*)e_hdr.e_ident == ELF_MAGIC);
   // begin iterate through header table
   printf("program header table:\n");
+  assert(e_hdr.e_machine == EXPECTED_TYPE);
 
   for (int i = 0; i < e_hdr.e_phnum; i++) {
     Elf_Phdr p_hdr;

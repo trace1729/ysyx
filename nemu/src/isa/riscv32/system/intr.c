@@ -23,9 +23,12 @@ word_t isa_raise_intr(word_t NO, vaddr_t epc) {
   /* TODO: Trigger an interrupt/exception with ``NO''.
    * Then return the address of the interrupt/exception vector.
    */
+  cpu.csr[MEPC] = epc;
   if (NO == -1) {
-    cpu.csr[MEPC] = epc;
     cpu.csr[MCAUSE] = 0xb;
+  }
+  if (NO >= 0 && NO <= 30) {
+    cpu.csr[MCAUSE] = 0x8;
   }
 #if CONFIG_ETRACE
   char exception[128];

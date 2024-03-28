@@ -32,7 +32,9 @@ class Mem extends Module {
   val mem_valid_reg = RegInit(1.U)
   val out = IO(Output(UInt(32.W)))
 
-  axiMaster <> sram.in
+  axiMaster.writeAddr <> sram.in.writeAddr
+  axiMaster.writeData <> sram.in.writeData
+  axiMaster.writeResp <> sram.in.writeResp
 
   axiMaster.writeAddr.valid := mem_valid_reg
   axiMaster.writeData.valid := mem_valid_reg

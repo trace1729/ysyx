@@ -75,6 +75,9 @@ class SRAM extends Module {
   // How to tell the SRAM this feature?
   // using wmask to distinguish
   val ram = VecInit(Seq.fill(10)(Wire(UInt(10.W))))
+  ram.foreach {
+    _ := 0.U
+  }
 
   in.writeResp.valid := 0.U
   when(in.writeData.bits.strb =/= 0.U) {

@@ -91,12 +91,13 @@ class SRAM extends Module {
 }
 
 class AxiTest extends Module {
-  val in  = IO(ExternalInput())
-  val out = IO(Output(UInt(32.W)))
+  val in  = IO(Flipped(AxiLiteMaster(32, 32)))
+  val out = IO(AxiLiteMaster(32, 32))
 
-  val mem = Module(new Mem)
+  // val mem = Module(new Mem)
 
-  mem.in <> in
-  out := mem.out
+  // mem.in <> in
+  // out := mem.out
+  in <> out
 
 }

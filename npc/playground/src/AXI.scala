@@ -67,6 +67,7 @@ class Mem extends Module {
 
 class SRAM extends Module {
   val in = IO(Output(AxiLiteSlave(32, 32)))
+  val out = Output(UInt(32.W))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
@@ -74,16 +75,14 @@ class SRAM extends Module {
   // the data will be available on the next rising edge after valid and ready is both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
-  val ram = Wire(Vec(10, UInt(32.W)))
-  ram.foreach {
-    _ := 0.U
-  }
 
   in.writeResp.valid := 0.U
+  out := 0.U
   when(in.writeData.bits.strb =/= 0.U) {
     in.writeResp.valid          := 1.U
-    ram(in.writeAddr.bits.addr) := in.writeData.bits.data
+    out := in.writeData.bits.data
   }
+  
 
 }
 

@@ -47,8 +47,8 @@ class Mem extends Module {
   val mem_addr_reg  = RegEnable(in.external_address, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
   val mem_wmask_reg = RegEnable(in.external_wmask, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
 
-  axiMaster.writeData.bits := mem_data_reg
-  axiMaster.writeAddr.bits := mem_addr_reg
+  axiMaster.writeData.bits.data := mem_data_reg
+  axiMaster.writeAddr.bits.addr := mem_addr_reg
 
   when(in.external_valid) {
     mem_valid_reg := 1.U

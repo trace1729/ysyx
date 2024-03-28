@@ -6,7 +6,7 @@ import axi.AxiLiteSlave
 class ExternalInput extends Bundle {
   val external_valid   = Flipped(Bool())
   val external_data    = Flipped(UInt(32.W))
-  val external_wmask    = Flipped(UInt(4.W))
+  val external_wmask   = Flipped(UInt(4.W))
   val external_address = Flipped(UInt(32.W))
 }
 
@@ -26,10 +26,8 @@ object ExternalInput {
  所以 Mem 的 awvalid 和 wvalid 都可以依赖于 alu.valid_reg
  */
 class Mem extends Module {
-  val in  = IO(ExternalInput())
-  val out = IO(UInt(32.W))
-
-  val axiMaster     = AxiLiteMaster(32, 32)
+  val in            = IO(ExternalInput())
+  val axiMaster     = IO(AxiLiteMaster(32, 32))
   val sram          = Module(new SRAM)
   val mem_valid_reg = RegInit(1.U)
 
@@ -45,11 +43,11 @@ class Mem extends Module {
   // and since register's output is directly connected to
   // the sram, sram will receive the data once the register
   // updates its value.
-  val mem_data_reg = RegEnable(in.external_data, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
-  val mem_addr_reg = RegEnable(in.external_address, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
+  val mem_data_reg  = RegEnable(in.external_data, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
+  val mem_addr_reg  = RegEnable(in.external_address, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
   val mem_wmask_reg = RegEnable(in.external_wmask, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
 
-  axiMaster.writeData.bits  := mem_data_reg
+  axiMaster.writeData.bits := mem_data_reg
   axiMaster.writeAddr.bits := mem_addr_reg
 
   when(in.external_valid) {
@@ -73,22 +71,22 @@ class SRAM extends Module {
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
 
-  // the data will be available on the next rising edge after valid and ready is both asserted, 
+  // the data will be available on the next rising edge after valid and ready is both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
   val ram = Wire(Vec(10, UInt(32.W)))
   in.writeResp.valid := 0.U
-  when (in.writeData.bits.strb =/= 0.U) {
-    in.writeResp.valid := 1.U
+  when(in.writeData.bits.strb =/= 0.U) {
+    in.writeResp.valid          := 1.U
     ram(in.writeAddr.bits.addr) := in.writeData.bits.data
   }
-  
+
 }
 
 class AxiTest extends Module {
-    val in = IO(ExternalInput())
-    val mem = Module(new Mem)
+  val in  = IO(ExternalInput())
+  val mem = Module(new Mem)
 
-    mem.in <> in
-    
+  mem.in <> in
+
 }

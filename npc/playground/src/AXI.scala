@@ -26,7 +26,7 @@ object ExternalInput {
  所以 Mem 的 awvalid 和 wvalid 都可以依赖于 alu.valid_reg
  */
 class Mem extends Module {
-  val in            = IO(Input(ExternalInput()))
+  val in            = IO(ExternalInput())
   val axiMaster     = IO(AxiLiteMaster(32, 32))
   val sram          = Module(new SRAM)
   val mem_valid_reg = RegInit(1.U)
@@ -91,7 +91,7 @@ class SRAM extends Module {
 }
 
 class AxiTest extends Module {
-  val in  = IO(Input(ExternalInput()))
+  val in  = IO(ExternalInput())
   val out = IO(Output(UInt(32.W)))
 
   val mem = Module(new Mem)

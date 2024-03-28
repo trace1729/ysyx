@@ -33,8 +33,8 @@ object AxiLiteReadData {
 }
 
 class AxiLiteSlave(val addrWidth: Int, val dataWidth: Int) extends Bundle {
-  val readAddr = Flipped(Decoupled(AxiLiteAddr(addrWidth)))
-  val readData = Decoupled(AxiLiteReadData(dataWidth))
+  // val readAddr = Flipped(Decoupled(AxiLiteAddr(addrWidth)))
+  // val readData = Decoupled(AxiLiteReadData(dataWidth))
 
   val writeAddr = Flipped(Decoupled(AxiLiteAddr(addrWidth)))
   val writeData = Flipped(Decoupled(AxiLiteWriteData(dataWidth)))

@@ -31,7 +31,6 @@ class Mem extends Module {
   val sram          = Module(new SRAM)
   val mem_valid_reg = RegInit(1.U)
 
-  axiMaster.writeAddr <> sram.in.writeAddr
   axiMaster <> sram.in
 
   axiMaster.writeAddr.valid := mem_valid_reg
@@ -67,7 +66,7 @@ class Mem extends Module {
 }
 
 class SRAM extends Module {
-  val in = IO(Output(AxiLiteSlave(32, 32)))
+  val in = IO(Outpu(AxiLiteSlave(32, 32)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid

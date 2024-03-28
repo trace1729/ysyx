@@ -74,7 +74,6 @@ class SRAM extends Module {
   // the data will be available on the next rising edge after valid and ready is both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
-  in := DontCare
   val ram = Wire(Vec(10, UInt(32.W)))
   ram.foreach {
     _ := 0.U

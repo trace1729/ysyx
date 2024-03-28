@@ -27,7 +27,7 @@ object ExternalInput {
  */
 class Mem extends Module {
   val in            = IO(Input(ExternalInput()))
-  val axiMaster     = IO(Input(AxiLiteMaster(32, 32)))
+  val axiMaster     = IO(Output(AxiLiteMaster(32, 32)))
   val sram          = Module(new SRAM)
   val mem_valid_reg = RegInit(1.U)
 

@@ -74,7 +74,8 @@ class SRAM extends Module {
   // the data will be available on the next rising edge after valid and ready is both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
-  val ram = Wire(Vec(10, UInt(32.W)))
+  val ram = VecInit(Seq.fill(10)(Wire(0.U(10.W))))
+
   in.writeResp.valid := 0.U
   when(in.writeData.bits.strb =/= 0.U) {
     in.writeResp.valid          := 1.U

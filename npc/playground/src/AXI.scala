@@ -27,9 +27,10 @@ object ExternalInput {
  */
 class Mem extends Module {
   val in            = IO(Input(ExternalInput()))
-  val axiMaster     = IO(Output(AxiLiteMaster(32, 32)))
+  val axiMaster     = IO(AxiLiteMaster(32, 32))
   val sram          = Module(new SRAM)
   val mem_valid_reg = RegInit(1.U)
+  val out = IO(Output(UInt(32.W)))
 
   axiMaster <> sram.in
 
@@ -62,11 +63,12 @@ class Mem extends Module {
     // what does it means for idle state?
     mem_valid_reg := 0.U
   }
+  out := sram.out
 
 }
 
 class SRAM extends Module {
-  val in = IO(Output(AxiLiteSlave(32, 32)))
+  val in = IO(Flipped(AxiLiteMaster(32, 32)))
   val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
@@ -88,8 +90,11 @@ class SRAM extends Module {
 
 class AxiTest extends Module {
   val in  = IO(Input(ExternalInput()))
+  val out = IO(Output(UInt(32.W)))
+
   val mem = Module(new Mem)
 
   mem.in <> in
+  out := mem.out
 
 }

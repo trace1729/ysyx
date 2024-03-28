@@ -67,7 +67,7 @@ class Mem extends Module {
 
 class SRAM extends Module {
   val in = IO(Output(AxiLiteSlave(32, 32)))
-  val out = Output(UInt(32.W))
+  val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid

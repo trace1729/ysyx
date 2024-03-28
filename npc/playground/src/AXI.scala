@@ -91,9 +91,9 @@ class AxiTest extends Module {
   val out = IO(AxiLiteMaster(32, 32))
 
   // val mem = Module(new Mem)
-
+  val sram = Module(new SRAM)
   // mem.in <> in
   // out := mem.out
-  in <> out
-
+  out <> sram.in
+  
 }

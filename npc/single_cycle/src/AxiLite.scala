@@ -1,5 +1,4 @@
 // referenced from https://github.com/nhynes/chisel3-axi.git
-package axi
 
 import chisel3._
 import chisel3.util._

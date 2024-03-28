@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = single_cycle
+TARGET = playground
 
 export PATH := $(PATH):$(abspath ./utils)
 

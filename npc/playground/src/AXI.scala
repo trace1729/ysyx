@@ -80,7 +80,7 @@ class SRAM extends Module {
   out := 0.U
   when(in.writeData.bits.strb =/= 0.U) {
     in.writeResp.valid          := 1.U
-    in.writeResp := 0.U
+    in.writeResp.bits := 0.U
     out := in.writeData.bits.data
   }
 

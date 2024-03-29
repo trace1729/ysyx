@@ -91,7 +91,7 @@ class SRAM extends Module {
   // How to tell the SRAM this feature?
   // using wmask to distinguish
 
-  val sram_resp_reg = RegInit(Bool())
+  val sram_resp_reg = Reg(Bool())
   val data = RegEnable(in.writeData.bits.data, sram_resp_reg)
 
   when(in.writeData.bits.strb =/= 0.U) {

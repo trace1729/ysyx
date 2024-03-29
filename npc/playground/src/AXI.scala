@@ -95,5 +95,6 @@ class AxiTest extends Module {
   // mem.in <> in
   // out := mem.out
   in <> sram.in
+  in.writeResp.bits := 32.U
   
 }

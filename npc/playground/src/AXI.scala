@@ -78,7 +78,7 @@ class Mem extends Module {
 }
 
 class AxiMapper extends Module {
-  val axi = AxiLiteMaster(32, 32)
+  val axi = IO(AxiLiteMaster(32, 32))
 }
 
 class SRAM extends Module {

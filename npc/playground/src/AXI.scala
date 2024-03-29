@@ -83,6 +83,7 @@ class SRAM extends Module {
     in.writeResp.bits := 0.U
     out := in.writeData.bits.data
   }
+  in.writeResp.bits := 1.U
 
 }
 

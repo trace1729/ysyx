@@ -28,9 +28,12 @@ class Mem extends Module {
   val in        = IO(ExternalInput())
   val axiController = Module(new AxiController)
   val sram      = Module(new SRAM)
+  val out = IO(Output(UInt(32.W)))
 
   in <> axiController.in
   axiController.axi <> sram.in
+
+  out := sram.out
 
 }
 
@@ -85,6 +88,7 @@ class AxiController extends Module {
 
 class SRAM extends Module {
   val in = IO(AxiLiteSlave(32, 32))
+  val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
@@ -104,6 +108,7 @@ class SRAM extends Module {
 
   in.writeResp.valid := sram_resp_reg
   in.writeResp.bits := 0.U
+  out := data
 
 }
 
@@ -114,5 +119,5 @@ class AxiTest extends Module {
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine
   mem.in <> in
-
+  out := mem.out
 }

@@ -15,7 +15,6 @@ object ExternalInput {
 }
 
 // =================================
-
 /*
 对于内存来说
 写数据：
@@ -26,47 +25,69 @@ object ExternalInput {
  所以 Mem 的 awvalid 和 wvalid 都可以依赖于 alu.valid_reg
  */
 class Mem extends Module {
-  val in            = IO(ExternalInput())
-  val axiMaster     = IO(AxiLiteMaster(32, 32))
-  val sram          = Module(new SRAM)
-  val mem_valid_reg = RegInit(1.U)
+  val in        = IO(ExternalInput())
   val out = IO(Output(UInt(32.W)))
+  val axiController = Module(new AxiController)
+  val sram      = Module(new SRAM)
 
-  
-  axiMaster <> sram.in 
+  in <> axiController.in
+  axiController.axi <> sram.in
+
+  out := sram.out
+
+}
+
+class AxiController extends Module {
+  val in  = IO(ExternalInput())
+  val axi = IO(AxiLiteMaster(32, 32))
 
   // external data is stored in these two registers
-  // when axiMaster.valid and ready is both asserted,
+  // when axiMaster.axi.valid and ready is both asserted,
   // these registers will update their value using external
   // address and data in the following rising edge
   // and since register's output is directly connected to
   // the sram, sram will receive the data once the register
   // updates its value.
-  val mem_data_reg  = RegEnable(in.external_data, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
-  val mem_addr_reg  = RegEnable(in.external_address, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
-  val mem_wmask_reg = RegEnable(in.external_wmask, 0.U, axiMaster.writeAddr.valid & axiMaster.writeAddr.ready)
+  val mem_data_reg       = RegEnable(in.external_data, 0.U, axi.writeAddr.valid & axi.writeAddr.ready)
+  val mem_addr_reg       = RegEnable(in.external_address, 0.U, axi.writeAddr.valid & axi.writeAddr.ready)
+  val mem_wmask_reg      = RegEnable(in.external_wmask, 0.U, axi.writeData.valid & axi.writeData.ready)
+  val mem_valid_data_reg = RegInit(1.U)
+  val mem_valid_addr_reg = RegInit(1.U)
+  val mem_valid_resp_reg = RegInit(1.U)
 
-  axiMaster.writeData.bits.data := mem_data_reg
-  axiMaster.writeAddr.bits.addr := mem_addr_reg
+  axi.writeData.bits.data := mem_data_reg
+  axi.writeData.bits.strb := mem_wmask_reg
+
+  axi.writeAddr.bits.addr := mem_addr_reg
+  axi.writeData.valid     := mem_valid_data_reg
+  axi.writeAddr.valid     := mem_valid_addr_reg
+
+  // the ready is always follows the valid signal
+  axi.writeResp.ready := axi.writeResp.valid
 
   when(in.external_valid) {
-    mem_valid_reg := 1.U
-  }
-  // the ready is always follows the valid signal
-  axiMaster.writeResp.ready := axiMaster.writeResp.valid
-  when(axiMaster.writeResp.valid & axiMaster.writeResp.ready) {
+    mem_valid_data_reg := 1.U
+  }.elsewhen(axi.writeData.valid & axi.writeData.ready) {
     // transfer ended
     // Now the Lfu either do read or write, as such, when the we get the response,
     // we could just restore to idle state.
     // what does it means for idle state?
-    mem_valid_reg := 0.U
+    mem_valid_data_reg := 0.U
   }
-  out := sram.out
+  when(in.external_valid) {
+    mem_valid_addr_reg := 1.U
+  }.elsewhen(axi.writeAddr.valid & axi.writeAddr.ready) {
+    // transfer ended
+    // Now the Lfu either do read or write, as such, when the we get the response,
+    // we could just restore to idle state.
+    // what does it means for idle state?
+    mem_valid_addr_reg := 0.U
+  }
 
 }
 
 class SRAM extends Module {
-  val in = IO(Flipped(AxiLiteMaster(32, 32)))
+  val in = IO(AxiLiteSlave(32, 32))
   val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
@@ -76,24 +97,27 @@ class SRAM extends Module {
   // How to tell the SRAM this feature?
   // using wmask to distinguish
 
-  in.writeResp.valid := 0.U
-  out := 0.U
+  val sram_resp_reg = Reg(Bool())
+  val data          = RegEnable(in.writeData.bits.data, sram_resp_reg)
+
   when(in.writeData.bits.strb =/= 0.U) {
-    in.writeResp.valid          := 1.U
-    out := in.writeData.bits.data
+    sram_resp_reg := 1.U
+  }.elsewhen(in.writeResp.valid & in.writeResp.ready) {
+    sram_resp_reg := 0.U
   }
-  
+
+  in.writeResp.valid := sram_resp_reg
+  in.writeResp.bits := 0.U
+  out := data
 
 }
 
 class AxiTest extends Module {
-  val in  = IO(Flipped(AxiLiteMaster(32, 32)))
-  val out = IO(AxiLiteMaster(32, 32))
+  val in  = IO(ExternalInput())
+  val out = IO(Output(Bool()))
 
-  // val mem = Module(new Mem)
-  val sram = Module(new SRAM)
-  // mem.in <> in
-  // out := mem.out
-  out <> sram.in
-  
+  val mem = Module(new Mem)
+  // using input port to drive the submodule input is just fine
+  mem.in <> in
+  out := mem.out
 }

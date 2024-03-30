@@ -33,6 +33,7 @@ int main(int argc, char** argv, char** env) {
 
 
   top->in_external_valid = 1;
+  top->in_external_memRW = 1; 
   top->in_external_data = 1024;
   top->in_external_wmask = 1;
   top->in_external_address = 2048;

@@ -69,8 +69,6 @@ class AxiController extends Module {
   switch (state) {
     is (aIDLE) {
       when (in.external_valid) {
-        axi.writeAddr.valid := 1.U
-        axi.writeData.valid := 1.U
         state := Mux(in.external_memRW, aWRITE, aREAD)
       }
     }
@@ -78,12 +76,10 @@ class AxiController extends Module {
       axi.writeAddr.valid := 1.U
       axi.writeData.valid := 1.U
       when (axi.writeResp.valid && axi.writeResp.ready) {
-        state := aACK
+        state := aIDLE
       }
     }
-    is (aACK) {
-      state := aIDLE
-    }
+   
   }
   axi.writeResp.ready := axi.writeResp.valid
   axi.writeData.bits.data := RegEnable(in.external_data, dataWen)

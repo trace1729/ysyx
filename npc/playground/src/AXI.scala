@@ -98,15 +98,7 @@ class SRAM extends Module {
 
   val data          = RegEnable(in.writeData.bits.data, in.writeData.valid && in.writeData.ready)
   val sram_resp_reg = Reg(Bool())
-
-  when(in.writeData.bits.strb =/= 0.U) {
-    sram_resp_reg := 1.U
-  }.elsewhen(in.writeResp.valid & in.writeResp.ready) {
-    sram_resp_reg := 0.U
-  }
-
-  in.writeResp.valid := sram_resp_reg
-  in.writeResp.bits := 0.U
+  in.writeResp.valid := RegEnable(1.U, in.writeData.valid && in.writeData.ready)
   out := data
 
 }

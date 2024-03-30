@@ -100,6 +100,7 @@ class SRAM extends Module {
   // How to tell the SRAM this feature?
   // using wmask to distinguish
 
+  in.writeResp.valid := RegEnable(1.U, in.writeData.ready && in.writeData.valid && in.writeAddr.valid && in.writeAddr.ready)
   out                := RegEnable(in.writeData.bits.data, in.writeResp.valid && in.writeData.ready)
   in.writeResp.valid := RegEnable(1.U, in.writeData.valid && in.writeData.ready)
   in.writeResp.bits  := RegEnable(0.U, in.writeData.valid && in.writeData.ready)

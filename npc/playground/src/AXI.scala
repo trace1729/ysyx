@@ -83,7 +83,7 @@ class AxiController extends Module {
       state := aIDLE
     }
   }
-
+  axi.writeResp.ready := axi.writeResp.valid
   axi.writeData.bits.data := RegEnable(in.external_data, dataWen)
   axi.writeData.bits.strb := RegEnable(in.external_wmask, dataWen)
   axi.writeAddr.bits.addr := RegEnable(in.external_address, addrWen)

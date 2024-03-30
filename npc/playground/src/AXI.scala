@@ -56,8 +56,8 @@ class AxiController extends Module {
 
   // initial is idle state
   val state = RegInit(aIDLE)
-  val dataWen = (state === aWRITE) & axi.writeData.valid & axi.writeAddr.ready
-  val addrWen = (state === aWRITE) & axi.writeAddr.valid & axi.writeAddr.ready
+  val dataWen = (state === aWRITE)
+  val addrWen = (state === aWRITE) 
 
 
   // axi.writeData.bits.data := Re
@@ -118,7 +118,7 @@ class SRAM extends Module {
   val dataWen = (state === awriteDataAddr) || (state === awriteData)
   val addrWen = (state === awriteDataAddr) || (state === awriteAddr)
   val data    = RegEnable(in.writeData.bits.data, 0.U, dataWen)
-  val addr    = RegEnable(in.writeData.bits.data, 0.U, addrWen)
+  val addr    = RegEnable(in.writeAddr.bits.addr, 0.U, addrWen)
 
   // dummy detected
   val hit = data =/= 0.U

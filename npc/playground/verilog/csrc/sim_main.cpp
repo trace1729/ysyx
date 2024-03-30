@@ -31,14 +31,26 @@ int main(int argc, char** argv, char** env) {
   top->trace(tfp.get(), 99);
   tfp->open("wave.vcd");
 
+
   top->in_external_valid = 1;
   top->in_external_data = 1024;
   top->in_external_wmask = 1;
   top->in_external_address = 2048;
 
-  for (int i = 0; i < 10; i++) {
     top->clock = 0;
     top->reset = 1;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+
+    top->clock = 1;
+    top->reset = 0;
+    top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+
+  for (int i = 0; i < 10; i++) {
+    top->clock = 0;
     top->eval();
     contextp->timeInc(1);
     tfp->dump(contextp->time());

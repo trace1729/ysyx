@@ -24,17 +24,16 @@ object ExternalInput {
  传到了 Alu 阶段，然后和地址一起传递给 Mem 模块。
  所以 Mem 的 awvalid 和 wvalid 都可以依赖于 alu.valid_reg
  */
+
 class Mem extends Module {
   val in        = IO(ExternalInput())
   val out = IO(Output(UInt(32.W)))
   val axiController = Module(new AxiController)
   val sram      = Module(new SRAM)
-
   in <> axiController.in
   axiController.axi <> sram.in
 
   out := sram.out
-
 }
 
 class AxiController extends Module {

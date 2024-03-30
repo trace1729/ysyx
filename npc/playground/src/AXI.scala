@@ -26,9 +26,9 @@ object ExternalInput {
  */
 class Mem extends Module {
   val in        = IO(ExternalInput())
+  val out = IO(Output(UInt(32.W)))
   val axiController = Module(new AxiController)
   val sram      = Module(new SRAM)
-  val out = IO(Output(UInt(32.W)))
 
   in <> axiController.in
   axiController.axi <> sram.in
@@ -114,7 +114,7 @@ class SRAM extends Module {
 
 class AxiTest extends Module {
   val in  = IO(ExternalInput())
-  val out = IO(Input(Bool()))
+  val out = IO(Output(Bool()))
 
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine

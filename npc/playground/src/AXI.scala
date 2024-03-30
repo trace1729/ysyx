@@ -54,6 +54,8 @@ class AxiController extends Module {
   val mem_valid_resp_reg = RegInit(1.U)
 
   axi.writeData.bits.data := mem_data_reg
+  axi.writeData.bits.strb := mem_wmask_reg
+
   axi.writeAddr.bits.addr := mem_addr_reg
   axi.writeData.valid     := mem_valid_data_reg
   axi.writeAddr.valid     := mem_valid_addr_reg

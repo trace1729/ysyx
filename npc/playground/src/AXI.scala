@@ -28,7 +28,6 @@ class Mem extends Module {
   val in        = IO(ExternalInput())
   val axiController = Module(new AxiController)
   val sram      = Module(new SRAM)
-  val out       = IO(Output(UInt(32.W)))
 
   in <> axiController.in
   axiController.axi <> sram.in

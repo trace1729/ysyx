@@ -1,7 +1,7 @@
 import circt.stage._
 
 object Elaborate extends App {
-  def top       = new AxiTest
+  def top       = new top
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
 
   val chiselStageOptions = Seq(

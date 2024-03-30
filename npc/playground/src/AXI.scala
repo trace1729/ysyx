@@ -24,22 +24,28 @@ object ExternalInput {
  传到了 Alu 阶段，然后和地址一起传递给 Mem 模块。
  所以 Mem 的 awvalid 和 wvalid 都可以依赖于 alu.valid_reg
  */
-class Mem extends Module {
-  val in        = IO(ExternalInput())
-  val out = IO(Output(UInt(32.W)))
-  val axiController = Module(new AxiController)
-  val sram      = Module(new SRAM)
 
+class Mem extends Module {
+  val in            = IO(ExternalInput())
+  val out           = IO(Output(UInt(32.W)))
+  val ended           = IO(Output(Bool()))
+  val axiController = Module(new AxiController)
+  val sram          = Module(new SRAM)
   in <> axiController.in
   axiController.axi <> sram.in
 
   out := sram.out
+  ended := axiController.transferEnded
+}
 
+object AxiState extends ChiselEnum {
+  val aIDLE, aWRITE, aREAD, aACK = Value
 }
 
 class AxiController extends Module {
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(32, 32))
+  val transferEnded = IO(Output(Bool()))
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,
@@ -53,7 +59,6 @@ class AxiController extends Module {
   val mem_wmask_reg      = RegEnable(in.external_wmask, 0.U, axi.writeData.valid & axi.writeData.ready)
   val mem_valid_data_reg = RegInit(1.U)
   val mem_valid_addr_reg = RegInit(1.U)
-  val mem_valid_resp_reg = RegInit(1.U)
 
   axi.writeData.bits.data := mem_data_reg
   axi.writeData.bits.strb := mem_wmask_reg
@@ -83,41 +88,95 @@ class AxiController extends Module {
     // what does it means for idle state?
     mem_valid_addr_reg := 0.U
   }
+  transferEnded := RegEnable(1.U, axi.writeResp.valid && axi.writeResp.ready)
+  // 逐渐领会到状态机的写法
 
 }
 
+// By using Value, you're telling Scala to automatically assign ordinal values to these members.
+// By default, aIDLE will have the value 0, aWRITE will have the value 1, 
+//   aREAD will have the value 2, and aACK will have the value 3.
+object SRAMState extends ChiselEnum {
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aACK = Value
+}
+
 class SRAM extends Module {
-  val in = IO(AxiLiteSlave(32, 32))
+  val in  = IO(AxiLiteSlave(32, 32))
   val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
+  
+  import SRAMState._
 
-  // the data will be available on the next rising edge after valid and ready is both asserted,
-  // How to tell the SRAM this feature?
-  // using wmask to distinguish
 
-  val sram_resp_reg = Reg(Bool())
-  val data          = RegEnable(in.writeData.bits.data, sram_resp_reg)
+  // the data and data address are indepentdent of each other,
+  //   the axi controller pass the data to SRAM when valid and ready are both asserted
+  //   the sram tries to write data into the rom
+  //   then set the state to ack state
+  
+  val state = RegInit(aIDLE)
 
-  when(in.writeData.bits.strb =/= 0.U) {
-    sram_resp_reg := 1.U
-  }.elsewhen(in.writeResp.valid & in.writeResp.ready) {
-    sram_resp_reg := 0.U
+  val dataWen = (state === awriteDataAddr) || (state === awriteData)
+  val addrWen = (state === awriteDataAddr) || (state === awriteAddr)
+  val data = RegEnable(in.writeData.bits.data, 0.U, dataWen)
+  val addr = RegEnable(in.writeData.bits.data, 0.U, addrWen)
+
+  // dummy detected
+  val hit = data =/= 0.U
+
+  in.writeResp.valid := false.B
+  in.writeResp.bits := 1.U
+
+  // using a state machine would elegantly represent
+  // the whole axi interface communicating process
+
+  switch (state) {
+    is (aIDLE) {
+      // represent write
+      when (in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
+        state := awriteDataAddr
+      }.elsewhen(in.writeData.ready && in.writeData.valid) {
+        state := awriteData
+      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
+        state := awriteAddr
+      }
+    }
+    is (awriteData) {
+      when(in.writeAddr.ready && in.writeAddr.valid) {
+          state := awriteDataAddr
+      }
+    }
+    is (awriteAddr) {
+      when(in.writeData.ready && in.writeData.valid) {
+          state := awriteDataAddr
+      }
+    }
+    is (awriteDataAddr) {
+      when (hit) {
+        state := aACK
+        in.writeResp.valid := true.B
+        in.writeResp.bits := 0.U
+      }
+    }
+    is (aACK) {
+      state := aIDLE
+    }
   }
-
-  in.writeResp.valid := sram_resp_reg
-  in.writeResp.bits := 0.U
   out := data
+
 
 }
 
-class AxiTest extends Module {
+class top extends Module {
   val in  = IO(ExternalInput())
+  val ended = IO(Output(Bool()))
   val out = IO(Output(Bool()))
 
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine
   mem.in <> in
+  ended := mem.ended
+
   out := mem.out
 }

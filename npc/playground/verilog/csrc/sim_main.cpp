@@ -48,6 +48,7 @@ int main(int argc, char** argv, char** env) {
     top->eval();
     contextp->timeInc(1);
     tfp->dump(contextp->time());
+    top->in_external_valid = 0;
 
   for (int i = 0; i < 10; i++) {
     top->clock = 0;

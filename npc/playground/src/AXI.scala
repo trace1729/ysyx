@@ -114,7 +114,7 @@ class SRAM extends Module {
 
 class AxiTest extends Module {
   val in  = IO(ExternalInput())
-  val out = Input(Bool())
+  val out = IO(Input(Bool()))
 
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine

@@ -191,7 +191,6 @@ class SRAM extends Module {
 
 class top extends Module {
   val in    = IO(ExternalInput())
-  val ended = IO(Output(Bool()))
   val out   = IO(Output(Bool()))
 
   val mem = Module(new Mem)

@@ -56,11 +56,21 @@ class AxiController extends Module {
 
   // initial is idle state
   val state = RegInit(aIDLE)
-  val wen = state === aWRITE
+  val dataWen = (state === aWRITE) & axi.writeData.valid & axi.writeAddr.ready
+  val addrWen = (state === aWRITE) & axi.writeAddr.valid & axi.writeAddr.ready
+
+
+  // axi.writeData.bits.data := Re
+  // in one way or the other, you will going to learn how to build a finite state machine
+  
+  axi.writeAddr.valid := 0.U
+  axi.writeData.valid := 0.U
 
   switch (state) {
     is (aIDLE) {
       when (in.external_valid) {
+        axi.writeAddr.valid := 1.U
+        axi.writeData.valid := 1.U
         state := Mux(in.external_memRW, aWRITE, aREAD)
       }
     }
@@ -74,40 +84,10 @@ class AxiController extends Module {
     }
   }
 
-  val mem_data_reg       = RegEnable(in.external_data, 0.U, axi.writeAddr.valid & axi.writeAddr.ready)
-  val mem_addr_reg       = RegEnable(in.external_address, 0.U, axi.writeAddr.valid & axi.writeAddr.ready)
-  val mem_wmask_reg      = RegEnable(in.external_wmask, 0.U, axi.writeData.valid & axi.writeData.ready)
-  val mem_valid_data_reg = RegInit(1.U)
-  val mem_valid_addr_reg = RegInit(1.U)
+  axi.writeData.bits.data := RegEnable(in.external_data, dataWen)
+  axi.writeData.bits.strb := RegEnable(in.external_wmask, dataWen)
+  axi.writeAddr.bits.addr := RegEnable(in.external_address, addrWen)
 
-  axi.writeData.bits.data := mem_data_reg
-  axi.writeData.bits.strb := mem_wmask_reg
-
-  axi.writeAddr.bits.addr := mem_addr_reg
-  axi.writeData.valid     := mem_valid_data_reg
-  axi.writeAddr.valid     := mem_valid_addr_reg
-
-  // the ready is always follows the valid signal
-  axi.writeResp.ready := axi.writeResp.valid
-
-  when(in.external_valid) {
-    mem_valid_data_reg := 1.U
-  }.elsewhen(axi.writeData.valid & axi.writeData.ready) {
-    // transfer ended
-    // Now the Lfu either do read or write, as such, when the we get the response,
-    // we could just restore to idle state.
-    // what does it means for idle state?
-    mem_valid_data_reg := 0.U
-  }
-  when(in.external_valid) {
-    mem_valid_addr_reg := 1.U
-  }.elsewhen(axi.writeAddr.valid & axi.writeAddr.ready) {
-    // transfer ended
-    // Now the Lfu either do read or write, as such, when the we get the response,
-    // we could just restore to idle state.
-    // what does it means for idle state?
-    mem_valid_addr_reg := 0.U
-  }
   // 逐渐领会到状态机的写法
 
 }

@@ -38,6 +38,10 @@ class Mem extends Module {
   ended := axiController.transferEnded
 }
 
+object AxiState extends ChiselEnum {
+  val aIDLE, aWRITE, aREAD, aACK = Value
+}
+
 class AxiController extends Module {
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(32, 32))
@@ -93,10 +97,6 @@ class AxiController extends Module {
 // By default, aIDLE will have the value 0, aWRITE will have the value 1, 
 //   aREAD will have the value 2, and aACK will have the value 3.
 
-object AxiState extends ChiselEnum {
-  val aIDLE, aWRITE, aREAD, aACK = Value
-}
-
 class SRAM extends Module {
   val in  = IO(AxiLiteSlave(32, 32))
   val out = IO(Output(UInt(32.W)))
@@ -114,17 +114,23 @@ class SRAM extends Module {
   
   val state = RegInit(aIDLE)
 
-  val wen = state === aWRITE
-  val data = RegEnable(in.writeData.bits.data, 0.U, wen)
+  val dataWen = (state === aWRITE) & in.writeData.valid & in.writeData.ready
+  val addrWen = (state === aWRITE) & in.writeAddr.valid & in.writeAddr.ready
+  val data = RegEnable(in.writeData.bits.data, 0.U, dataWen)
+  val addr = RegEnable(in.writeData.bits.data, 0.U, addrWen)
+
+  // dummy detected
   val hit = data =/= 0.U
 
   in.writeResp.valid := false.B
   in.writeResp.bits := 1.U
 
+  // using a state machine would elegantly represent
+  // the whole axi interface communicating process
+
   switch (state) {
     is (aIDLE) {
-      // 用状态转换的话，不太好表示同时写数据和地址
-      // or we just use one unified state to 
+      // we just use one unified state to 
       // represent write
       when (in.writeAddr.ready && in.writeAddr.valid) {
         state := aWRITE
@@ -141,20 +147,8 @@ class SRAM extends Module {
       state := aIDLE
     }
   }
-
   out := data
 
-
-  // the data will be available on the next rising edge after valid and ready are both asserted,
-  // How to tell the SRAM this feature?
-  // using wmask to distinguish
-
-  // It is hard to set the writeResponse signal after the data is stored on the sram
-  // how to signal the write to sram is completed
-
-  // in.writeResp.valid := RegEnable(1.U, in.writeData.ready && in.writeData.valid && in.writeAddr.valid && in.writeAddr.ready)
-  // in.writeResp.bits  := RegEnable(0.U, in.writeData.valid && in.writeData.ready)
-  // out                := RegEnable(in.writeData.bits.data, in.writeData.valid)
 
 }
 

@@ -55,36 +55,35 @@ class AxiController extends Module {
   import AxiState._
 
   // initial is idle state
-  val state = RegInit(aIDLE)
+  val state   = RegInit(aIDLE)
   val dataWen = (state === aWRITE)
-  val addrWen = (state === aWRITE) 
-
+  val addrWen = (state === aWRITE)
 
   // axi.writeData.bits.data := Re
   // in one way or the other, you will going to learn how to build a finite state machine
-  
+
   axi.writeAddr.valid := 0.U
   axi.writeData.valid := 0.U
 
-  switch (state) {
-    is (aIDLE) {
-      when (in.external_valid) {
+  switch(state) {
+    is(aIDLE) {
+      when(in.external_valid) {
         state := Mux(in.external_memRW, aWRITE, aREAD)
       }
     }
-    is (aWRITE) {
+    is(aWRITE) {
       axi.writeAddr.valid := 1.U
       axi.writeData.valid := 1.U
-      when (axi.writeResp.valid && axi.writeResp.ready) {
+      when(axi.writeResp.valid && axi.writeResp.ready) {
         state := aIDLE
       }
     }
-   
+
   }
-  axi.writeResp.ready := axi.writeResp.valid
-  axi.writeData.bits.data := RegEnable(in.external_data, dataWen)
-  axi.writeData.bits.strb := RegEnable(in.external_wmask, dataWen)
-  axi.writeAddr.bits.addr := RegEnable(in.external_address, addrWen)
+  axi.writeResp.ready     := axi.writeResp.valid
+  axi.writeData.bits.data := in.external_data
+  axi.writeData.bits.strb := in.external_wmask
+  axi.writeAddr.bits.addr := in.external_address
 
   // 逐渐领会到状态机的写法
 
@@ -168,8 +167,8 @@ class SRAM extends Module {
 }
 
 class top extends Module {
-  val in    = IO(ExternalInput())
-  val out   = IO(Output(Bool()))
+  val in  = IO(ExternalInput())
+  val out = IO(Output(Bool()))
 
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine

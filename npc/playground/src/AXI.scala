@@ -89,24 +89,74 @@ class AxiController extends Module {
 
 }
 
+// By using Value, you're telling Scala to automatically assign ordinal values to these members.
+// By default, aIDLE will have the value 0, aWRITE will have the value 1, 
+//   aREAD will have the value 2, and aACK will have the value 3.
+
+object AxiState extends ChiselEnum {
+  val aIDLE, aWRITE, aREAD, aACK = Value
+}
+
 class SRAM extends Module {
   val in  = IO(AxiLiteSlave(32, 32))
   val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
+  
+  import AxiState._
+
+
+  // the data and data address are indepentdent of each other,
+  //   the axi controller pass the data to SRAM when valid and ready are both asserted
+  //   the sram tries to write data into the rom
+  //   then set the state to ack state
+  
+  val state = RegInit(aIDLE)
+
+  val wen = state === aWRITE
+  val data = RegEnable(in.writeData.bits.data, 0.U, wen)
+  val hit = data =/= 0.U
+
+  in.writeResp.valid := false.B
+
+  switch (state) {
+    is (aIDLE) {
+      // 用状态转换的话，不太好表示同时写数据和地址
+      // or we just use one unified state to 
+      // represent write
+      when (in.writeAddr.ready && in.writeAddr.valid) {
+        state := aWRITE
+      }
+    }
+    is (aWRITE) {
+      when (hit) {
+        state := aACK
+        in.writeResp.valid := true.B
+      }
+    }
+    is (aACK) {
+      state := aIDLE
+    }
+  }
+
+  out := data
+
 
   // the data will be available on the next rising edge after valid and ready are both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
 
-  in.writeResp.valid := RegEnable(1.U, in.writeData.ready && in.writeData.valid && in.writeAddr.valid && in.writeAddr.ready)
-  in.writeResp.bits  := RegEnable(0.U, in.writeData.valid && in.writeData.ready)
-  out                := RegEnable(in.writeData.bits.data, in.writeResp.valid && in.writeResp.ready)
+  // It is hard to set the writeResponse signal after the data is stored on the sram
+  // how to signal the write to sram is completed
+
+  // in.writeResp.valid := RegEnable(1.U, in.writeData.ready && in.writeData.valid && in.writeAddr.valid && in.writeAddr.ready)
+  // in.writeResp.bits  := RegEnable(0.U, in.writeData.valid && in.writeData.ready)
+  // out                := RegEnable(in.writeData.bits.data, in.writeData.valid)
 
 }
 
-class AxiTest extends Module {
+class top extends Module {
   val in  = IO(ExternalInput())
   val ended = IO(Output(Bool()))
   val out = IO(Output(Bool()))

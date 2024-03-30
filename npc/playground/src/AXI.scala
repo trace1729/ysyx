@@ -119,6 +119,7 @@ class SRAM extends Module {
   val hit = data =/= 0.U
 
   in.writeResp.valid := false.B
+  in.writeResp.bits := 1.U
 
   switch (state) {
     is (aIDLE) {
@@ -133,6 +134,7 @@ class SRAM extends Module {
       when (hit) {
         state := aACK
         in.writeResp.valid := true.B
+        in.writeResp.bits := 0.U
       }
     }
     is (aACK) {

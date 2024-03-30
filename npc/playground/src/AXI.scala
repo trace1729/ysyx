@@ -75,6 +75,8 @@ class AxiController extends Module {
       }
     }
     is (aWRITE) {
+      axi.writeAddr.valid := 1.U
+      axi.writeData.valid := 1.U
       when (axi.writeResp.valid && axi.writeResp.ready) {
         state := aACK
       }

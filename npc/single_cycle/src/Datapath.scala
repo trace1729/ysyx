@@ -5,6 +5,7 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 
+
 /** ********************IFU**************************
   */
 
@@ -211,9 +212,13 @@ class MEMOutputIO(width: Int) extends Bundle {
 class LSU extends Module {
   val in   = IO(Flipped(Decoupled(new EXOutputIO)))
   val out  = IO(Decoupled(new MEMOutputIO(width)))
+  val axi  = Module(AxiController(width, width))
   val dmem = Module(new Dmem(width))
 
+  // 这是从存储器读取出的数据
   val rmemdata      = Wire(UInt(width.W))
+  
+  // 这个是用来控制握手信号的
   val lsu_valid_reg = RegInit(0.U)
 
   dmem.io.addr := in.bits.alures

@@ -26,19 +26,22 @@ object ExternalInput {
  */
 
 class Mem extends Module {
-  val in        = IO(ExternalInput())
-  val out = IO(Output(UInt(32.W)))
+  val in            = IO(ExternalInput())
+  val out           = IO(Output(UInt(32.W)))
+  val ended           = IO(Output(Bool()))
   val axiController = Module(new AxiController)
-  val sram      = Module(new SRAM)
+  val sram          = Module(new SRAM)
   in <> axiController.in
   axiController.axi <> sram.in
 
   out := sram.out
+  ended := axiController.transferEnded
 }
 
 class AxiController extends Module {
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(32, 32))
+  val transferEnded = IO(Output(Bool()))
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,
@@ -52,7 +55,6 @@ class AxiController extends Module {
   val mem_wmask_reg      = RegEnable(in.external_wmask, 0.U, axi.writeData.valid & axi.writeData.ready)
   val mem_valid_data_reg = RegInit(1.U)
   val mem_valid_addr_reg = RegInit(1.U)
-  val mem_valid_resp_reg = RegInit(1.U)
 
   axi.writeData.bits.data := mem_data_reg
   axi.writeData.bits.strb := mem_wmask_reg
@@ -82,33 +84,37 @@ class AxiController extends Module {
     // what does it means for idle state?
     mem_valid_addr_reg := 0.U
   }
+  transferEnded := RegEnable(1.U, axi.writeResp.valid && axi.writeResp.ready)
+  // 逐渐领会到状态机的写法
 
 }
 
 class SRAM extends Module {
-  val in = IO(AxiLiteSlave(32, 32))
+  val in  = IO(AxiLiteSlave(32, 32))
   val out = IO(Output(UInt(32.W)))
 
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
 
-  // the data will be available on the next rising edge after valid and ready is both asserted,
+  // the data will be available on the next rising edge after valid and ready are both asserted,
   // How to tell the SRAM this feature?
   // using wmask to distinguish
 
-  val data          = RegEnable(in.writeData.bits.data, in.writeData.valid && in.writeData.ready)
+  out                := RegEnable(in.writeData.bits.data, in.writeData.valid && in.writeData.ready)
   in.writeResp.valid := RegEnable(1.U, in.writeData.valid && in.writeData.ready)
-  in.writeResp.bits := RegEnable(0.U, in.writeData.valid && in.writeData.ready)
-  out := data
+  in.writeResp.bits  := RegEnable(0.U, in.writeData.valid && in.writeData.ready)
 
 }
 
 class AxiTest extends Module {
   val in  = IO(ExternalInput())
+  val ended = IO(Output(Bool()))
   val out = IO(Output(Bool()))
 
   val mem = Module(new Mem)
   // using input port to drive the submodule input is just fine
   mem.in <> in
+  ended := mem.ended
+
   out := mem.out
 }

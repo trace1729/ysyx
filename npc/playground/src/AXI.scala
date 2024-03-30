@@ -96,6 +96,9 @@ class AxiController extends Module {
 // By using Value, you're telling Scala to automatically assign ordinal values to these members.
 // By default, aIDLE will have the value 0, aWRITE will have the value 1, 
 //   aREAD will have the value 2, and aACK will have the value 3.
+object SRAMState extends ChiselEnum {
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aACK = Value
+}
 
 class SRAM extends Module {
   val in  = IO(AxiLiteSlave(32, 32))
@@ -104,7 +107,7 @@ class SRAM extends Module {
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
   
-  import AxiState._
+  import SRAMState._
 
 
   // the data and data address are indepentdent of each other,
@@ -114,8 +117,8 @@ class SRAM extends Module {
   
   val state = RegInit(aIDLE)
 
-  val dataWen = (state === aWRITE) & in.writeData.valid & in.writeData.ready
-  val addrWen = (state === aWRITE) & in.writeAddr.valid & in.writeAddr.ready
+  val dataWen = (state === awriteDataAddr) || (state === awriteData)
+  val addrWen = (state === awriteDataAddr) || (state === awriteAddr)
   val data = RegEnable(in.writeData.bits.data, 0.U, dataWen)
   val addr = RegEnable(in.writeData.bits.data, 0.U, addrWen)
 
@@ -130,13 +133,26 @@ class SRAM extends Module {
 
   switch (state) {
     is (aIDLE) {
-      // we just use one unified state to 
       // represent write
-      when (in.writeAddr.ready && in.writeAddr.valid) {
-        state := aWRITE
+      when (in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
+        state := awriteDataAddr
+      }.elsewhen(in.writeData.ready && in.writeData.valid) {
+        state := awriteData
+      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
+        state := awriteAddr
       }
     }
-    is (aWRITE) {
+    is (awriteData) {
+      when(in.writeAddr.ready && in.writeAddr.valid) {
+          state := awriteDataAddr
+      }
+    }
+    is (awriteAddr) {
+      when(in.writeData.ready && in.writeData.valid) {
+          state := awriteDataAddr
+      }
+    }
+    is (awriteDataAddr) {
       when (hit) {
         state := aACK
         in.writeResp.valid := true.B

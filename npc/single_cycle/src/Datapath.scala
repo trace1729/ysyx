@@ -20,7 +20,6 @@ class IFU(memoryFile: String) extends Module {
   val sram          = Module(new SRAM)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
-  val latched_pc = RegInit(0.U(UInt(32.W)))
   if2id_out.bits.pc := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc

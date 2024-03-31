@@ -137,6 +137,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   axi.writeData.bits.data := in.externalData
   axi.writeData.bits.strb := in.externalWmask
   axi.writeAddr.bits.addr := in.externalAddress
+  axi.readAddr.bits.addr := in.externalAddress
 
   // 逐渐领会到状态机的写法
 

@@ -5,7 +5,6 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 
-
 /** ********************IFU**************************
   */
 
@@ -210,34 +209,41 @@ class MEMOutputIO(width: Int) extends Bundle {
 }
 
 class LSU extends Module {
-  val in   = IO(Flipped(Decoupled(new EXOutputIO)))
-  val out  = IO(Decoupled(new MEMOutputIO(width)))
-  val axi  = Module(AxiController(width, width))
-  val dmem = Module(new Dmem(width))
+  val in            = IO(Flipped(Decoupled(new EXOutputIO)))
+  val out           = IO(Decoupled(new MEMOutputIO(width)))
+  val axiController = Module(AxiController(width, width))
+  val sram          = Module(new SRAM)
 
-  // 这是从存储器读取出的数据
-  val rmemdata      = Wire(UInt(width.W))
-  
-  // 这个是用来控制握手信号的
-  val lsu_valid_reg = RegInit(0.U)
+  // 看看能不能在 dmem 上加一层 wrapper around, 这样不用修改代码，就可以完成 axi 总线的接入
+  // hope we can do this!!
 
-  dmem.io.addr := in.bits.alures
-  // determined by control logic
-  dmem.io.memEnable := lsu_valid_reg & in.bits.ctrlsignals.memEnable
-  dmem.io.memRW     := in.bits.ctrlsignals.memRW
+  // activate the axiController
+  axiController.in.externalAddress := in.bits.alures
+  axiController.in.externalMemRW   := in.bits.ctrlsignals.memRW
+  axiController.in.externalMemEn   := in.bits.ctrlsignals.memEnable
+  axiController.in.externalData    := in.bits.rs2
+  axiController.in.externalWmask := Mux(
+    !in.bits.ctrlsignals.memRW,
+    0.U,
+    wmaskGen(in.bits.inst(14, 12), in.bits.alures(1, 0))
+  )
+  axiController.in.externalValid := in.valid
+
+  axiController.axi <> sram.in
+
+  // 处理读取的数据
+  val rmemdata = Wire(UInt(width.W))
   // if (mem.io.memRW) set wmask to 0b0000
   // mem.io.memRW = 0, read, set to 0
-  dmem.io.wmask := Mux(!dmem.io.memRW, 0.U, wmaskGen(in.bits.inst(14, 12), dmem.io.addr(1, 0)))
-  dmem.io.wdata := in.bits.rs2
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))
-  imm_byte := readDataGen(dmem.io.addr(1, 0), 1, dmem.io.rdata)
-  imm_half := readDataGen(dmem.io.addr(1, 0), 2, dmem.io.rdata)
+  imm_byte := readDataGen(in.bits.alures(1, 0), 1, axiController.axi.readData.bits.data)
+  imm_half := readDataGen(in.bits.alures(1, 0), 2, axiController.axi.readData.bits.data)
   rmemdata := Mux(
     in.bits.inst(14),
     // io.inst(14) == 1, unsigned 直接截断就好
     MuxCase(
-      dmem.io.rdata,
+      axiController.axi.readData.bits.data,
       Seq(
         (in.bits.inst(13, 12) === 0.U) -> imm_byte,
         (in.bits.inst(13, 12) === 1.U) -> imm_half
@@ -245,7 +251,7 @@ class LSU extends Module {
     ),
     // io.inst(14) == 0, signed 还需符号扩展
     MuxCase(
-      dmem.io.rdata,
+      axiController.axi.readData.bits.data,
       Seq(
         (in.bits.inst(13, 12) === 0.U) -> Cat(padding(24, imm_byte(7)), imm_byte),
         (in.bits.inst(13, 12) === 1.U) -> Cat(padding(16, imm_half(15)), imm_half)
@@ -253,6 +259,7 @@ class LSU extends Module {
     )
   )
 
+  // 输出
   out.bits.alures      := in.bits.alures
   out.bits.pc          := in.bits.pc
   out.bits.csrvalue    := in.bits.csrvalue
@@ -264,16 +271,19 @@ class LSU extends Module {
   out.bits.mepc  := in.bits.mepc
   out.bits.mtvec := in.bits.mtvec
 
-  // ready, valid 信号全部设置成1
+  // 以下全部都是控制信号的生成
+  val lsu_valid_reg = RegInit(0.U)
   in.ready  := in.valid
-  out.valid := lsu_valid_reg
+  out.valid := MuxCase(0.U, Seq(
+    (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
+    (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
+  ))
 
   when(in.valid) {
     lsu_valid_reg := 1.U
   }.elsewhen(out.valid && out.ready) {
     lsu_valid_reg := 0.U
   }
-
 }
 
 /** *******************WB***************************
@@ -369,13 +379,112 @@ class Datapath(memoryFile: String) extends Module {
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data           := wb.wb2ifu_out.bits.wb_data
   idu.regfileWriteEn := wb.wb2ifu_out.bits.regfileWriteEn
-  idu.csrsWriteEn    := wb.wb2ifu_out.bits.csrsWriteEn   
-  idu.mcauseWriteEn  := wb.wb2ifu_out.bits.mcauseWriteEn 
-  idu.mepcWriteEn    := wb.wb2ifu_out.bits.mepcWriteEn   
+  idu.csrsWriteEn    := wb.wb2ifu_out.bits.csrsWriteEn
+  idu.mcauseWriteEn  := wb.wb2ifu_out.bits.mcauseWriteEn
+  idu.mepcWriteEn    := wb.wb2ifu_out.bits.mepcWriteEn
 
   // datapath 的输出
   io.inst := ifu.if2id_out.bits.inst
   io.pc   := ifu.if2id_out.bits.pc
+}
+
+// By using Value, you're telling Scala to automatically assign ordinal values to these members.
+// By default, aIDLE will have the value 0, aWRITE will have the value 1,
+//   aREAD will have the value 2, and aACK will have the value 3.
+object SRAMState extends ChiselEnum {
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aACK = Value
+}
+
+class SRAM extends Module {
+  val in   = IO(AxiLiteSlave(width, width))
+  val dmem = Module(new Dmem(width))
+
+  // ready follows the ready
+  in.writeAddr.ready := in.writeAddr.valid
+  in.writeData.ready := in.writeData.valid
+  in.readAddr.ready  := in.readAddr.valid
+
+  import SRAMState._
+
+  // the data and data address are indepentdent of each other
+  //   the axi controller pass the data to SRAM when valid and ready are both asserted
+  //   the sram tries to write data into the rom
+  //   then set the state to ack state
+
+  val state = RegInit(aIDLE)
+
+  dmem.io.raddr := in.readAddr.bits.addr
+  dmem.io.waddr := in.writeAddr.bits.addr
+  dmem.io.wdata := in.writeData.bits.data
+  dmem.io.wmask := in.writeData.bits.strb
+  dmem.io.memRW := MuxCase(
+    0.U,
+    Seq(
+      (state === aREAD) -> 0.U,
+      (state === awriteDataAddr) -> 1.U
+    )
+  )
+  dmem.io.memEnable     := (state === aREAD) || (state === awriteDataAddr)
+  in.readData.bits.data := dmem.io.rdata
+
+  in.writeResp.valid    := false.B
+  in.readData.valid     := false.B
+  in.readData.bits.resp := 1.U
+  in.writeResp.bits     := 1.U
+
+  // using a state machine would elegantly represent
+  // the whole axi interface communicating process
+
+  switch(state) {
+    is(aIDLE) {
+      // received write data and address concurrently
+      when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
+        state := awriteDataAddr
+      }.elsewhen(in.writeData.ready && in.writeData.valid) {
+        state := awriteData
+      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
+        state := awriteAddr
+      }
+      when(in.readAddr.ready && in.readAddr.valid) {
+        state := aREAD
+      }
+    }
+    // only received write addr
+    is(awriteData) {
+      when(in.writeAddr.ready && in.writeAddr.valid) {
+        state := awriteDataAddr
+      }
+    }
+    // only received write data
+    is(awriteAddr) {
+      when(in.writeData.ready && in.writeData.valid) {
+        state := awriteDataAddr
+      }
+    }
+    // ready to write
+    is(awriteDataAddr) {
+      in.writeResp.valid := true.B
+      in.writeResp.bits  := 0.U
+      state              := aIDLE
+    }
+    // ready to read
+    is(aREAD) {
+      in.readData.valid     := 1.U
+      in.readData.bits.resp := 0.U
+      state                 := aIDLE
+    }
+    // finished write/read transaction
+  }
+}
+
+class MemIO(width: Int) extends Bundle {
+  val raddr     = Input(UInt(width.W))
+  val rdata     = Output(UInt(width.W))
+  val wdata     = Input(UInt(width.W))
+  val wmask     = Input(UInt(8.W))
+  val memEnable = Input(Bool())
+  val memRW     = Input(Bool())
+  val waddr     = Input(UInt(width.W))
 }
 
 class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {

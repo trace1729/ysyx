@@ -66,6 +66,7 @@ object AxiState extends ChiselEnum {
 
 class ExternalInput extends Bundle {
   val externalMemRW   = Flipped(Bool())
+  val externalMemEn   = Flipped(Bool())
   val externalValid   = Flipped(Bool())
   val externalData    = Flipped(UInt(32.W))
   val externalWmask   = Flipped(UInt(4.W))
@@ -84,6 +85,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   // 控制器的输入应该是可以通用化的
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(addrWidth, dataWidth))
+  val transactionEnded = IO(Output(Bool()))
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,
@@ -95,35 +97,50 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   import AxiState._
 
   // initial is idle state
-  val state   = RegInit(aIDLE)
-  val dataWen = (state === aWRITE)
-  val addrWen = (state === aWRITE)
-
-  // axi.writeData.bits.data := Re
+  val axiState   = RegInit(aIDLE)
   // in one way or the other, you will going to learn how to build a finite state machine
 
   axi.writeAddr.valid := 0.U
   axi.writeData.valid := 0.U
+  axi.readAddr.valid := 0.U
+  transactionEnded := false.B
 
-  switch(state) {
+  switch(axiState) {
     is(aIDLE) {
-      when(in.externalValid) {
-        state := Mux(in.externalMemRW, aWRITE, aREAD)
+      when(in.externalValid && in.externalMemEn) {
+        axiState := Mux(in.externalMemRW, aWRITE, aREAD)
+      }
+    }
+    is (aREAD) {
+      axi.readAddr.valid := 1.U
+      when (axi.readAddr.valid && axi.readAddr.ready) {
+        axiState := aACK
       }
     }
     is(aWRITE) {
       axi.writeAddr.valid := 1.U
       axi.writeData.valid := 1.U
-      when(axi.writeResp.valid && axi.writeResp.ready) {
-        state := aIDLE
+      when (axi.writeData.valid && axi.writeData.ready) {
+        axiState := aACK
+      }
+    }
+    is (aACK) {
+      transactionEnded := true.B
+      when (axi.readData.valid && axi.readData.ready) {
+        axiState := aIDLE
+      }
+      when (axi.writeResp.ready && axi.writeResp.valid) {
+        axiState := aIDLE
       }
     }
 
   }
+  axi.readData.ready := axi.readData.valid
   axi.writeResp.ready     := axi.writeResp.valid
   axi.writeData.bits.data := in.externalData
   axi.writeData.bits.strb := in.externalWmask
   axi.writeAddr.bits.addr := in.externalAddress
+  axi.readAddr.bits.addr := in.externalAddress
 
   // 逐渐领会到状态机的写法
 

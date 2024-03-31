@@ -15,16 +15,7 @@ class top(memoryFile: String = "") extends Module {
 
 
 
-class MemIO(width: Int) extends Bundle {
-  // val raddr = Input(UInt(width.W))
-  val addr      = Input(UInt(width.W))
-  val rdata     = Output(UInt(width.W))
-  val wdata     = Input(UInt(width.W))
-  val wmask     = Input(UInt(8.W))
-  val memEnable = Input(Bool())
-  val memRW     = Input(Bool())
-  // val waddr = Input(UInt(width.W))
-}
+
 
 //   val io = IO(new Bundle {
 //     val pc   = Output(UInt(width.W))

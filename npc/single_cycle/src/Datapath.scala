@@ -209,20 +209,24 @@ class MEMOutputIO(width: Int) extends Bundle {
 }
 
 class LSU extends Module {
-  val in   = IO(Flipped(Decoupled(new EXOutputIO)))
-  val out  = IO(Decoupled(new MEMOutputIO(width)))
-  val axiController  = Module(AxiController(width, width))
-  val sram = Module(new SRAM)
+  val in            = IO(Flipped(Decoupled(new EXOutputIO)))
+  val out           = IO(Decoupled(new MEMOutputIO(width)))
+  val axiController = Module(AxiController(width, width))
+  val sram          = Module(new SRAM)
 
   // 看看能不能在 dmem 上加一层 wrapper around, 这样不用修改代码，就可以完成 axi 总线的接入
   // hope we can do this!!
 
   // activate the axiController
   axiController.in.externalAddress := in.bits.alures
-  axiController.in.externalMemRW := in.bits.ctrlsignals.memRW
-  axiController.in.externalMemEn := in.bits.ctrlsignals.memEnable
-  axiController.in.externalData := in.bits.rs2
-  axiController.in.externalWmask := Mux(!in.bits.ctrlsignals.memRW, 0.U, wmaskGen(in.bits.inst(14, 12), in.bits.alures(1, 0)))
+  axiController.in.externalMemRW   := in.bits.ctrlsignals.memRW
+  axiController.in.externalMemEn   := in.bits.ctrlsignals.memEnable
+  axiController.in.externalData    := in.bits.rs2
+  axiController.in.externalWmask := Mux(
+    !in.bits.ctrlsignals.memRW,
+    0.U,
+    wmaskGen(in.bits.inst(14, 12), in.bits.alures(1, 0))
+  )
   axiController.in.externalValid := in.valid
 
   axiController.axi <> sram.in
@@ -389,12 +393,13 @@ object SRAMState extends ChiselEnum {
 }
 
 class SRAM extends Module {
-  val in  = IO(AxiLiteSlave(width, width))
+  val in   = IO(AxiLiteSlave(width, width))
   val dmem = Module(new Dmem(width))
 
   // ready follows the ready
   in.writeAddr.ready := in.writeAddr.valid
   in.writeData.ready := in.writeData.valid
+  in.readAddr.ready  := in.readAddr.valid
 
   import SRAMState._
 
@@ -409,14 +414,20 @@ class SRAM extends Module {
   dmem.io.waddr := in.writeAddr.bits.addr
   dmem.io.wdata := in.writeData.bits.data
   dmem.io.wmask := in.writeData.bits.strb
-  dmem.io.memRW := MuxCase(0.U, Seq(
-    (state === aREAD) -> 0.U,
-    (state === awriteDataAddr) -> 1.U
-  ))
-  dmem.io.memEnable := (state === aREAD) || (state === awriteDataAddr)
+  dmem.io.memRW := MuxCase(
+    0.U,
+    Seq(
+      (state === aREAD) -> 0.U,
+      (state === awriteDataAddr) -> 1.U
+    )
+  )
+  dmem.io.memEnable     := (state === aREAD) || (state === awriteDataAddr)
+  in.readData.bits.data := dmem.io.rdata
 
-  in.writeResp.valid := false.B
-  in.writeResp.bits  := 1.U
+  in.writeResp.valid    := false.B
+  in.readData.valid     := false.B
+  in.readData.bits.resp := 1.U
+  in.writeResp.bits     := 1.U
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
@@ -431,7 +442,7 @@ class SRAM extends Module {
       }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
         state := awriteAddr
       }
-      when (in.readAddr.ready && in.readAddr.valid) {
+      when(in.readAddr.ready && in.readAddr.valid) {
         state := aREAD
       }
     }
@@ -449,32 +460,31 @@ class SRAM extends Module {
     }
     // ready to write
     is(awriteDataAddr) {
-      state := aACK
-    }
-    // ready to read
-    is (aREAD) {
-      state := aACK
-    }
-    // finished write transaction
-    is(aACK) {
       in.writeResp.valid := true.B
       in.writeResp.bits  := 0.U
-      state              := aIDLE
+      state              := aACK
+    }
+    // ready to read
+    is(aREAD) {
+      in.readData.valid     := 1.U
+      in.readData.bits.resp := 0.U
+      state                 := aACK
+    }
+    // finished write/read transaction
+    is(aACK) {
+      state := aIDLE
     }
   }
 }
 
 class MemIO(width: Int) extends Bundle {
-  val raddr = Input(UInt(width.W))
-  // ** 
-  val addr      = Input(UInt(width.W))
-  // **
+  val raddr     = Input(UInt(width.W))
   val rdata     = Output(UInt(width.W))
   val wdata     = Input(UInt(width.W))
   val wmask     = Input(UInt(8.W))
   val memEnable = Input(Bool())
   val memRW     = Input(Bool())
-  val waddr = Input(UInt(width.W))
+  val waddr     = Input(UInt(width.W))
 }
 
 class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {

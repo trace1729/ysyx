@@ -97,14 +97,11 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
 
   // initial is idle state
   val state   = RegInit(aIDLE)
-  val dataWen = (state === aWRITE)
-  val addrWen = (state === aWRITE)
-
-  // axi.writeData.bits.data := Re
   // in one way or the other, you will going to learn how to build a finite state machine
 
   axi.writeAddr.valid := 0.U
   axi.writeData.valid := 0.U
+  axi.readAddr.valid := 0.U
 
   switch(state) {
     is(aIDLE) {
@@ -126,12 +123,16 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
       }
     }
     is (aACK) {
+      when (axi.readData.valid && axi.readData.ready) {
+        state := aIDLE
+      }
       when (axi.writeResp.ready && axi.writeResp.valid) {
         state := aIDLE
       }
     }
 
   }
+  axi.readData.ready := axi.readData.valid
   axi.writeResp.ready     := axi.writeResp.valid
   axi.writeData.bits.data := in.externalData
   axi.writeData.bits.strb := in.externalWmask

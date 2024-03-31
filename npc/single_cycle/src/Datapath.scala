@@ -14,21 +14,23 @@ class IFUOutputIO extends Bundle {
 }
 
 class IFU(memoryFile: String) extends Module {
-  val wb2if_in  = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2id_out = IO(Decoupled(new IFUOutputIO))
+  val wb2if_in      = IO(Flipped(Decoupled(new WBOutputIO)))
+  val if2id_out     = IO(Decoupled(new IFUOutputIO))
   val axiController = Module(AxiController(width, width))
   val sram          = Module(new SRAM)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
-  if2id_out.bits.pc   := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
+  if2id_out.bits.pc := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
-  
+
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
   axiController.in.externalMemEn   := (wb2if_in.valid && wb2if_in.ready)
+  axiController.in.externalValid   := wb2if_in.valid
   axiController.in.externalData    := DontCare
-  if2id_out.bits.inst := axiController.axi.readData.bits.data
+  axiController.in.externalWmask   := DontCare
+  if2id_out.bits.inst              := axiController.axi.readData.bits.data
 
   wb2if_in.ready := wb2if_in.valid
 
@@ -281,11 +283,14 @@ class LSU extends Module {
 
   // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)
-  in.ready  := in.valid
-  out.valid := MuxCase(0.U, Seq(
-    (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
-    (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
-  ))
+  in.ready := in.valid
+  out.valid := MuxCase(
+    0.U,
+    Seq(
+      (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
+      (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
+    )
+  )
 
   when(in.valid) {
     lsu_valid_reg := 1.U

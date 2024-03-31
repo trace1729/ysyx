@@ -272,10 +272,18 @@ class LSU extends Module {
   out.bits.mtvec := in.bits.mtvec
 
   // 以下全部都是控制信号的生成
-  import  AxiState._
+  val lsu_valid_reg = RegInit(0.U)
   in.ready  := in.valid
-  out.valid := axiController.transactionEnded
+  out.valid := MuxCase(0.U, Seq(
+    (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
+    (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
+  ))
 
+  when(in.valid) {
+    lsu_valid_reg := 1.U
+  }.elsewhen(out.valid && out.ready) {
+    lsu_valid_reg := 0.U
+  }
 }
 
 /** *******************WB***************************

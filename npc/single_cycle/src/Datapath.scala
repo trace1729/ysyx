@@ -27,7 +27,7 @@ class IFU(memoryFile: String) extends Module {
 
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
-  axiController.in.externalMemEn   := (wb2if_in.valid && wb2if_in.ready)
+  axiController.in.externalMemEn   := ifu_valid_reg || wb2if_in.valid
   axiController.in.externalValid   := ifu_valid_reg || wb2if_in.valid
   axiController.in.externalData    := DontCare
   axiController.in.externalWmask   := DontCare

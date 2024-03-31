@@ -85,7 +85,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   // 控制器的输入应该是可以通用化的
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(addrWidth, dataWidth))
-  val transactionEnded = Output(Bool())
+  val transactionEnded = IO(Output(Bool()))
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,

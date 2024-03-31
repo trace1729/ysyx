@@ -18,6 +18,7 @@ class IFU(memoryFile: String) extends Module {
   val if2id_out     = IO(Decoupled(new IFUOutputIO))
   val axiController = Module(AxiController(width, width))
   val sram          = Module(new SRAM)
+  val ifu_valid_reg = RegInit(1.U)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
   if2id_out.bits.pc := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
@@ -34,7 +35,6 @@ class IFU(memoryFile: String) extends Module {
 
   wb2if_in.ready := wb2if_in.valid
 
-  val ifu_valid_reg = RegInit(1.U)
 
   if2id_out.valid := ifu_valid_reg.asBool && axiController.transactionEnded
 

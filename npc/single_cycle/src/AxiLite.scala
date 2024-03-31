@@ -125,12 +125,11 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
       }
     }
     is (aACK) {
+      transactionEnded := true.B
       when (axi.readData.valid && axi.readData.ready) {
-        transactionEnded := 1.U
         axiState := aIDLE
       }
       when (axi.writeResp.ready && axi.writeResp.valid) {
-        transactionEnded := 1.U
         axiState := aIDLE
       }
     }

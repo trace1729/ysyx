@@ -13,6 +13,10 @@ class IFUOutputIO extends Bundle {
   val inst = Output(UInt(width.W))
 }
 
+object stageState extends ChiselEnum {
+  val sIDLE, s_waitReady = Value
+}
+
 class IFU(memoryFile: String) extends Module {
   val wb2if_in      = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2id_out     = IO(Decoupled(new IFUOutputIO))
@@ -27,10 +31,27 @@ class IFU(memoryFile: String) extends Module {
 
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
+  import stageState._
+  val ifu_state = RegInit(sIDLE)
 
+  switch (ifu_state) {
+    is(sIDLE) {
+      when(wb2if_in.valid) {
+        ifu_state := s_waitReady
+      }
+    }
+    is(s_waitReady) {
+      when(if2id_out.ready) {
+        ifu_state := sIDLE
+      }
+    }
+  }
+  
+
+  
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
-  axiController.in.externalMemEn   := RegNext(wb2if_in.valid, 0.U)
+  axiController.in.externalMemEn   := wb2if_in.valid
   axiController.in.externalValid   := wb2if_in.valid
   axiController.in.externalData    := DontCare
   axiController.in.externalWmask   := DontCare

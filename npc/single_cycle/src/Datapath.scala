@@ -16,23 +16,31 @@ class IFUOutputIO extends Bundle {
 class IFU(memoryFile: String) extends Module {
   val wb2if_in  = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2id_out = IO(Decoupled(new IFUOutputIO))
-  val instMem   = Module(new InstMem(memoryFile = memoryFile))
+  val axiController = Module(AxiController(width, width))
+  val sram          = Module(new SRAM)
+  // val instMem   = Module(new InstMem(memoryFile = memoryFile))
 
-  instMem.io.pc       := if2id_out.bits.pc
   if2id_out.bits.pc   := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
-  if2id_out.bits.inst := Cat(instMem.io.inst)
+  // if2id_out.bits.inst := Cat(instMem.io.inst)
+  // instMem.io.pc       := if2id_out.bits.pc
+  
+  axiController.in.externalAddress := if2id_out.bits.pc
+  axiController.in.externalMemRW   := 0.U
+  axiController.in.externalMemEn   := (wb2if_in.valid && wb2if_in.ready)
+  axiController.in.externalData    := DontCare
+  if2id_out.bits.inst := axiController.axi.readData.bits.data
 
   wb2if_in.ready := wb2if_in.valid
 
-  val ifu_valid_reg = RegInit(1.U)
+  // val ifu_valid_reg = RegInit(1.U)
 
-  if2id_out.valid := ifu_valid_reg
+  if2id_out.valid := axiController.transactionEnded
 
-  when(wb2if_in.valid) {
-    ifu_valid_reg := 1.U
-  }.elsewhen(if2id_out.ready && if2id_out.valid) {
-    ifu_valid_reg := 0.U
-  }
+  // when(wb2if_in.valid) {
+  //   ifu_valid_reg := 1.U
+  // }.elsewhen(if2id_out.ready && if2id_out.valid) {
+  //   ifu_valid_reg := 0.U
+  // }
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2id_out.ready
   next_inst.io.valid := if2id_out.valid
@@ -271,7 +279,7 @@ class LSU extends Module {
   out.bits.mepc  := in.bits.mepc
   out.bits.mtvec := in.bits.mtvec
 
-  // 以下全部都是控制信号的生成
+  // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)
   in.ready  := in.valid
   out.valid := MuxCase(0.U, Seq(

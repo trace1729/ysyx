@@ -20,7 +20,8 @@ class IFU(memoryFile: String) extends Module {
   val sram          = Module(new SRAM)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
-  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
+  val blockPc = RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
+  if2id_out.bits.pc := RegEnable(blockPc, 0.U, wb2if_in.valid)
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
 

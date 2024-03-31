@@ -85,6 +85,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   // 控制器的输入应该是可以通用化的
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(addrWidth, dataWidth))
+  val axiControllerState = IO(Output(AxiState.aIDLE))
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,
@@ -96,38 +97,39 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   import AxiState._
 
   // initial is idle state
-  val state   = RegInit(aIDLE)
+  val axiState   = RegInit(aIDLE)
+  axiControllerState := axiState
   // in one way or the other, you will going to learn how to build a finite state machine
 
   axi.writeAddr.valid := 0.U
   axi.writeData.valid := 0.U
   axi.readAddr.valid := 0.U
 
-  switch(state) {
+  switch(axiState) {
     is(aIDLE) {
       when(in.externalValid && in.externalMemEn) {
-        state := Mux(in.externalMemRW, aWRITE, aREAD)
+        axiState := Mux(in.externalMemRW, aWRITE, aREAD)
       }
     }
     is (aREAD) {
       axi.readAddr.valid := 1.U
       when (axi.readAddr.valid && axi.readAddr.ready) {
-        state := aACK
+        axiState := aACK
       }
     }
     is(aWRITE) {
       axi.writeAddr.valid := 1.U
       axi.writeData.valid := 1.U
       when (axi.writeData.valid && axi.writeData.ready) {
-        state := aACK
+        axiState := aACK
       }
     }
     is (aACK) {
       when (axi.readData.valid && axi.readData.ready) {
-        state := aIDLE
+        axiState := aIDLE
       }
       when (axi.writeResp.ready && axi.writeResp.valid) {
-        state := aIDLE
+        axiState := aIDLE
       }
     }
 

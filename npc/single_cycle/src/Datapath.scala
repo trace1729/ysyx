@@ -272,15 +272,10 @@ class LSU extends Module {
   out.bits.mtvec := in.bits.mtvec
 
   // 以下全部都是控制信号的生成
-  val lsu_valid_reg = RegInit(0.U)
+  import  AxiState._
   in.ready  := in.valid
-  out.valid := lsu_valid_reg
+  out.valid := (axiController.axiControllerState === aACK)
 
-  when(in.valid) {
-    lsu_valid_reg := 1.U
-  }.elsewhen(out.valid && out.ready) {
-    lsu_valid_reg := 0.U
-  }
 }
 
 /** *******************WB***************************
@@ -462,18 +457,15 @@ class SRAM extends Module {
     is(awriteDataAddr) {
       in.writeResp.valid := true.B
       in.writeResp.bits  := 0.U
-      state              := aACK
+      state              := aIDLE
     }
     // ready to read
     is(aREAD) {
       in.readData.valid     := 1.U
       in.readData.bits.resp := 0.U
-      state                 := aACK
+      state                 := aIDLE
     }
     // finished write/read transaction
-    is(aACK) {
-      state := aIDLE
-    }
   }
 }
 

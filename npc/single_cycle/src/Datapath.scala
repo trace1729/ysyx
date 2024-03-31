@@ -27,22 +27,23 @@ class IFU(memoryFile: String) extends Module {
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
   axiController.in.externalMemEn   := (wb2if_in.valid && wb2if_in.ready)
-  axiController.in.externalValid   := wb2if_in.valid
+  axiController.in.externalValid   := ifu_valid_reg.asBool || wb2if_in.valid
   axiController.in.externalData    := DontCare
   axiController.in.externalWmask   := DontCare
   if2id_out.bits.inst              := axiController.axi.readData.bits.data
 
   wb2if_in.ready := wb2if_in.valid
 
-  // val ifu_valid_reg = RegInit(1.U)
+  val ifu_valid_reg = RegInit(1.U)
 
-  if2id_out.valid := axiController.transactionEnded
+  if2id_out.valid := ifu_valid_reg.asBool && axiController.transactionEnded
 
-  // when(wb2if_in.valid) {
-  //   ifu_valid_reg := 1.U
-  // }.elsewhen(if2id_out.ready && if2id_out.valid) {
-  //   ifu_valid_reg := 0.U
-  // }
+  when(wb2if_in.valid) {
+    ifu_valid_reg := 1.U
+  }.elsewhen(if2id_out.ready && if2id_out.valid) {
+    ifu_valid_reg := 0.U
+  }
+
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2id_out.ready
   next_inst.io.valid := if2id_out.valid

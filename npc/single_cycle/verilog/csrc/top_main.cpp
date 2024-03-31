@@ -60,10 +60,9 @@ void sim_end() {
 
 static void dummy() {
   int num_i = 0;
-  for (int i = 0; i < 100; i++)
+  while(1)
   {
     Log("%d clock cycle", num_i++);
-    num_i++;
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
@@ -101,12 +100,12 @@ void verilator_exec_once(Decode* s) {
       top->clock = 0;
       top->eval();
       contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      // tfp->dump(contextp->time());
       // tick = 1
       top->clock = 1;
       top->eval();
       contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      // tfp->dump(contextp->time());
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;

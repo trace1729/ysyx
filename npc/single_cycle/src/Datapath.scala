@@ -13,28 +13,60 @@ class IFUOutputIO extends Bundle {
   val inst = Output(UInt(width.W))
 }
 
+object stageState extends ChiselEnum {
+  val sIDLE, s_waitReady = Value
+}
+
 class IFU(memoryFile: String) extends Module {
-  val wb2if_in  = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2id_out = IO(Decoupled(new IFUOutputIO))
-  val instMem   = Module(new InstMem(memoryFile = memoryFile))
+  val wb2if_in      = IO(Flipped(Decoupled(new WBOutputIO)))
+  val if2id_out     = IO(Decoupled(new IFUOutputIO))
+  val axiController = Module(AxiController(width, width))
+  val sram          = Module(new SRAM)
+  // val instMem   = Module(new InstMem(memoryFile = memoryFile))
+  sram.in <> axiController.axi
 
-  instMem.io.pc       := if2id_out.bits.pc
-  if2id_out.bits.pc   := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
-  if2id_out.bits.inst := Cat(instMem.io.inst)
+  import stageState._
+  val ifu_state = RegInit(sIDLE)
 
-  wb2if_in.ready := wb2if_in.valid
+  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
 
-  val ifu_valid_reg = RegInit(1.U)
+  // if2id_out.bits.inst := Cat(instMem.io.inst)
+  // instMem.io.pc       := if2id_out.bits.pc
 
-  if2id_out.valid := ifu_valid_reg
+  // after fetching pc, we may want to latch the pc value until
+  // the instruction is ready to be sent to the next stage
 
-  when(wb2if_in.valid) {
-    ifu_valid_reg := 1.U
-  }.elsewhen(if2id_out.ready && if2id_out.valid) {
-    ifu_valid_reg := 0.U
+  wb2if_in.ready                 := 0.U
+  axiController.in.externalMemEn := 0.U
+  axiController.in.externalValid := 0.U
+
+  switch(ifu_state) {
+    is(sIDLE) {
+      when(wb2if_in.valid) {
+        wb2if_in.ready := 1.U
+        ifu_state      := s_waitReady
+      }
+    }
+    is(s_waitReady) {
+      axiController.in.externalMemEn := 1.U
+      axiController.in.externalValid := 1.U
+
+      when(axiController.transactionEnded) {
+        ifu_state := sIDLE
+      }
+    }
   }
+
+  axiController.in.externalAddress := if2id_out.bits.pc
+  axiController.in.externalMemRW   := 0.U
+  axiController.in.externalData    := DontCare
+  axiController.in.externalWmask   := DontCare
+  if2id_out.bits.inst              := axiController.axi.readData.bits.data
+
+  if2id_out.valid := axiController.transactionEnded
+
   val next_inst = Module(new Next_inst)
-  next_inst.io.ready := if2id_out.ready
+  next_inst.io.ready := if2id_out.ready && (if2id_out.bits.pc =/= config.startPC.U)
   next_inst.io.valid := if2id_out.valid
 }
 
@@ -271,13 +303,16 @@ class LSU extends Module {
   out.bits.mepc  := in.bits.mepc
   out.bits.mtvec := in.bits.mtvec
 
-  // 以下全部都是控制信号的生成
+  // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)
-  in.ready  := in.valid
-  out.valid := MuxCase(0.U, Seq(
-    (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
-    (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
-  ))
+  in.ready := in.valid
+  out.valid := MuxCase(
+    0.U,
+    Seq(
+      (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
+      (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
+    )
+  )
 
   when(in.valid) {
     lsu_valid_reg := 1.U
@@ -305,7 +340,7 @@ class WB extends Module {
   val wb2ifu_out = IO(Decoupled(new WBOutputIO))
 
   val wb_data_reg   = RegNext(wb2ifu_out.bits.wb_data, 0.U)
-  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, 0.U)
+  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, config.startPC.U)
 
   wb2ifu_out.bits.wb_data   := wb_data_reg
   wb2ifu_out.bits.wb_nextpc := wb_nextpc_reg
@@ -337,7 +372,7 @@ class WB extends Module {
   itrace.io.nextpc := wb_nextpc_reg
 
   lsu2wb_in.ready := lsu2wb_in.valid
-  val wb_valid = RegInit(0.U)
+  val wb_valid = RegInit(1.U)
   wb2ifu_out.valid := wb_valid
 
   when(lsu2wb_in.valid) {

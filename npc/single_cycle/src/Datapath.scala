@@ -274,7 +274,7 @@ class LSU extends Module {
   // 以下全部都是控制信号的生成
   import  AxiState._
   in.ready  := in.valid
-  out.valid := (axiController.axiControllerState === aACK.asTypeOf(UInt(4.W)))
+  out.valid := axiController.transactionEnded
 
 }
 

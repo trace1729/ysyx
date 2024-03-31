@@ -85,7 +85,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   // 控制器的输入应该是可以通用化的
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(addrWidth, dataWidth))
-  val axiControllerState = IO(Output(UInt(4.W)))
+  val transactionEnded = Output(Bool())
 
   // external data is stored in these two registers
   // when axiMaster.axi.valid and ready is both asserted,
@@ -98,12 +98,12 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
 
   // initial is idle state
   val axiState   = RegInit(aIDLE)
-  axiControllerState := axiState
   // in one way or the other, you will going to learn how to build a finite state machine
 
   axi.writeAddr.valid := 0.U
   axi.writeData.valid := 0.U
   axi.readAddr.valid := 0.U
+  transactionEnded := false.B
 
   switch(axiState) {
     is(aIDLE) {
@@ -126,9 +126,11 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
     }
     is (aACK) {
       when (axi.readData.valid && axi.readData.ready) {
+        transactionEnded := 1.U
         axiState := aIDLE
       }
       when (axi.writeResp.ready && axi.writeResp.valid) {
+        transactionEnded := 1.U
         axiState := aIDLE
       }
     }

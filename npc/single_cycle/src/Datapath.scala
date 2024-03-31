@@ -27,7 +27,7 @@ class IFU(memoryFile: String) extends Module {
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
-  val updatePC = (ifu_state === sIDLE) && wb2if_in.valid
+  val updatePC  = (ifu_state === sIDLE) && wb2if_in.valid
   if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, updatePC)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
@@ -36,24 +36,26 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-
-  switch (ifu_state) {
-    is (sIDLE) {
-      when (wb2if_in.valid) {
+  wb2if_in.ready                 := 0.U
+  axiController.in.externalMemEn := 0.U
+  axiController.in.externalValid := 0.U
+  switch(ifu_state) {
+    is(sIDLE) {
+      when(wb2if_in.valid) {
         wb2if_in.ready := 1.U
-        ifu_state := s_waitReady
+        ifu_state      := s_waitReady
       }
     }
-    is (s_waitReady) {
-      axiController.in.externalMemEn   := 1.U
-      axiController.in.externalValid   := 1.U
+    is(s_waitReady) {
+      axiController.in.externalMemEn := 1.U
+      axiController.in.externalValid := 1.U
 
-      when (axiController.transactionEnded) {
+      when(axiController.transactionEnded) {
         ifu_state := sIDLE
       }
     }
   }
-  
+
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
   axiController.in.externalData    := DontCare
@@ -61,7 +63,6 @@ class IFU(memoryFile: String) extends Module {
   if2id_out.bits.inst              := axiController.axi.readData.bits.data
 
   if2id_out.valid := axiController.transactionEnded
-
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2id_out.ready

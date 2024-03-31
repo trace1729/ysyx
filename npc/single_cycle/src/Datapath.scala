@@ -66,8 +66,8 @@ class IFU(memoryFile: String) extends Module {
   if2id_out.valid := axiController.transactionEnded
 
   val next_inst = Module(new Next_inst)
-  next_inst.io.ready := wb2if_in.ready
-  next_inst.io.valid := wb2if_in.valid
+  next_inst.io.ready := if2id_out.ready
+  next_inst.io.valid := if2id_out.valid
 }
 
 /** *******************IDU***************************

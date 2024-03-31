@@ -45,7 +45,6 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is (s_waitReady) {
-      updatePC := false.B
       axiController.in.externalMemEn   := 1.U
       axiController.in.externalValid   := 1.U
 

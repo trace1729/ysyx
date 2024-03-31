@@ -27,8 +27,8 @@ class IFU(memoryFile: String) extends Module {
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
-  val updatePC  = (ifu_state === sIDLE) && wb2if_in.valid
-  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, updatePC)
+
+  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
@@ -340,7 +340,7 @@ class WB extends Module {
   val wb2ifu_out = IO(Decoupled(new WBOutputIO))
 
   val wb_data_reg   = RegNext(wb2ifu_out.bits.wb_data, 0.U)
-  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, 0.U)
+  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, config.startPC.U)
 
   wb2ifu_out.bits.wb_data   := wb_data_reg
   wb2ifu_out.bits.wb_nextpc := wb_nextpc_reg

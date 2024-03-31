@@ -34,7 +34,9 @@ class IFU(memoryFile: String) extends Module {
   // the instruction is ready to be sent to the next stage
   import stageState._
   val ifu_state = RegInit(sIDLE)
-  val updatePC = (ifu_state === sIDLE) && wb2if_in.valid
+
+  val updatePC = Wire(Bool())
+  updatePC := (ifu_state === sIDLE) && wb2if_in.valid
 
   switch (ifu_state) {
     is (sIDLE) {

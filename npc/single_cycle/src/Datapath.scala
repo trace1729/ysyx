@@ -24,8 +24,9 @@ class IFU(memoryFile: String) extends Module {
   val sram          = Module(new SRAM)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
-  val blockPc = RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
-  if2id_out.bits.pc := RegEnable(blockPc, 0.U, wb2if_in.valid)
+
+  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, updatePC)
+
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
 
@@ -33,17 +34,32 @@ class IFU(memoryFile: String) extends Module {
   // the instruction is ready to be sent to the next stage
   import stageState._
   val ifu_state = RegInit(sIDLE)
+  val updatePC = false.B
 
+  switch (ifu_state) {
+    is (sIDLE) {
+      when (wb2if_in.valid) {
+        wb2if_in.ready := 1.U
+        updatePC := true.B
+        ifu_state := s_waitReady
+      }
+    }
+    is (s_waitReady) {
+      updatePC := false.B
+      axiController.in.externalMemEn   := 1.U
+      axiController.in.externalValid   := 1.U
+
+      when (axiController.transactionEnded) {
+        ifu_state := sIDLE
+      }
+    }
+  }
   
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
-  axiController.in.externalMemEn   := wb2if_in.valid
-  axiController.in.externalValid   := wb2if_in.valid
   axiController.in.externalData    := DontCare
   axiController.in.externalWmask   := DontCare
   if2id_out.bits.inst              := axiController.axi.readData.bits.data
-
-  wb2if_in.ready := wb2if_in.valid
 
   if2id_out.valid := axiController.transactionEnded
 

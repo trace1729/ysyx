@@ -25,6 +25,9 @@ class IFU(memoryFile: String) extends Module {
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
 
+  import stageState._
+  val ifu_state = RegInit(sIDLE)
+  val updatePC = (ifu_state === sIDLE) && wb2if_in.valid
   if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, updatePC)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
@@ -32,11 +35,7 @@ class IFU(memoryFile: String) extends Module {
 
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
-  import stageState._
-  val ifu_state = RegInit(sIDLE)
 
-  val updatePC = Wire(Bool())
-  updatePC := (ifu_state === sIDLE) && wb2if_in.valid
 
   switch (ifu_state) {
     is (sIDLE) {

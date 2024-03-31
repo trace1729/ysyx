@@ -34,20 +34,6 @@ class IFU(memoryFile: String) extends Module {
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
-  switch (ifu_state) {
-    is(sIDLE) {
-      when(wb2if_in.valid) {
-        ifu_state := s_waitReady
-      }
-    }
-    is(s_waitReady) {
-      when(if2id_out.ready) {
-        ifu_state := sIDLE
-      }
-    }
-  }
-  
-
   
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U

@@ -63,7 +63,6 @@ static void dummy() {
   for (int i = 0; i < 7; i++)
   {
     Log("%d clock cycle", num_i++);
-    num_i++;
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);

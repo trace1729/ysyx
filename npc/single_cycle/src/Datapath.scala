@@ -39,6 +39,7 @@ class IFU(memoryFile: String) extends Module {
   wb2if_in.ready                 := 0.U
   axiController.in.externalMemEn := 0.U
   axiController.in.externalValid := 0.U
+
   switch(ifu_state) {
     is(sIDLE) {
       when(wb2if_in.valid) {

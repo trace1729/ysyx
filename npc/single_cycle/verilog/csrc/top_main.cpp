@@ -60,7 +60,7 @@ void sim_end() {
 
 static void dummy() {
   int num_i = 0;
-  for (int i = 0; i < 13; i++)
+  for (int i = 0; i < 7; i++)
   {
     Log("%d clock cycle", num_i++);
     num_i++;

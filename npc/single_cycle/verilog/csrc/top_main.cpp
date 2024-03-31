@@ -107,7 +107,6 @@ void verilator_exec_once(Decode* s) {
       contextp->timeInc(1);
       tfp->dump(contextp->time());
     }  
-    printf("pc: %x\n", s->pc);
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
     s->snpc = s->pc + 4;

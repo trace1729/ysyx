@@ -18,7 +18,7 @@ class IFU(memoryFile: String) extends Module {
   val if2id_out     = IO(Decoupled(new IFUOutputIO))
   val axiController = Module(AxiController(width, width))
   val sram          = Module(new SRAM)
-  val ifu_valid_reg = RegInit(1.U)
+  val ifu_valid_reg = RegInit(true.B)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))
   sram.in <> axiController.axi
   if2id_out.bits.pc := RegNext(wb2if_in.bits.wb_nextpc, config.startPC.U)
@@ -28,7 +28,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.in.externalAddress := if2id_out.bits.pc
   axiController.in.externalMemRW   := 0.U
   axiController.in.externalMemEn   := (wb2if_in.valid && wb2if_in.ready)
-  axiController.in.externalValid   := ifu_valid_reg.asBool || wb2if_in.valid
+  axiController.in.externalValid   := ifu_valid_reg || wb2if_in.valid
   axiController.in.externalData    := DontCare
   axiController.in.externalWmask   := DontCare
   if2id_out.bits.inst              := axiController.axi.readData.bits.data
@@ -36,12 +36,12 @@ class IFU(memoryFile: String) extends Module {
   wb2if_in.ready := wb2if_in.valid
 
 
-  if2id_out.valid := ifu_valid_reg.asBool && axiController.transactionEnded
+  if2id_out.valid := ifu_valid_reg && axiController.transactionEnded
 
   when(wb2if_in.valid) {
-    ifu_valid_reg := 1.U
+    ifu_valid_reg := true.B
   }.elsewhen(if2id_out.ready && if2id_out.valid) {
-    ifu_valid_reg := 0.U
+    ifu_valid_reg := false.B
   }
 
   val next_inst = Module(new Next_inst)

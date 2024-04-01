@@ -25,6 +25,8 @@ object stageState extends ChiselEnum {
 class IFU(memoryFile: String) extends Module {
   val wb2if_in      = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2id_out     = IO(Decoupled(new IFUOutputIO))
+  // val axi = IO(AxiLiteMaster(width, width))
+   
   val axiController = Module(AxiController(width, width))
   val sram          = Module(new SRAM)
   // val instMem   = Module(new InstMem(memoryFile = memoryFile))

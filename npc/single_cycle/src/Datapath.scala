@@ -22,6 +22,10 @@ class Datapath(memoryFile: String) extends Module {
   val mem = Module(new LSU)
   val wb  = Module(new WB)
 
+  // val axiController = Module(AxiController(width, width))
+  // val sram = Module(new SRAM)
+  
+
   ifu.if2id_out <> idu.if2id_in
   idu.id2ex_out <> ex.id2ex_in
   ex.ex2mem_out <> mem.in

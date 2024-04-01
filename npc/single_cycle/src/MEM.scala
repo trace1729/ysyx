@@ -9,6 +9,8 @@ import cpu.utils._
 class LSU extends Module {
   val in            = IO(Flipped(Decoupled(new EXOutputIO)))
   val out           = IO(Decoupled(new MEMOutputIO(width)))
+  // val axi = IO(AxiLiteMaster(width, width))
+
   val axiController = Module(AxiController(width, width))
   val sram          = Module(new SRAM)
 

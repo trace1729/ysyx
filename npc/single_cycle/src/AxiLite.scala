@@ -82,6 +82,7 @@ object AxiController {
 }
 
 class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
+  // 那这样的话就必须重构 AxiController 了
   // 控制器的输入应该是可以通用化的
   val in  = IO(ExternalInput())
   val axi = IO(AxiLiteMaster(addrWidth, dataWidth))

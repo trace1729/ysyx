@@ -519,12 +519,12 @@ class SRAM extends Module {
       }
     }
     is (aReadACK) {
-      when (timer === 0.U) {
-        in.readData.valid     := 1.U
-        in.readData.bits.resp := 0.U
+      // when (timer === 0.U) {
+      //   in.readData.valid     := 1.U
+      //   in.readData.bits.resp := 0.U
         state := aIDLE
       }
-    }
+    // }
   }
 }
 

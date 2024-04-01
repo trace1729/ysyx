@@ -447,6 +447,11 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
+  // val lsfr = Module(new LSFR(4))
+  // 如何拿到 lsfr 的数据，让他在 sram 读取期间保存这个延迟不改变呢
+
+  val timer = RegInit(0.U(32.W))
+  timer := Mux(timer === 10.U, 0.U, RegNext(timer + 1.U))
 
   dmem.io.raddr := in.readAddr.bits.addr
   dmem.io.waddr := in.writeAddr.bits.addr
@@ -498,9 +503,11 @@ class SRAM extends Module {
     }
     // ready to write
     is(awriteDataAddr) {
-      in.writeResp.valid := true.B
-      in.writeResp.bits  := 0.U
-      state              := aIDLE
+      when (timer === 0.U) {
+        in.writeResp.valid := true.B
+        in.writeResp.bits  := 0.U
+        state              := aIDLE
+      }
     }
     // ready to read
     is(aREAD) {

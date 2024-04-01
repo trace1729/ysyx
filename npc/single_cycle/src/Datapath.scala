@@ -503,11 +503,11 @@ class SRAM extends Module {
     }
     // ready to write
     is(awriteDataAddr) {
-      when (timer === 0.U) {
+      // when (timer === 0.U) {
         in.writeResp.valid := true.B
         in.writeResp.bits  := 0.U
         state              := aIDLE
-      }
+      // }
     }
     // ready to read
     is(aREAD) {

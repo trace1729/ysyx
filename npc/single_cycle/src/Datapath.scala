@@ -465,7 +465,7 @@ class SRAM extends Module {
     )
   )
   dmem.io.memEnable     := (state === aREAD) || (state === awriteDataAddr)
-  in.readData.bits.data := dmem.io.rdata
+  in.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
 
   in.writeResp.valid    := false.B
   in.readData.valid     := false.B

@@ -26,3 +26,30 @@ object utils {
     )
   )
 }
+
+class LSFR(val len: Int) extends Module {
+  val out = IO(Output(UInt(len.W)))
+  
+
+  val taps  = Seq.fill(len)(RegInit(0.U(1.W)))
+  val const = Seq(1.U, 0.U, 1.U, 1.U, 1.U, 0.U, 0.U, 0.U)
+  // 7 -> 6 - > 5 ... 
+
+  taps.tail.zip(taps).foreach {
+    case (a, b) => b := a
+  }
+
+  // 每次都更新最高位
+  when(taps.reduce(_ + _) =/= 0.U) {
+    taps(len - 1) := taps
+      .zip(const)
+      .map {
+        case (a, b) => a * b
+      }
+      .reduce(_ ^ _)
+  }.elsewhen(taps.reduce(_ + _) === 0.U) {
+    taps(0) := 1.U
+  }
+
+  out  := Cat(taps.reverse)
+}

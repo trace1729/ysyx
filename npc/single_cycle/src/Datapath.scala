@@ -427,7 +427,7 @@ class Datapath(memoryFile: String) extends Module {
 // By default, aIDLE will have the value 0, aWRITE will have the value 1,
 //   aREAD will have the value 2, and aACK will have the value 3.
 object SRAMState extends ChiselEnum {
-  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aACK = Value
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK = Value
 }
 
 class SRAM extends Module {
@@ -501,21 +501,30 @@ class SRAM extends Module {
         state := awriteDataAddr
       }
     }
+    // 假设在 一周期内完成读写，然后在 ack 阶段阻塞数据
     // ready to write
     is(awriteDataAddr) {
+      state              := aWriteACK
+    }
+    // ready to read
+    is(aREAD) {
+      state                 := aReadACK
+    }
+    // finished write/read transaction
+    is (aWriteACK) {
       when (timer === 0.U) {
         in.writeResp.valid := true.B
         in.writeResp.bits  := 0.U
         state              := aIDLE
       }
     }
-    // ready to read
-    is(aREAD) {
-      in.readData.valid     := 1.U
-      in.readData.bits.resp := 0.U
-      state                 := aIDLE
+    is (aReadACK) {
+      when (timer === 0.U) {
+        in.readData.valid     := 1.U
+        in.readData.bits.resp := 0.U
+        state := aIDLE
+      }
     }
-    // finished write/read transaction
   }
 }
 

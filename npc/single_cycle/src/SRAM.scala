@@ -30,9 +30,9 @@ class SRAM extends Module {
     ifuIn.readAddr.ready  := ifuIn.readAddr.valid
     lsuIn                 := DontCare
   }.otherwise {
-    lsuIn.writeAddr.ready := ifuIn.writeAddr.valid
-    lsuIn.writeData.ready := ifuIn.writeData.valid
-    lsuIn.readAddr.ready  := ifuIn.readAddr.valid
+    lsuIn.writeAddr.ready := lsuIn.writeAddr.valid
+    lsuIn.writeData.ready := lsuIn.writeData.valid
+    lsuIn.readAddr.ready  := lsuIn.readAddr.valid
     ifuIn                 := DontCare
   }
 

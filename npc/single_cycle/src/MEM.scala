@@ -35,10 +35,11 @@ class LSU extends Module {
   import stageState._
   val lsu_state = RegInit(sIDLE)
 
+  in.ready := in.valid
+
   switch(lsu_state) {
     is(sIDLE) {
-      when(in.valid) {
-        in.ready  := 1.U
+      when(in.valid && in.bits.ctrlsignals.memEnable) {
         lsu_state := s_waitReady
       }
     }

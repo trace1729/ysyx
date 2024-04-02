@@ -133,6 +133,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
     }
 
   }
+
   axi.readData.ready := axi.readData.valid
   axi.writeResp.ready     := axi.writeResp.valid
   axi.writeData.bits.data := in.externalData

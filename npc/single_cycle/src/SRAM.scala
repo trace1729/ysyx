@@ -101,14 +101,18 @@ class SRAM extends Module {
       // when (timer === 0.U) {
         in.writeResp.valid := true.B
         in.writeResp.bits  := 0.U
-        state              := aIDLE
+        when (in.writeResp.ready && in.writeResp.valid) {
+          state := aIDLE
+        }
       // }
     }
     is (aReadACK) {
       // when (timer === 0.U) {
         in.readData.valid     := 1.U
         in.readData.bits.resp := 0.U
-        state := aIDLE
+        when (in.readData.ready && in.readData.valid) {
+          state := aIDLE
+        }
       // }
     }
   }

@@ -64,7 +64,12 @@ class SRAM extends Module {
   )
   dmem.io.memEnable := (state === aREAD) || (state === awriteDataAddr)
 
-  Mux(ifu_enable, ifuIn.readData.bits.data, lsuIn.readData.bits.data) := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+
+  when (ifu_enable) {
+    ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+  }.otherwise{
+    lsuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+  }
 
   when(ifu_enable) {
     ifuIn.writeResp.valid    := false.B

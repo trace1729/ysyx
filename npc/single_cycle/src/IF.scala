@@ -47,6 +47,8 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeAddr      := DontCare
   axiController.stageInput.writeData      := DontCare
   axiController.stageInput.writeResp      := DontCare
+  
+  ifu_enable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {

@@ -17,7 +17,6 @@ object SRAMState extends ChiselEnum {
 }
 
 class SRAM extends Module {
-  val in         = IO(Flipped(AxiLiteMaster(width, width)))
   val ifu_enable = IO(Input(Bool()))
   val ifuIn      = IO(Flipped(AxiLiteMaster(width, width)))
   val lsuIn      = IO(Flipped(AxiLiteMaster(width, width)))

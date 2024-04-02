@@ -30,6 +30,7 @@ class LSU extends Module {
 
   // valid 跟随 ready
   axiController.stageInput.writeResp.ready := axiController.stageInput.writeResp.valid
+  axiController.stageInput.readData.ready  := axiController.stageInput.readData.valid
 
   import stageState._
   val lsu_state = RegInit(sIDLE)

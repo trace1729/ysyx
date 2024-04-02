@@ -66,7 +66,7 @@ class SRAM extends Module {
   ifuIn.readData.bits.data := 0.U
   lsuIn.readData.bits.data := 0.U
 
-  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable & ifu_enable)
   lsuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
 
   when(ifu_enable) {

@@ -25,8 +25,8 @@ class LSU extends Module {
     wmaskGen(in.bits.inst(14, 12), in.bits.alures(1, 0))
   )
 
-  axiController.stageInput.writeAddr.bits := in.bits.alures
-  axiController.stageInput.readAddr.bits  := in.bits.alures
+  axiController.stageInput.writeAddr.bits.addr := in.bits.alures
+  axiController.stageInput.readAddr.bits.addr  := in.bits.alures
 
   // valid 跟随 ready
   axiController.stageInput.writeResp.ready := axiController.stageInput.writeResp.valid

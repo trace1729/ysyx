@@ -58,7 +58,7 @@ class IFU(memoryFile: String) extends Module {
       axiController.in.externalMemEn := 1.U
       axiController.in.externalValid := 1.U
 
-      when(axiController.transactionEnded) {
+      when(axiController.axi.readData.valid && axiController.axi.readData.ready) {
         ifu_state := sIDLE
       }
     }
@@ -70,7 +70,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.in.externalWmask   := DontCare
   if2id_out.bits.inst              := axiController.axi.readData.bits.data
 
-  if2id_out.valid := axiController.transactionEnded
+  if2id_out.valid := axiController.axi.readData.valid && axiController.axi.readData.ready
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2id_out.ready && (if2id_out.bits.pc =/= config.startPC.U)

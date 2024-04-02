@@ -17,13 +17,24 @@ object SRAMState extends ChiselEnum {
 }
 
 class SRAM extends Module {
-  val in   = IO(AxiLiteSlave(width, width))
-  val dmem = Module(new Dmem(width))
+  val ifu_enable = IO(Input(Bool()))
+  val ifuIn      = IO(Flipped(AxiLiteMaster(width, width)))
+  val lsuIn      = IO(Flipped(AxiLiteMaster(width, width)))
+  val dmem       = Module(new Dmem(width))
 
-  // ready follows the ready
-  in.writeAddr.ready := in.writeAddr.valid
-  in.writeData.ready := in.writeData.valid
-  in.readAddr.ready  := in.readAddr.valid
+  // ready follows valid
+
+  when(ifu_enable) {
+    ifuIn.writeAddr.ready := ifuIn.writeAddr.valid
+    ifuIn.writeData.ready := ifuIn.writeData.valid
+    ifuIn.readAddr.ready  := ifuIn.readAddr.valid
+    lsuIn                 := DontCare
+  }.otherwise {
+    lsuIn.writeAddr.ready := lsuIn.writeAddr.valid
+    lsuIn.writeData.ready := lsuIn.writeData.valid
+    lsuIn.readAddr.ready  := lsuIn.readAddr.valid
+    ifuIn                 := DontCare
+  }
 
   import SRAMState._
 
@@ -33,16 +44,16 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
-  
+
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。
   // TODO 为 valid / ready 信号设置一个随机延迟
   // val timer = RegInit(0.U(32.W))
   // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
-  dmem.io.raddr := in.readAddr.bits.addr
-  dmem.io.waddr := in.writeAddr.bits.addr
-  dmem.io.wdata := in.writeData.bits.data
-  dmem.io.wmask := in.writeData.bits.strb
+  dmem.io.raddr := Mux(ifu_enable, ifuIn.readAddr.bits.addr, lsuIn.readAddr.bits.addr)
+  dmem.io.waddr := Mux(ifu_enable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
+  dmem.io.wdata := Mux(ifu_enable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
+  dmem.io.wmask := Mux(ifu_enable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
   dmem.io.memRW := MuxCase(
     0.U,
     Seq(
@@ -50,13 +61,27 @@ class SRAM extends Module {
       (state === awriteDataAddr) -> 1.U
     )
   )
-  dmem.io.memEnable     := (state === aREAD) || (state === awriteDataAddr)
-  in.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+  dmem.io.memEnable := (state === aREAD) || (state === awriteDataAddr)
 
-  in.writeResp.valid    := false.B
-  in.readData.valid     := false.B
-  in.readData.bits.resp := 1.U
-  in.writeResp.bits     := 1.U
+  ifuIn.readData.bits.data := 0.U
+  lsuIn.readData.bits.data := 0.U
+
+  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable & ifu_enable)
+  lsuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
+
+  when(ifu_enable) {
+    ifuIn.writeResp.valid    := false.B
+    ifuIn.readData.valid     := false.B
+    ifuIn.readData.bits.resp := 1.U
+    ifuIn.writeResp.bits     := 1.U
+    lsuIn                    := DontCare
+  }.otherwise {
+    lsuIn.writeResp.valid    := false.B
+    lsuIn.readData.valid     := false.B
+    lsuIn.readData.bits.resp := 1.U
+    lsuIn.writeResp.bits     := 1.U
+    ifuIn                    := DontCare
+  }
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
@@ -64,55 +89,69 @@ class SRAM extends Module {
   switch(state) {
     is(aIDLE) {
       // received write data and address concurrently
-      when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
-        state := awriteDataAddr
-      }.elsewhen(in.writeData.ready && in.writeData.valid) {
-        state := awriteData
-      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
-        state := awriteAddr
-      }
-      when(in.readAddr.ready && in.readAddr.valid) {
-        state := aREAD
+      when(ifu_enable) {
+        when(ifuIn.readAddr.ready && ifuIn.readAddr.valid) {
+          state := aREAD
+        }
+      }.otherwise {
+        when(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid && lsuIn.writeData.valid && lsuIn.writeData.ready) {
+          state := awriteDataAddr
+        }.elsewhen(lsuIn.writeData.ready && lsuIn.writeData.valid) {
+          state := awriteData
+        }.elsewhen(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid) {
+          state := awriteAddr
+        }
+        when(lsuIn.readAddr.ready && lsuIn.readAddr.valid) {
+          state := aREAD
+        }
       }
     }
     // only received write addr
     is(awriteData) {
-      when(in.writeAddr.ready && in.writeAddr.valid) {
+      when(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid) {
         state := awriteDataAddr
       }
     }
     // only received write data
     is(awriteAddr) {
-      when(in.writeData.ready && in.writeData.valid) {
+      when(lsuIn.writeData.ready && lsuIn.writeData.valid) {
         state := awriteDataAddr
       }
     }
     // 假设在 一周期内完成读写，然后在 ack 阶段阻塞数据
     // ready to write
     is(awriteDataAddr) {
-      state              := aWriteACK
+      state := aWriteACK
     }
     // ready to read
     is(aREAD) {
-      state                 := aReadACK
+      state := aReadACK
     }
     // finished write/read transaction
-    is (aWriteACK) {
+    is(aWriteACK) {
       // when (timer === 0.U) {
-        in.writeResp.valid := true.B
-        in.writeResp.bits  := 0.U
-        when (in.writeResp.ready && in.writeResp.valid) {
-          state := aIDLE
-        }
+      lsuIn.writeResp.valid := true.B
+      lsuIn.writeResp.bits  := 0.U
+      when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
+        state := aIDLE
+      }
       // }
     }
-    is (aReadACK) {
+    is(aReadACK) {
       // when (timer === 0.U) {
-        in.readData.valid     := 1.U
-        in.readData.bits.resp := 0.U
-        when (in.readData.ready && in.readData.valid) {
+      when(ifu_enable) {
+        ifuIn.readData.valid     := 1.U
+        ifuIn.readData.bits.resp := 0.U
+        when(ifuIn.readData.ready && ifuIn.readData.valid) {
           state := aIDLE
         }
+      }.otherwise {
+        lsuIn.readData.valid     := 1.U
+        lsuIn.readData.bits.resp := 0.U
+        when(lsuIn.readData.ready && lsuIn.readData.valid) {
+          state := aIDLE
+        }
+      }
       // }
     }
   }
@@ -132,4 +171,3 @@ class Dmem(val width: Int) extends BlackBox with HasBlackBoxResource {
   val io = IO(new MemIO(width))
   addResource("/Dmem.sv")
 }
-

@@ -22,8 +22,7 @@ class Datapath(memoryFile: String) extends Module {
   val mem = Module(new LSU)
   val wb  = Module(new WB)
 
-  // val axiController = Module(AxiController(width, width))
-  // val sram = Module(new SRAM)
+  val sram = Module(new SRAM)
   
 
   ifu.if2id_out <> idu.if2id_in
@@ -31,6 +30,12 @@ class Datapath(memoryFile: String) extends Module {
   ex.ex2mem_out <> mem.in
   mem.out <> wb.lsu2wb_in
   wb.wb2ifu_out <> ifu.wb2if_in
+
+  // for axi interface
+  
+  ifu.ifu_axi_out <> sram.ifuIn
+  mem.lsu_axi_out <> sram.lsuIn
+  sram.ifu_enable :=  ifu.ifu_enable 
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data           := wb.wb2ifu_out.bits.wb_data

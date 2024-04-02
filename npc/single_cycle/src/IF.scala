@@ -1,4 +1,3 @@
-
 package cpu
 
 import chisel3._
@@ -7,7 +6,6 @@ import cpu.config._
 import cpu.utils._
 
 /** ********************IFU**************************
- *
   */
 
 class IFUOutputIO extends Bundle {
@@ -23,14 +21,14 @@ object stageState extends ChiselEnum {
 // how to? axiController is defined inside the ifu, how can it connect to
 
 class IFU(memoryFile: String) extends Module {
-  val wb2if_in      = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2id_out     = IO(Decoupled(new IFUOutputIO))
-  // val axi = IO(AxiLiteMaster(width, width))
-   
+  val wb2if_in    = IO(Flipped(Decoupled(new WBOutputIO)))
+  val if2id_out   = IO(Decoupled(new IFUOutputIO))
+  val ifu_axi_out = IO(AxiLiteMaster(width, width))
+  val ifu_enable = IO(Output(Bool()))
+
   val axiController = Module(AxiController(width, width))
-  val sram          = Module(new SRAM)
-  // val instMem   = Module(new InstMem(memoryFile = memoryFile))
-  sram.in <> axiController.axi
+
+  ifu_axi_out <> axiController.axiOut
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
@@ -43,9 +41,12 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-  wb2if_in.ready                 := 0.U
-  axiController.in.externalMemEn := 0.U
-  axiController.in.externalValid := 0.U
+  wb2if_in.ready                          := 0.U
+  axiController.stageInput.readAddr.valid := false.B
+  axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
+  axiController.stageInput.writeAddr      := DontCare
+  axiController.stageInput.writeData      := DontCare
+  axiController.stageInput.writeResp      := DontCare
 
   switch(ifu_state) {
     is(sIDLE) {
@@ -55,22 +56,17 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is(s_waitReady) {
-      axiController.in.externalMemEn := 1.U
-      axiController.in.externalValid := 1.U
-
-      when(axiController.axi.readData.valid && axiController.axi.readData.ready) {
+      ifu_enable := true.B
+      axiController.stageInput.readAddr.valid := true.B
+      when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }
     }
   }
 
-  axiController.in.externalAddress := if2id_out.bits.pc
-  axiController.in.externalMemRW   := 0.U
-  axiController.in.externalData    := DontCare
-  axiController.in.externalWmask   := DontCare
-  if2id_out.bits.inst              := axiController.axi.readData.bits.data
-
-  if2id_out.valid := axiController.axi.readData.valid && axiController.axi.readData.ready
+  axiController.stageInput.readAddr.bits.addr := if2id_out.bits.pc
+  if2id_out.bits.inst                         := axiController.stageInput.readData.bits.data
+  if2id_out.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2id_out.ready && (if2id_out.bits.pc =/= config.startPC.U)

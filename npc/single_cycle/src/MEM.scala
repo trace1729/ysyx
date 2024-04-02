@@ -87,7 +87,7 @@ class LSU extends Module {
     0.U,
     Seq(
       (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
-      (in.bits.ctrlsignals.memEnable === 1.U) -> (axiController.axi.writeResp.valid && axiController.axi.writeResp.ready)
+      (in.bits.ctrlsignals.memEnable === 1.U) -> memtransActionEnded
     )
   )
 

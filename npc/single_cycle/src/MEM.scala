@@ -65,7 +65,7 @@ class LSU extends Module {
   out.bits.csrvalue    := in.bits.csrvalue
   out.bits.ctrlsignals := in.bits.ctrlsignals
   out.bits.rdata       := rmemdata
-  out.bits.inst        := in.bits.inst
+  out.bits.inst        := in.bits.inst 
 
   //csr
   out.bits.mepc  := in.bits.mepc
@@ -78,7 +78,7 @@ class LSU extends Module {
     0.U,
     Seq(
       (in.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
-      (in.bits.ctrlsignals.memEnable === 1.U) -> axiController.transactionEnded
+      (in.bits.ctrlsignals.memEnable === 1.U) -> (axiController.axi.writeResp.valid && axiController.axi.writeResp.ready)
     )
   )
 

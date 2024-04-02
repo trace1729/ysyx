@@ -73,6 +73,15 @@ class LSU extends Module {
 
   // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)
+
+  // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
+  val memtransActionEnded = MuxCase(
+    0.U,
+    Seq(
+      (in.bits.ctrlsignals.memRW === 0.U) -> (axiController.axi.readData.valid && axiController.axi.readData.ready),
+      (in.bits.ctrlsignals.memRW === 1.U) -> (axiController.axi.writeResp.valid && axiController.axi.writeResp.ready)
+    )
+  )
   in.ready := in.valid
   out.valid := MuxCase(
     0.U,

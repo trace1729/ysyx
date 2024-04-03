@@ -66,14 +66,7 @@ class SRAM extends Module {
   dmem.io.wmask := Mux(ifuEnable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
   
 
-  dmem.io.memRW := MuxCase(
-    0.U,
-    Seq(
-      (state === aREAD) -> 0.U,
-      (state === awriteDataAddr) -> 1.U
-    )
-  )
-
+  dmem.io.memRW := 0.U
   dmem.io.memEnable := false.B
 
   ifuIn.readData.bits.data := dmem.io.rdata
@@ -145,12 +138,14 @@ class SRAM extends Module {
       state := aWriteACK
     }
     is(aRTC) {
+      dmem.io.memRW := 0.U
       state := aReadACK
     }
     // finished write/read transaction
     is(aWriteACK) {
       // when (timer === 0.U) {
       dmem.io.memEnable := true.B
+      dmem.io.memRW := 1.U
       lsuIn.writeResp.valid := true.B
       lsuIn.writeResp.bits  := 0.U
       when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
@@ -160,6 +155,7 @@ class SRAM extends Module {
     }
     is(aReadACK) {
       // when (timer === 0.U) {
+      dmem.io.memRW := 0.U
       dmem.io.memEnable := true.B
       when(ifuEnable) {
         ifuIn.readData.valid     := 1.U

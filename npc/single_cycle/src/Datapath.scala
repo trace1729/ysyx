@@ -48,6 +48,10 @@ class Datapath(memoryFile: String) extends Module {
   io.pc   := ifu.if2idOut.bits.pc
 }
 
+object ArbiterState extends ChiselEnum {
+  val sIDLE, sIFU, sLSU = Value
+}
+
 class Arbiter extends Module {
   val ifuIn = IO(Flipped(AxiLiteMaster(width, width)))
   val lsuIn = IO(Flipped(AxiLiteMaster(width, width)))
@@ -55,7 +59,10 @@ class Arbiter extends Module {
 
   out := DontCare
 
-  // 默认将 ready 置为 false
+  // 默认将 ar, wr, w 的 ready 置为 false
+  // r, b 的 valid 置为 false
+  // 其他信号不关心
+
   ifuIn.readAddr.ready  := false.B
   ifuIn.writeAddr.ready := false.B
   ifuIn.writeData.ready := false.B
@@ -74,10 +81,31 @@ class Arbiter extends Module {
   lsuIn.writeResp.valid := false.B
   lsuIn.writeResp.bits  := false.B
 
-  when(ifuIn.writeAddr.valid || ifuIn.writeData.valid || ifuIn.readAddr.valid) {
-    out <> ifuIn
-  }.elsewhen(lsuIn.writeAddr.valid || lsuIn.writeData.valid || lsuIn.readAddr.valid) {
-    out <> lsuIn
+  import ArbiterState._
+  val arbiterState = RegInit(sIDLE)
+
+
+  switch (arbiterState) {
+    is (sIDLE) {
+      when(ifuIn.writeAddr.valid || ifuIn.writeData.valid || ifuIn.readAddr.valid) {
+        arbiterState := sIFU
+      }.elsewhen(lsuIn.writeAddr.valid || lsuIn.writeData.valid || lsuIn.readAddr.valid) {
+        arbiterState := sLSU
+      }
+    }
+    is (sIFU) {
+      out <> ifuIn
+      when(ifuIn.readData.valid && ifuIn.readData.ready) {
+        arbiterState := sIDLE
+      }
+    }
+    is (sLSU) {
+      out <> lsuIn
+      when(lsuIn.readData.valid && lsuIn.readData.ready) {
+        arbiterState := sIDLE
+      }
+    }
   }
+
 
 }

@@ -87,8 +87,10 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   val stageInput = IO(Flipped(AxiLiteMaster(addrWidth, dataWidth)))
   val axiOut = IO(AxiLiteMaster(addrWidth, dataWidth))
   val ifuEnable = IO(Input(Bool()))
+  val ifuEnableOut = IO(Output(Bool()))
 
   stageInput <> axiOut
+  ifuEnableOut := ifuEnable
   
 
 }

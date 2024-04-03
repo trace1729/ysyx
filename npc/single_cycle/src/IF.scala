@@ -22,7 +22,7 @@ object stageState extends ChiselEnum {
 
 class IFU(memoryFile: String) extends Module {
   val wb2if_in    = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2id_out   = IO(Decoupled(new IFUOutputIO))
+  val if2idOut   = IO(Decoupled(new IFUOutputIO))
   val ifu_axi_out = IO(AxiLiteMaster(width, width))
   val ifu_enable  = IO(Output(Bool()))
 
@@ -33,7 +33,7 @@ class IFU(memoryFile: String) extends Module {
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
-  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
+  if2idOut.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
@@ -74,13 +74,13 @@ class IFU(memoryFile: String) extends Module {
     }
   }
 
-  axiController.stageInput.readAddr.bits.addr := if2id_out.bits.pc
-  if2id_out.bits.inst                         := axiController.stageInput.readData.bits.data
-  if2id_out.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+  axiController.stageInput.readAddr.bits.addr := if2idOut.bits.pc
+  if2idOut.bits.inst                         := axiController.stageInput.readData.bits.data
+  if2idOut.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
 
   val next_inst = Module(new Next_inst)
-  next_inst.io.ready := if2id_out.ready && (if2id_out.bits.pc =/= config.startPC.U)
-  next_inst.io.valid := if2id_out.valid
+  next_inst.io.ready := if2idOut.ready && (if2idOut.bits.pc =/= config.startPC.U)
+  next_inst.io.valid := if2idOut.valid
 }
 
 class Next_inst extends BlackBox with HasBlackBoxResource {

@@ -25,7 +25,7 @@ class Datapath(memoryFile: String) extends Module {
   val sram = Module(new SRAM)
   
 
-  ifu.if2id_out <> idu.if2id_in
+  ifu.if2idOut <> idu.if2id_in
   idu.id2ex_out <> ex.id2ex_in
   ex.ex2mem_out <> mem.in
   mem.out <> wb.lsu2wb_in
@@ -35,7 +35,7 @@ class Datapath(memoryFile: String) extends Module {
   
   ifu.ifu_axi_out <> sram.ifuIn
   mem.lsu_axi_out <> sram.lsuIn
-  sram.ifuEnable := ifu.axiController.ifuEnable
+  sram.ifuEnable := ifu.axiController.ifuEnableOut
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data           := wb.wb2ifu_out.bits.wb_data
@@ -45,7 +45,7 @@ class Datapath(memoryFile: String) extends Module {
   idu.mepcWriteEn    := wb.wb2ifu_out.bits.mepcWriteEn
 
   // datapath 的输出
-  io.inst := ifu.if2id_out.bits.inst
-  io.pc   := ifu.if2id_out.bits.pc
+  io.inst := ifu.if2idOut.bits.inst
+  io.pc   := ifu.if2idOut.bits.pc
 }
 

@@ -14,7 +14,7 @@ class IFUOutputIO extends Bundle {
 }
 
 object stageState extends ChiselEnum {
-  val sIDLE, s_waitReady = Value
+  val sIDLE, s_waitReady, sACK = Value
 }
 
 // the axiController shall connected to the memArbiter
@@ -24,7 +24,7 @@ class IFU(memoryFile: String) extends Module {
   val wb2if_in    = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2id_out   = IO(Decoupled(new IFUOutputIO))
   val ifu_axi_out = IO(AxiLiteMaster(width, width))
-  val ifu_enable = IO(Output(Bool()))
+  val ifu_enable  = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
 
@@ -47,7 +47,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeAddr      := DontCare
   axiController.stageInput.writeData      := DontCare
   axiController.stageInput.writeResp      := DontCare
-  
+
   ifu_enable := false.B
 
   switch(ifu_state) {
@@ -58,8 +58,14 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is(s_waitReady) {
-      ifu_enable := true.B
+      ifu_enable                              := true.B
       axiController.stageInput.readAddr.valid := true.B
+      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+        ifu_state := sACK
+      }
+    }
+    is(sACK) {
+      ifu_enable                              := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }

@@ -13,14 +13,14 @@ import cpu.utils._
 //   aREAD will have the value 2, and aACK will have the value 3.
 
 object SRAMState extends ChiselEnum {
-  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK = Value
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK, aUART, aRTC = Value
 }
 
 class SRAM extends Module {
   val ifuEnable = IO(Input(Bool()))
-  val ifuIn      = IO(Flipped(AxiLiteMaster(width, width)))
-  val lsuIn      = IO(Flipped(AxiLiteMaster(width, width)))
-  val dmem       = Module(new Dmem(width))
+  val ifuIn     = IO(Flipped(AxiLiteMaster(width, width)))
+  val lsuIn     = IO(Flipped(AxiLiteMaster(width, width)))
+  val dmem      = Module(new Dmem(width))
 
   // ready follows valid
 
@@ -95,14 +95,18 @@ class SRAM extends Module {
         }
       }.otherwise {
         when(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid && lsuIn.writeData.valid && lsuIn.writeData.ready) {
-          state := awriteDataAddr
+          state := Mux(lsuIn.writeAddr.bits.addr === config.SERAL_MNIO.U, aUART, awriteDataAddr)
         }.elsewhen(lsuIn.writeData.ready && lsuIn.writeData.valid) {
           state := awriteData
         }.elsewhen(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid) {
           state := awriteAddr
         }
         when(lsuIn.readAddr.ready && lsuIn.readAddr.valid) {
-          state := aREAD
+          state := Mux(
+            (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) || (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U),
+            aREAD,
+            aREAD
+          )
         }
       }
     }
@@ -127,6 +131,13 @@ class SRAM extends Module {
     is(aREAD) {
       state := aReadACK
     }
+    is (aUART) {
+      printf("%c", lsuIn.writeData.bits.data(7, 0))
+      state := aWriteACK
+    }
+    // is (aRTC) {
+    //   state := aReadACK
+    // }
     // finished write/read transaction
     is(aWriteACK) {
       // when (timer === 0.U) {

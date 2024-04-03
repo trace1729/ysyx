@@ -26,7 +26,6 @@ class IFU(memoryFile: String) extends Module {
   val wb2ifIn   = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2idOut  = IO(Decoupled(new IFUOutputIO))
   val ifuAxiOut = IO(AxiLiteMaster(width, width))
-  val ifuEnable = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
 
@@ -51,7 +50,6 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeData := DontCare
   axiController.stageInput.writeResp := DontCare
 
-  ifuEnable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
@@ -61,14 +59,12 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is(sWaitReady) {
-      ifuEnable                               := true.B
       axiController.stageInput.readAddr.valid := true.B
       when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
       }
     }
     is(sACK) {
-      ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sCompleted
       }

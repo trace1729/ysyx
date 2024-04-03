@@ -14,7 +14,6 @@ class LSU extends Module {
   lsu_axi_out <> axiController.axiOut
 
   // activate the axiController
-  axiController.ifuEnable := false.B
   axiController.stageInput.readAddr.valid  := false.B
   axiController.stageInput.writeData.valid := false.B
   axiController.stageInput.writeAddr.valid := false.B

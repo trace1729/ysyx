@@ -50,7 +50,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeData := DontCare
   axiController.stageInput.writeResp := DontCare
 
-  axiController.ifuEnable := false.B
+  ifu_enable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
@@ -60,14 +60,14 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is(sWaitReady) {
-      axiController.ifuEnable := true.B
+      ifu_enable := true.B
       axiController.stageInput.readAddr.valid := true.B
       when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
       }
     }
     is(sACK) {
-      axiController.ifuEnable := true.B
+      ifu_enable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }

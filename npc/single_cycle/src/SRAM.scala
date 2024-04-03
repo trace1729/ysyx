@@ -44,6 +44,8 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
+  val mtime = RegInit(0.U(UInt(64.W)))
+  mtime := mtime + 1.U
 
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。
   // TODO 为 valid / ready 信号设置一个随机延迟
@@ -135,9 +137,13 @@ class SRAM extends Module {
       printf("%c", lsuIn.writeData.bits.data(7, 0))
       state := aWriteACK
     }
-    // is (aRTC) {
-    //   state := aReadACK
-    // }
+    is (aRTC) {
+      lsuIn.readData.bits.data := MuxCase(0.U, Seq(
+        (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) -> mtime(31, 0),
+        (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U ) -> mtime(63, 32)
+      ))
+      state := aReadACK
+    }
     // finished write/read transaction
     is(aWriteACK) {
       // when (timer === 0.U) {

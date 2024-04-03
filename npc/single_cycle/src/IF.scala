@@ -14,26 +14,26 @@ class IFUOutputIO extends Bundle {
 }
 
 object stageState extends ChiselEnum {
-  val sIDLE, s_waitReady = Value
+  val sIDLE, sWaitReady, sACK = Value
 }
 
 // the axiController shall connected to the memArbiter
 // how to? axiController is defined inside the ifu, how can it connect to
 
 class IFU(memoryFile: String) extends Module {
-  val wb2if_in    = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2id_out   = IO(Decoupled(new IFUOutputIO))
-  val ifu_axi_out = IO(AxiLiteMaster(width, width))
-  val ifu_enable = IO(Output(Bool()))
+  val wb2ifIn    = IO(Flipped(Decoupled(new WBOutputIO)))
+  val if2idOut   = IO(Decoupled(new IFUOutputIO))
+  val ifuAxiOut = IO(AxiLiteMaster(width, width))
+  val ifuEnable  = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
 
-  ifu_axi_out <> axiController.axiOut
+  ifuAxiOut <> axiController.axiOut
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
-  if2id_out.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
+  if2idOut.bits.pc := RegEnable(wb2ifIn.bits.wbNextpc, config.startPC.U, wb2ifIn.valid)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
@@ -41,38 +41,46 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-  wb2if_in.ready                          := 0.U
+  wb2ifIn.ready                          := 0.U
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
-  axiController.stageInput.writeAddr      := DontCare
-  axiController.stageInput.writeData      := DontCare
-  axiController.stageInput.writeResp      := DontCare
-  
-  ifu_enable := false.B
+
+  // DontCare 真的么问题吗
+  axiController.stageInput.writeAddr := DontCare
+  axiController.stageInput.writeData := DontCare
+  axiController.stageInput.writeResp := DontCare
+
+  ifuEnable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
-      when(wb2if_in.valid) {
-        wb2if_in.ready := 1.U
-        ifu_state      := s_waitReady
+      when(wb2ifIn.valid) {
+        wb2ifIn.ready := 1.U
+        ifu_state      := sWaitReady
       }
     }
-    is(s_waitReady) {
-      ifu_enable := true.B
+    is(sWaitReady) {
+      ifuEnable := true.B
       axiController.stageInput.readAddr.valid := true.B
+      when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+        ifu_state := sACK
+      }
+    }
+    is(sACK) {
+      ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }
     }
   }
 
-  axiController.stageInput.readAddr.bits.addr := if2id_out.bits.pc
-  if2id_out.bits.inst                         := axiController.stageInput.readData.bits.data
-  if2id_out.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+  axiController.stageInput.readAddr.bits.addr := if2idOut.bits.pc
+  if2idOut.bits.inst                         := axiController.stageInput.readData.bits.data
+  if2idOut.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
 
   val next_inst = Module(new Next_inst)
-  next_inst.io.ready := if2id_out.ready && (if2id_out.bits.pc =/= config.startPC.U)
-  next_inst.io.valid := if2id_out.valid
+  next_inst.io.ready := if2idOut.ready && (if2idOut.bits.pc =/= config.startPC.U)
+  next_inst.io.valid := if2idOut.valid
 }
 
 class Next_inst extends BlackBox with HasBlackBoxResource {

@@ -28,8 +28,8 @@ class IDU extends Module {
   val csrsWriteEn    = IO(Input(Bool()))
   val mepcWriteEn    = IO(Input(Bool()))
   val mcauseWriteEn  = IO(Input(Bool()))
-  val if2id_in       = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val id2ex_out      = IO(DecoupledIO(new IDUOutputIO))
+  val if2idIn       = IO(Flipped(Decoupled(new IFUOutputIO)))
+  val id2exOut      = IO(DecoupledIO(new IDUOutputIO))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -37,24 +37,24 @@ class IDU extends Module {
   val csr       = Module(new CSR(10, width))
 
   // 输入的 ready 跟随 valid
-  if2id_in.ready := if2id_in.valid
+  if2idIn.ready := if2idIn.valid
 
   // valid 信号
   val idu_valid_reg = RegInit(0.U)
   val idu_inst_reg  = RegInit(UInt(32.W), config.NOP)
   val idu_pc_reg    = RegInit(UInt(32.W), 0.U)
 
-  id2ex_out.valid := idu_valid_reg
+  id2exOut.valid := idu_valid_reg
 
-  when(if2id_in.valid) {
+  when(if2idIn.valid) {
     idu_valid_reg := 1.U
-  }.elsewhen(id2ex_out.valid && id2ex_out.ready) {
+  }.elsewhen(id2exOut.valid && id2exOut.ready) {
     idu_valid_reg := 0.U
   }
 
-  when(if2id_in.valid) {
-    idu_inst_reg := if2id_in.bits.inst
-    idu_pc_reg   := if2id_in.bits.pc
+  when(if2idIn.valid) {
+    idu_inst_reg := if2idIn.bits.inst
+    idu_pc_reg   := if2idIn.bits.pc
   }
 
   // 寄存器文件的连接
@@ -85,17 +85,17 @@ class IDU extends Module {
   csr.io.mepcWriteEn   := mepcWriteEn
 
   // 生成控制信号
-  id2ex_out.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
+  id2exOut.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
 
   // idu 模块的输出
-  id2ex_out.bits.rs1       := regfile.io.rs1
-  id2ex_out.bits.rs2       := regfile.io.rs2
-  id2ex_out.bits.immediate := immgen.io.imm
-  id2ex_out.bits.pc        := idu_pc_reg
-  id2ex_out.bits.inst      := idu_inst_reg
-  id2ex_out.bits.csrvalue  := csr.io.csrValue
+  id2exOut.bits.rs1       := regfile.io.rs1
+  id2exOut.bits.rs2       := regfile.io.rs2
+  id2exOut.bits.immediate := immgen.io.imm
+  id2exOut.bits.pc        := idu_pc_reg
+  id2exOut.bits.inst      := idu_inst_reg
+  id2exOut.bits.csrvalue  := csr.io.csrValue
 
-  id2ex_out.bits.mepc  := csr.io.mepc
-  id2ex_out.bits.mtvec := csr.io.mtvec
+  id2exOut.bits.mepc  := csr.io.mepc
+  id2exOut.bits.mtvec := csr.io.mtvec
 
 }

@@ -12,8 +12,8 @@ import cpu.utils._
 
 class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
-  val wb_data        = Output(UInt(32.W))
-  val wb_nextpc      = Output(UInt(32.W))
+  val wbData        = Output(UInt(32.W))
+  val wbNextpc      = Output(UInt(32.W))
   val regfileWriteEn = Output(Bool())
   val csrsWriteEn    = Output(Bool())
   val mepcWriteEn    = Output(Bool())
@@ -22,55 +22,55 @@ class WBOutputIO extends Bundle {
 }
 
 class WB extends Module {
-  val lsu2wb_in  = IO(Flipped(Decoupled(new MEMOutputIO(width))))
-  val wb2ifu_out = IO(Decoupled(new WBOutputIO))
+  val lsu2wbIn  = IO(Flipped(Decoupled(new MEMOutputIO(width))))
+  val wb2ifuOut = IO(Decoupled(new WBOutputIO))
 
-  val wb_data_reg   = RegNext(wb2ifu_out.bits.wb_data, 0.U)
-  val wb_nextpc_reg = RegNext(wb2ifu_out.bits.wb_nextpc, config.startPC.U)
+  val wbDataReg   = RegNext(wb2ifuOut.bits.wbData, 0.U)
+  val wbNextpcReg = RegNext(wb2ifuOut.bits.wbNextpc, config.startPC.U)
 
-  wb2ifu_out.bits.wb_data   := wb_data_reg
-  wb2ifu_out.bits.wb_nextpc := wb_nextpc_reg
+  wb2ifuOut.bits.wbData   := wbDataReg
+  wb2ifuOut.bits.wbNextpc := wbNextpcReg
 
-  when(lsu2wb_in.valid) {
-    wb_data_reg := MuxCase(
+  when(lsu2wbIn.valid) {
+    wbDataReg := MuxCase(
       0.U,
       Seq(
-        (lsu2wb_in.bits.ctrlsignals.WBsel === 0.U) -> lsu2wb_in.bits.alures,
-        (lsu2wb_in.bits.ctrlsignals.WBsel === 1.U) -> (lsu2wb_in.bits.pc + config.XLEN.U),
-        (lsu2wb_in.bits.ctrlsignals.WBsel === 2.U) -> lsu2wb_in.bits.rdata,
-        (lsu2wb_in.bits.ctrlsignals.WBsel === 3.U) -> lsu2wb_in.bits.csrvalue
+        (lsu2wbIn.bits.ctrlsignals.WBsel === 0.U) -> lsu2wbIn.bits.alures,
+        (lsu2wbIn.bits.ctrlsignals.WBsel === 1.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
+        (lsu2wbIn.bits.ctrlsignals.WBsel === 2.U) -> lsu2wbIn.bits.rdata,
+        (lsu2wbIn.bits.ctrlsignals.WBsel === 3.U) -> lsu2wbIn.bits.csrvalue
       )
     )
-    wb_nextpc_reg := MuxCase(
+    wbNextpcReg := MuxCase(
       0.U,
       Seq(
-        (lsu2wb_in.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wb_in.bits.pc + config.XLEN.U),
-        (lsu2wb_in.bits.ctrlsignals.pcsel === 1.U) -> lsu2wb_in.bits.alures,
-        (lsu2wb_in.bits.ctrlsignals.pcsel === 2.U) -> lsu2wb_in.bits.mepc,
-        (lsu2wb_in.bits.ctrlsignals.pcsel === 3.U) -> lsu2wb_in.bits.mtvec
+        (lsu2wbIn.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
+        (lsu2wbIn.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbIn.bits.alures,
+        (lsu2wbIn.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbIn.bits.mepc,
+        (lsu2wbIn.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbIn.bits.mtvec
       )
     )
   }
 
   val itrace = Module(new Dpi_itrace)
-  itrace.io.pc     := lsu2wb_in.bits.pc
-  itrace.io.inst   := lsu2wb_in.bits.inst
-  itrace.io.nextpc := wb_nextpc_reg
+  itrace.io.pc     := lsu2wbIn.bits.pc
+  itrace.io.inst   := lsu2wbIn.bits.inst
+  itrace.io.nextpc := wbNextpcReg
 
-  lsu2wb_in.ready := lsu2wb_in.valid
+  lsu2wbIn.ready := lsu2wbIn.valid
   val wb_valid = RegInit(1.U)
-  wb2ifu_out.valid := wb_valid
+  wb2ifuOut.valid := wb_valid
 
-  when(lsu2wb_in.valid) {
+  when(lsu2wbIn.valid) {
     wb_valid := 1.U
-  }.elsewhen(wb2ifu_out.valid && wb2ifu_out.ready) {
+  }.elsewhen(wb2ifuOut.valid && wb2ifuOut.ready) {
     wb_valid := 0.U
   }
 
-  wb2ifu_out.bits.regfileWriteEn := wb_valid & lsu2wb_in.bits.ctrlsignals.writeEn
-  wb2ifu_out.bits.csrsWriteEn    := wb_valid & lsu2wb_in.bits.ctrlsignals.csrsWriteEn
-  wb2ifu_out.bits.mepcWriteEn    := wb_valid & lsu2wb_in.bits.ctrlsignals.mepcWriteEn
-  wb2ifu_out.bits.mcauseWriteEn  := wb_valid & lsu2wb_in.bits.ctrlsignals.mcauseWriteEn
+  wb2ifuOut.bits.regfileWriteEn := wb_valid & lsu2wbIn.bits.ctrlsignals.writeEn
+  wb2ifuOut.bits.csrsWriteEn    := wb_valid & lsu2wbIn.bits.ctrlsignals.csrsWriteEn
+  wb2ifuOut.bits.mepcWriteEn    := wb_valid & lsu2wbIn.bits.ctrlsignals.mepcWriteEn
+  wb2ifuOut.bits.mcauseWriteEn  := wb_valid & lsu2wbIn.bits.ctrlsignals.mcauseWriteEn
 
 }
 

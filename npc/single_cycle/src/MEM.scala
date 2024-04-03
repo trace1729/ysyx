@@ -11,7 +11,7 @@ import org.yaml.snakeyaml.events.Event.ID
 class LSU extends Module {
   val ex2lsuIn      = IO(Flipped(Decoupled(new EXOutputIO)))
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
-  val ex2lsuOut     = IO(Decoupled(new MEMOutputIO(width)))
+  val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
   val axiController = Module(AxiController(width, width))
 
   lsuAxiOut <> axiController.axiOut
@@ -72,7 +72,9 @@ class LSU extends Module {
       }
     }
     is(sCompleted) {
-      lsu_state := sIDLE
+      when (lsu2wbOut.valid && lsu2wbOut.ready) {
+        lsu_state := sIDLE
+      }
     }
   }
 
@@ -108,16 +110,16 @@ class LSU extends Module {
   )
 
   // 输出
-  ex2lsuOut.bits.alures      := ex2lsuIn.bits.alures
-  ex2lsuOut.bits.pc          := ex2lsuIn.bits.pc
-  ex2lsuOut.bits.csrvalue    := ex2lsuIn.bits.csrvalue
-  ex2lsuOut.bits.ctrlsignals := ex2lsuIn.bits.ctrlsignals
-  ex2lsuOut.bits.rdata       := rmemdata
-  ex2lsuOut.bits.inst        := ex2lsuIn.bits.inst
+  lsu2wbOut.bits.alures      := ex2lsuIn.bits.alures
+  lsu2wbOut.bits.pc          := ex2lsuIn.bits.pc
+  lsu2wbOut.bits.csrvalue    := ex2lsuIn.bits.csrvalue
+  lsu2wbOut.bits.ctrlsignals := ex2lsuIn.bits.ctrlsignals
+  lsu2wbOut.bits.rdata       := rmemdata
+  lsu2wbOut.bits.inst        := ex2lsuIn.bits.inst
 
   //csr
-  ex2lsuOut.bits.mepc  := ex2lsuIn.bits.mepc
-  ex2lsuOut.bits.mtvec := ex2lsuIn.bits.mtvec
+  lsu2wbOut.bits.mepc  := ex2lsuIn.bits.mepc
+  lsu2wbOut.bits.mtvec := ex2lsuIn.bits.mtvec
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
 
@@ -127,10 +129,10 @@ class LSU extends Module {
   ex2lsuIn.ready := ex2lsuIn.valid
   when(ex2lsuIn.valid) {
     lsu_valid_reg := 1.U
-  }.elsewhen(ex2lsuOut.valid && ex2lsuOut.ready) {
+  }.elsewhen(lsu2wbOut.valid && lsu2wbOut.ready) {
     lsu_valid_reg := 0.U
   }
-  ex2lsuOut.valid := MuxCase(
+  lsu2wbOut.valid := MuxCase(
     0.U,
     Seq(
       (ex2lsuIn.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,

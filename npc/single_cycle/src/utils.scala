@@ -173,22 +173,6 @@ class Uart extends Module {
       // received write data and address concurrently
       when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
         state := aUART
-      }.elsewhen(in.writeData.ready && in.writeData.valid) {
-        state := awriteData
-      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
-        state := awriteAddr
-      }
-    }
-    // only received write addr
-    is(awriteData) {
-      when(in.writeAddr.ready && in.writeAddr.valid) {
-        state := awriteDataAddr
-      }
-    }
-    // only received write data
-    is(awriteAddr) {
-      when(in.writeData.ready && in.writeData.valid) {
-        state := awriteDataAddr
       }
     }
     is(aUART) {

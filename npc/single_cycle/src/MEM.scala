@@ -5,6 +5,8 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 import scala.annotation.varargs
+import os.read
+import org.yaml.snakeyaml.events.Event.ID
 
 class LSU extends Module {
   val ex2lsuIn            = IO(Flipped(Decoupled(new EXOutputIO)))
@@ -61,13 +63,19 @@ class LSU extends Module {
     }
     is (sACK) {
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
-        lsu_state := sIDLE
+        lsu_state := sCompleted
       }
       when(axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready) {
-        lsu_state := sIDLE
+        lsu_state := sCompleted
       }
     }
+    is (sCompleted) {
+      lsu_state := sIDLE
+    }
   }
+
+  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+  val readData = RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
 
   // 处理读取的数据
   val rmemdata = Wire(UInt(width.W))
@@ -75,13 +83,13 @@ class LSU extends Module {
   // mem.io.memRW = 0, read, set to 0
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))
-  imm_byte := readDataGen(ex2lsuIn.bits.alures(1, 0), 1, axiController.stageInput.readData.bits.data)
-  imm_half := readDataGen(ex2lsuIn.bits.alures(1, 0), 2, axiController.stageInput.readData.bits.data)
+  imm_byte := readDataGen(ex2lsuIn.bits.alures(1, 0), 1, readData)
+  imm_half := readDataGen(ex2lsuIn.bits.alures(1, 0), 2, readData)
   rmemdata := Mux(
     ex2lsuIn.bits.inst(14),
     // io.inst(14) == 1, unsigned 直接截断就好
     MuxCase(
-      axiController.stageInput.readData.bits.data,
+      readData,
       Seq(
         (ex2lsuIn.bits.inst(13, 12) === 0.U) -> imm_byte,
         (ex2lsuIn.bits.inst(13, 12) === 1.U) -> imm_half
@@ -89,7 +97,7 @@ class LSU extends Module {
     ),
     // io.inst(14) == 0, signed 还需符号扩展
     MuxCase(
-      axiController.stageInput.readData.bits.data,
+      readData,
       Seq(
         (ex2lsuIn.bits.inst(13, 12) === 0.U) -> Cat(padding(24, imm_byte(7)), imm_byte),
         (ex2lsuIn.bits.inst(13, 12) === 1.U) -> Cat(padding(16, imm_half(15)), imm_half)
@@ -110,13 +118,7 @@ class LSU extends Module {
   ex2lsuOut.bits.mtvec := ex2lsuIn.bits.mtvec
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
-  val memtransActionEnded = MuxCase(
-    0.U,
-    Seq(
-      (ex2lsuIn.bits.ctrlsignals.memRW === 0.U) -> (axiController.stageInput.readData.valid && axiController.stageInput.readData.ready),
-      (ex2lsuIn.bits.ctrlsignals.memRW === 1.U) -> (axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready)
-    )
-  )
+ 
 
   // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)
@@ -131,7 +133,7 @@ class LSU extends Module {
     0.U,
     Seq(
       (ex2lsuIn.bits.ctrlsignals.memEnable === 0.U) -> lsu_valid_reg,
-      (ex2lsuIn.bits.ctrlsignals.memEnable === 1.U) -> memtransActionEnded
+      (ex2lsuIn.bits.ctrlsignals.memEnable === 1.U) -> (lsu_state === sCompleted)
     )
   )
 

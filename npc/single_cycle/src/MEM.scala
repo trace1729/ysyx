@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 import cpu.utils._
+import scala.annotation.varargs
 
 class LSU extends Module {
   val ex2lsuIn            = IO(Flipped(Decoupled(new EXOutputIO)))
@@ -49,10 +50,19 @@ class LSU extends Module {
       axiController.stageInput.writeAddr.valid := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, true.B, false.B)
       axiController.stageInput.writeData.valid := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, true.B, false.B)
 
+      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+        lsu_state :=  Mux(ex2lsuIn.bits.ctrlsignals.memRW === 0.U, sACK, sIDLE)
+      }
+
+      when (axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready) {
+        lsu_state := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, sACK, sIDLE)
+      }
+
+    }
+    is (sACK) {
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         lsu_state := sIDLE
       }
-
       when(axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready) {
         lsu_state := sIDLE
       }

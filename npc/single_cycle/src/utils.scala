@@ -72,6 +72,9 @@ class myArbiter extends Module {
   uart.writeData.valid := false.B
   uart.writeAddr.valid := false.B
   rtc.readAddr.valid := false.B
+  sram.writeData.valid := false.B
+  sram.writeAddr.valid := false.B
+  sram.readAddr.valid := false.B
 
   // 默认将 ar, wr, w 的 ready 置为 false
   // r, b 的 valid 置为 false

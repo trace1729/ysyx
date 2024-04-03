@@ -105,7 +105,7 @@ class SRAM extends Module {
         when(lsuIn.readAddr.ready && lsuIn.readAddr.valid) {
           state := Mux(
             (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) || (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U),
-            aREAD,
+            aRTC,
             aREAD
           )
         }

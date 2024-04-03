@@ -64,6 +64,8 @@ class SRAM extends Module {
   dmem.io.waddr := Mux(ifuEnable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
   dmem.io.wdata := Mux(ifuEnable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
   dmem.io.wmask := Mux(ifuEnable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
+  
+
   dmem.io.memRW := MuxCase(
     0.U,
     Seq(

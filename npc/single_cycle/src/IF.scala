@@ -5,6 +5,7 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 import os.read
+import org.yaml.snakeyaml.events.Event.ID
 
 /** ********************IFU**************************
   */
@@ -22,10 +23,10 @@ object stageState extends ChiselEnum {
 // how to? axiController is defined inside the ifu, how can it connect to
 
 class IFU(memoryFile: String) extends Module {
-  val wb2ifIn    = IO(Flipped(Decoupled(new WBOutputIO)))
-  val if2idOut   = IO(Decoupled(new IFUOutputIO))
+  val wb2ifIn   = IO(Flipped(Decoupled(new WBOutputIO)))
+  val if2idOut  = IO(Decoupled(new IFUOutputIO))
   val ifuAxiOut = IO(AxiLiteMaster(width, width))
-  val ifuEnable  = IO(Output(Bool()))
+  val ifuEnable = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
 
@@ -42,7 +43,7 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-  wb2ifIn.ready                          := 0.U
+  wb2ifIn.ready                           := 0.U
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
@@ -57,11 +58,11 @@ class IFU(memoryFile: String) extends Module {
     is(sIDLE) {
       when(wb2ifIn.valid) {
         wb2ifIn.ready := 1.U
-        ifu_state      := sWaitReady
+        ifu_state     := sWaitReady
       }
     }
     is(sWaitReady) {
-      ifuEnable := true.B
+      ifuEnable                               := true.B
       axiController.stageInput.readAddr.valid := true.B
       when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
@@ -73,8 +74,8 @@ class IFU(memoryFile: String) extends Module {
         ifu_state := sCompleted
       }
     }
-    is (sCompleted) {
-      when (if2idOut.valid && if2idOut.ready) {
+    is(sCompleted) {
+      when(if2idOut.valid && if2idOut.ready) {
         ifu_state := sIDLE
       }
     }
@@ -83,13 +84,14 @@ class IFU(memoryFile: String) extends Module {
   val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
 
   axiController.stageInput.readAddr.bits.addr := if2idOut.bits.pc
-  if2idOut.bits.inst                         := RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
-  if2idOut.valid                             := ifu_state === sCompleted
+  if2idOut.bits.inst                          := RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
+  if2idOut.valid                              := ifu_state === sCompleted
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2idOut.ready && (if2idOut.bits.pc =/= config.startPC.U)
   next_inst.io.valid := if2idOut.valid
 }
+
 
 class Next_inst extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {

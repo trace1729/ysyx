@@ -104,6 +104,9 @@ class Arbiter extends Module {
       when(lsuIn.readData.valid && lsuIn.readData.ready) {
         arbiterState := sIDLE
       }
+      when (lsuIn.writeResp.valid && lsuIn.writeResp.ready) {
+        arbiterState := sIDLE
+      }
     }
   }
 

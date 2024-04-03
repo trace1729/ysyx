@@ -86,6 +86,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   // 控制器的输入应该是可以通用化的
   val stageInput = IO(Flipped(AxiLiteMaster(addrWidth, dataWidth)))
   val axiOut = IO(AxiLiteMaster(addrWidth, dataWidth))
+  val ifuEnable = IO(Input(Bool()))
 
   stageInput <> axiOut
   

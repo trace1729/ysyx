@@ -17,14 +17,14 @@ object SRAMState extends ChiselEnum {
 }
 
 class SRAM extends Module {
-  val ifu_enable = IO(Input(Bool()))
+  val ifuEnable = IO(Input(Bool()))
   val ifuIn      = IO(Flipped(AxiLiteMaster(width, width)))
   val lsuIn      = IO(Flipped(AxiLiteMaster(width, width)))
   val dmem       = Module(new Dmem(width))
 
   // ready follows valid
 
-  when(ifu_enable) {
+  when(ifuEnable) {
     ifuIn.writeAddr.ready := ifuIn.writeAddr.valid
     ifuIn.writeData.ready := ifuIn.writeData.valid
     ifuIn.readAddr.ready  := ifuIn.readAddr.valid
@@ -50,10 +50,10 @@ class SRAM extends Module {
   // val timer = RegInit(0.U(32.W))
   // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
-  dmem.io.raddr := Mux(ifu_enable, ifuIn.readAddr.bits.addr, lsuIn.readAddr.bits.addr)
-  dmem.io.waddr := Mux(ifu_enable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
-  dmem.io.wdata := Mux(ifu_enable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
-  dmem.io.wmask := Mux(ifu_enable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
+  dmem.io.raddr := Mux(ifuEnable, ifuIn.readAddr.bits.addr, lsuIn.readAddr.bits.addr)
+  dmem.io.waddr := Mux(ifuEnable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
+  dmem.io.wdata := Mux(ifuEnable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
+  dmem.io.wmask := Mux(ifuEnable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
   dmem.io.memRW := MuxCase(
     0.U,
     Seq(
@@ -66,10 +66,10 @@ class SRAM extends Module {
   ifuIn.readData.bits.data := 0.U
   lsuIn.readData.bits.data := 0.U
 
-  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable & ifu_enable)
+  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable & ifuEnable)
   lsuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
 
-  when(ifu_enable) {
+  when(ifuEnable) {
     ifuIn.writeResp.valid    := false.B
     ifuIn.readData.valid     := false.B
     ifuIn.readData.bits.resp := 1.U
@@ -89,7 +89,7 @@ class SRAM extends Module {
   switch(state) {
     is(aIDLE) {
       // received write data and address concurrently
-      when(ifu_enable) {
+      when(ifuEnable) {
         when(ifuIn.readAddr.ready && ifuIn.readAddr.valid) {
           state := aREAD
         }
@@ -139,7 +139,7 @@ class SRAM extends Module {
     }
     is(aReadACK) {
       // when (timer === 0.U) {
-      when(ifu_enable) {
+      when(ifuEnable) {
         ifuIn.readData.valid     := 1.U
         ifuIn.readData.bits.resp := 0.U
         when(ifuIn.readData.ready && ifuIn.readData.valid) {

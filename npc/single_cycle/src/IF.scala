@@ -14,7 +14,7 @@ class IFUOutputIO extends Bundle {
 }
 
 object stageState extends ChiselEnum {
-  val sIDLE, s_waitReady, sACK = Value
+  val sIDLE, sWaitReady, sACK = Value
 }
 
 // the axiController shall connected to the memArbiter
@@ -44,28 +44,30 @@ class IFU(memoryFile: String) extends Module {
   wb2if_in.ready                          := 0.U
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
-  axiController.stageInput.writeAddr      := DontCare
-  axiController.stageInput.writeData      := DontCare
-  axiController.stageInput.writeResp      := DontCare
 
-  ifu_enable := false.B
+  // DontCare 真的么问题吗
+  axiController.stageInput.writeAddr := DontCare
+  axiController.stageInput.writeData := DontCare
+  axiController.stageInput.writeResp := DontCare
+
+  axiController.ifuEnable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
       when(wb2if_in.valid) {
         wb2if_in.ready := 1.U
-        ifu_state      := s_waitReady
+        ifu_state      := sWaitReady
       }
     }
-    is(s_waitReady) {
-      ifu_enable                              := true.B
+    is(sWaitReady) {
+      axiController.ifuEnable := true.B
       axiController.stageInput.readAddr.valid := true.B
-      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+      when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
       }
     }
     is(sACK) {
-      ifu_enable                              := true.B
+      axiController.ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }

@@ -35,7 +35,7 @@ class Datapath(memoryFile: String) extends Module {
   
   ifu.ifu_axi_out <> sram.ifuIn
   mem.lsu_axi_out <> sram.lsuIn
-  sram.ifu_enable :=  ifu.ifu_enable 
+  sram.ifuEnable := ifu.axiController.ifuEnable
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data           := wb.wb2ifu_out.bits.wb_data

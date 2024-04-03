@@ -14,6 +14,7 @@ class LSU extends Module {
   lsu_axi_out <> axiController.axiOut
 
   // activate the axiController
+  axiController.ifuEnable := false.B
   axiController.stageInput.readAddr.valid  := false.B
   axiController.stageInput.writeData.valid := false.B
   axiController.stageInput.writeAddr.valid := false.B
@@ -40,10 +41,10 @@ class LSU extends Module {
   switch(lsu_state) {
     is(sIDLE) {
       when(in.valid && in.bits.ctrlsignals.memEnable) {
-        lsu_state := s_waitReady
+        lsu_state := sWaitReady
       }
     }
-    is(s_waitReady) {
+    is(sWaitReady) {
 
       axiController.stageInput.readAddr.valid  := Mux(in.bits.ctrlsignals.memRW === 0.U, true.B, false.B)
       axiController.stageInput.writeAddr.valid := Mux(in.bits.ctrlsignals.memRW === 1.U, true.B, false.B)

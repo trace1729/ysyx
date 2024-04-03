@@ -21,19 +21,19 @@ object stageState extends ChiselEnum {
 // how to? axiController is defined inside the ifu, how can it connect to
 
 class IFU(memoryFile: String) extends Module {
-  val wb2if_in    = IO(Flipped(Decoupled(new WBOutputIO)))
+  val wb2ifIn    = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2idOut   = IO(Decoupled(new IFUOutputIO))
-  val ifu_axi_out = IO(AxiLiteMaster(width, width))
-  val ifu_enable  = IO(Output(Bool()))
+  val ifuAxiOut = IO(AxiLiteMaster(width, width))
+  val ifuEnable  = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
 
-  ifu_axi_out <> axiController.axiOut
+  ifuAxiOut <> axiController.axiOut
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
-  if2idOut.bits.pc := RegEnable(wb2if_in.bits.wb_nextpc, config.startPC.U, wb2if_in.valid)
+  if2idOut.bits.pc := RegEnable(wb2ifIn.bits.wbNextpc, config.startPC.U, wb2ifIn.valid)
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
@@ -41,7 +41,7 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-  wb2if_in.ready                          := 0.U
+  wb2ifIn.ready                          := 0.U
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
@@ -50,24 +50,24 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeData := DontCare
   axiController.stageInput.writeResp := DontCare
 
-  ifu_enable := false.B
+  ifuEnable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
-      when(wb2if_in.valid) {
-        wb2if_in.ready := 1.U
+      when(wb2ifIn.valid) {
+        wb2ifIn.ready := 1.U
         ifu_state      := sWaitReady
       }
     }
     is(sWaitReady) {
-      ifu_enable := true.B
+      ifuEnable := true.B
       axiController.stageInput.readAddr.valid := true.B
       when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
       }
     }
     is(sACK) {
-      ifu_enable := true.B
+      ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sIDLE
       }

@@ -47,8 +47,8 @@ class SRAM extends Module {
 
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。
   // TODO 为 valid / ready 信号设置一个随机延迟
-  // val timer = RegInit(0.U(32.W))
-  // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
+  val timer = RegInit(0.U(32.W))
+  timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
   dmem.io.raddr := Mux(ifu_enable, ifuIn.readAddr.bits.addr, lsuIn.readAddr.bits.addr)
   dmem.io.waddr := Mux(ifu_enable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
@@ -129,16 +129,16 @@ class SRAM extends Module {
     }
     // finished write/read transaction
     is(aWriteACK) {
-      // when (timer === 0.U) {
+      when (timer === 0.U) {
       lsuIn.writeResp.valid := true.B
       lsuIn.writeResp.bits  := 0.U
       when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
         state := aIDLE
       }
-      // }
+      }
     }
     is(aReadACK) {
-      // when (timer === 0.U) {
+      when (timer === 0.U) {
       when(ifu_enable) {
         ifuIn.readData.valid     := 1.U
         ifuIn.readData.bits.resp := 0.U
@@ -152,7 +152,7 @@ class SRAM extends Module {
           state := aIDLE
         }
       }
-      // }
+      }
     }
   }
 }

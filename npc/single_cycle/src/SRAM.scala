@@ -35,8 +35,6 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
-  val mtime = RegInit(UInt(64.W), 0.U)
-  mtime := mtime + 1.U
 
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。
   // TODO 为 valid / ready 信号设置一个随机延迟
@@ -51,13 +49,7 @@ class SRAM extends Module {
   dmem.io.memRW     := 0.U
   dmem.io.memEnable := false.B
 
-  in.readData.bits.data := MuxCase(
-    dmem.io.rdata,
-    Seq(
-      (in.readAddr.bits.addr === config.RTC_MNIO.U) -> mtime(31, 0),
-      (in.readAddr.bits.addr === (config.RTC_MNIO + 4).U) -> mtime(63, 32)
-    )
-  )
+  in.readData.bits.data := dmem.io.rdata
 
   in.writeResp.valid    := false.B
   in.readData.valid     := false.B
@@ -70,18 +62,14 @@ class SRAM extends Module {
     is(aIDLE) {
       // received write data and address concurrently
       when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
-        state := Mux(in.writeAddr.bits.addr === config.SERAL_MNIO.U, aUART, awriteDataAddr)
+        state := awriteDataAddr
       }.elsewhen(in.writeData.ready && in.writeData.valid) {
         state := awriteData
       }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
         state := awriteAddr
       }
       when(in.readAddr.ready && in.readAddr.valid) {
-        state := Mux(
-          (in.readAddr.bits.addr === config.RTC_MNIO.U) || (in.readAddr.bits.addr === (config.RTC_MNIO + 4).U),
-          aRTC,
-          aREAD
-        )
+        state := aREAD
       }
     }
     // only received write addr
@@ -104,28 +92,6 @@ class SRAM extends Module {
     // ready to read
     is(aREAD) {
       state := aReadACK
-    }
-    is(aUART) {
-      printf("%c", in.writeData.bits.data(7, 0))
-      state := aUARTACK
-    }
-    is(aRTC) {
-      dmem.io.memRW := 0.U
-      state         := aRTCACK
-    }
-    is(aUARTACK) {
-      in.writeResp.valid := true.B
-      in.writeResp.bits  := 0.U
-      when(in.writeResp.ready && in.writeResp.valid) {
-        state := aIDLE
-      }
-    }
-    is(aRTCACK) {
-      in.readData.valid     := 1.U
-      in.readData.bits.resp := 0.U
-      when(in.readData.ready && in.readData.valid) {
-        state := aIDLE
-      }
     }
     // finished write/read transaction
     is(aWriteACK) {

@@ -69,6 +69,9 @@ class myArbiter extends Module {
   uart := DontCare
   rtc  := DontCare
 
+  uart.writeData.valid := false.B
+  rtc.readAddr.valid := false.B
+
   // 默认将 ar, wr, w 的 ready 置为 false
   // r, b 的 valid 置为 false
   // 其他信号不关心

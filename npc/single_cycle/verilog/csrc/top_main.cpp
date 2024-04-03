@@ -62,15 +62,15 @@ static void dummy() {
   int num_i = 0;
   while (1)
   {
-    Log("%d clock cycle", num_i++);
+    // Log("%d clock cycle", num_i++);
     top->clock = 0;
     top->eval();
     contextp->timeInc(1);
-    tfp->dump(contextp->time());
+    // tfp->dump(contextp->time());
     top->clock = 1;
     top->eval();
     contextp->timeInc(1);
-    tfp->dump(contextp->time());
+    // tfp->dump(contextp->time());
 
     if (nemu_state.state == NEMU_END) {
       Log("execution ended at cycle %d", num_i);

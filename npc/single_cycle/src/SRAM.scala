@@ -44,7 +44,7 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
-  val mtime = RegInit(0.U(UInt(64.W)))
+  val mtime = RegInit(UInt(64.W), 0.U)
   mtime := mtime + 1.U
 
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。

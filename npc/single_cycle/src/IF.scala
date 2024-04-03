@@ -26,16 +26,13 @@ class IFU(memoryFile: String) extends Module {
   val wb2ifIn   = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2idOut  = IO(Decoupled(new IFUOutputIO))
   val ifuAxiOut = IO(AxiLiteMaster(width, width))
-  val ifuEnable = IO(Output(Bool()))
 
   val axiController = Module(AxiController(width, width))
-
-  ifuAxiOut <> axiController.axiOut
 
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
-  if2idOut.bits.pc := RegEnable(wb2ifIn.bits.wbNextpc, config.startPC.U, wb2ifIn.valid)
+  ifuAxiOut <> axiController.axiOut
 
   // if2id_out.bits.inst := Cat(instMem.io.inst)
   // instMem.io.pc       := if2id_out.bits.pc
@@ -47,12 +44,12 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
-  // DontCare 真的么问题吗
+  if2idOut.bits.pc := RegEnable(wb2ifIn.bits.wbNextpc, config.startPC.U, wb2ifIn.valid)
+
   axiController.stageInput.writeAddr := DontCare
   axiController.stageInput.writeData := DontCare
   axiController.stageInput.writeResp := DontCare
 
-  ifuEnable := false.B
 
   switch(ifu_state) {
     is(sIDLE) {
@@ -62,14 +59,12 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is(sWaitReady) {
-      ifuEnable                               := true.B
       axiController.stageInput.readAddr.valid := true.B
       when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
         ifu_state := sACK
       }
     }
     is(sACK) {
-      ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         ifu_state := sCompleted
       }
@@ -91,7 +86,6 @@ class IFU(memoryFile: String) extends Module {
   next_inst.io.ready := if2idOut.ready && (if2idOut.bits.pc =/= config.startPC.U)
   next_inst.io.valid := if2idOut.valid
 }
-
 
 class Next_inst extends BlackBox with HasBlackBoxResource {
   val io = IO(new Bundle {

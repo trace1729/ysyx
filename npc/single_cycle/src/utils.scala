@@ -3,7 +3,7 @@ package cpu
 import chisel3._
 import chisel3.util._
 import cpu.config._
-
+import org.w3c.dom.DOMError
 
 object utils {
   def padding(len: Int, v: UInt): UInt = Cat(Seq.fill(len)(v))
@@ -29,11 +29,10 @@ object utils {
 
 class LSFR(val len: Int) extends Module {
   val out = IO(Output(UInt(len.W)))
-  
 
   val taps  = Seq.fill(len)(RegInit(0.U(1.W)))
   val const = Seq(1.U, 0.U, 1.U, 1.U, 1.U, 0.U, 0.U, 0.U)
-  // 7 -> 6 - > 5 ... 
+  // 7 -> 6 - > 5 ...
 
   taps.tail.zip(taps).foreach {
     case (a, b) => b := a
@@ -51,20 +50,31 @@ class LSFR(val len: Int) extends Module {
     taps(0) := 1.U
   }
 
-  out  := Cat(taps.reverse)
+  out := Cat(taps.reverse)
 }
 
-
 object ArbiterState extends ChiselEnum {
-  val sIDLE, sIFU, sLSU = Value
+  val sIDLE, sIFU, sLSU, sUART, sRTC = Value
 }
 
 class myArbiter extends Module {
   val ifuIn = IO(Flipped(AxiLiteMaster(width, width)))
   val lsuIn = IO(Flipped(AxiLiteMaster(width, width)))
-  val out   = IO(AxiLiteMaster(width, width))
 
-  out := DontCare
+  val sram = IO(AxiLiteMaster(width, width))
+  val uart = IO(AxiLiteMaster(width, width))
+  val rtc  = IO(AxiLiteMaster(width, width))
+
+  sram := DontCare
+  uart := DontCare
+  rtc  := DontCare
+
+  uart.writeData.valid := false.B
+  uart.writeAddr.valid := false.B
+  rtc.readAddr.valid := false.B
+  sram.writeData.valid := false.B
+  sram.writeAddr.valid := false.B
+  sram.readAddr.valid := false.B
 
   // 默认将 ar, wr, w 的 ready 置为 false
   // r, b 的 valid 置为 false
@@ -91,31 +101,143 @@ class myArbiter extends Module {
   import ArbiterState._
   val arbiterState = RegInit(sIDLE)
 
-
-  switch (arbiterState) {
-    is (sIDLE) {
+  switch(arbiterState) {
+    is(sIDLE) {
       when(ifuIn.writeAddr.valid || ifuIn.writeData.valid || ifuIn.readAddr.valid) {
         arbiterState := sIFU
       }.elsewhen(lsuIn.writeAddr.valid || lsuIn.writeData.valid || lsuIn.readAddr.valid) {
-        arbiterState := sLSU
+        arbiterState := MuxCase(
+          sLSU,
+          Seq(
+            (lsuIn.writeAddr.bits.addr === config.SERAL_MNIO.U) -> sUART,
+            (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) -> sRTC,
+            (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U) -> sRTC
+          )
+        )
       }
     }
-    is (sIFU) {
-      out <> ifuIn
+    is(sIFU) {
+      sram <> ifuIn
       when(ifuIn.readData.valid && ifuIn.readData.ready) {
         arbiterState := sIDLE
       }
     }
-    is (sLSU) {
-      out <> lsuIn
+    is(sLSU) {
+      sram <> lsuIn
       when(lsuIn.readData.valid && lsuIn.readData.ready) {
         arbiterState := sIDLE
       }
-      when (lsuIn.writeResp.valid && lsuIn.writeResp.ready) {
+      when(lsuIn.writeResp.valid && lsuIn.writeResp.ready) {
+        arbiterState := sIDLE
+      }
+    }
+    is(sUART) {
+      uart <> lsuIn
+      when(lsuIn.writeResp.valid && lsuIn.writeResp.ready) {
+        arbiterState := sIDLE
+      }
+    }
+    is(sRTC) {
+      rtc <> lsuIn
+      when(lsuIn.readData.valid && lsuIn.readData.ready) {
         arbiterState := sIDLE
       }
     }
   }
+}
+
+object deviceState extends ChiselEnum {
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK, aUART, aRTC, aUARTACK, aRTCACK = Value
+}
+
+class Uart extends Module {
+
+  val in = IO(Flipped(AxiLiteMaster(width, width)))
+  import deviceState._
+  val state = RegInit(aIDLE)
+
+  // 不关心
+  in.readAddr.ready := false.B
+  in.readData.valid := false.B
+  in.readData.bits  := DontCare
+
+  // 有关
+  in.writeResp.valid    := false.B
+  in.writeResp.bits     := 1.U
+
+  // ready follows valid
+  in.writeAddr.ready := in.writeAddr.valid
+  in.writeData.ready := in.writeData.valid
+
+  // using a state machine would elegantly represent
+  // the whole axi interface communicating process
+  switch(state) {
+    is(aIDLE) {
+      // received write data and address concurrently
+      when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
+        state := aUART
+      }
+    }
+    is(aUART) {
+      printf("%c", in.writeData.bits.data(7, 0))
+      state := aUARTACK
+    }
+    is(aUARTACK) {
+      in.writeResp.valid := true.B
+      in.writeResp.bits  := 0.U
+      when(in.writeResp.ready && in.writeResp.valid) {
+        state := aIDLE
+      }
+    }
+  }
+}
+
+class RTC extends Module {
+
+  val in = IO(Flipped(AxiLiteMaster(width, width)))
+  import deviceState._
+  val state = RegInit(aIDLE)
 
 
+  // 不关心的
+  in.writeResp.bits     := DontCare
+  in.writeResp.valid    := false.B
+  in.writeData.ready    := false.B
+  in.writeAddr.ready := false.B
+
+  // 有关的
+  in.readAddr.ready := in.readAddr.valid
+  in.readData.valid     := false.B
+  in.readData.bits.resp := 1.U
+
+  val mtime = RegInit(UInt(64.W), 0.U)
+  mtime := mtime + 1.U
+
+  in.readData.bits.data := MuxCase(
+    0.U,
+    Seq(
+      (in.readAddr.bits.addr === config.RTC_MNIO.U) -> mtime(31, 0),
+      (in.readAddr.bits.addr === (config.RTC_MNIO + 4).U) -> mtime(63, 32)
+    )
+  )
+
+  // using a state machine would elegantly represent
+  // the whole axi interface communicating process
+  switch(state) {
+    is(aIDLE) {
+      when(in.readAddr.ready && in.readAddr.valid) {
+        state := aRTC
+      }
+    }
+    is(aRTC) {
+      state := aRTCACK
+    }
+    is(aRTCACK) {
+      in.readData.valid     := 1.U
+      in.readData.bits.resp := 0.U
+      when(in.readData.ready && in.readData.valid) {
+        state := aIDLE
+      }
+    }
+  }
 }

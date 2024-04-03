@@ -22,6 +22,8 @@ class Datapath(memoryFile: String) extends Module {
   val mem     = Module(new LSU)
   val wb      = Module(new WB)
   val arbiter = Module(new myArbiter)
+  val uart    = Module(new Uart)
+  val rtc     = Module(new RTC)
 
   val sram = Module(new SRAM)
 
@@ -34,7 +36,9 @@ class Datapath(memoryFile: String) extends Module {
   // for axi interface
   arbiter.ifuIn <> ifu.ifuAxiOut
   arbiter.lsuIn <> mem.lsuAxiOut
-  arbiter.out <> sram.in
+  arbiter.sram <> sram.in
+  arbiter.uart <> uart.in
+  arbiter.rtc <> rtc.in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
   idu.data           := wb.wb2ifuOut.bits.wbData

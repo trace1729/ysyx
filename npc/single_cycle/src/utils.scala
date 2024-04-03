@@ -3,6 +3,7 @@ package cpu
 import chisel3._
 import chisel3.util._
 import cpu.config._
+import org.w3c.dom.DOMError
 
 object utils {
   def padding(len: Int, v: UInt): UInt = Cat(Seq.fill(len)(v))
@@ -148,10 +149,18 @@ class Uart extends Module {
   import deviceState._
   val state = RegInit(aIDLE)
 
+  // 不关心
+  in.readAddr.ready := false.B
+  in.readData.valid := false.B
+  in.readData.bits  := DontCare
+
+  // 有关
   in.writeResp.valid    := false.B
-  in.readData.valid     := false.B
-  in.readData.bits.resp := 1.U
   in.writeResp.bits     := 1.U
+
+  // ready follows valid
+  in.writeAddr.ready := in.writeAddr.valid
+  in.writeData.ready := in.writeData.valid
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
@@ -198,10 +207,17 @@ class RTC extends Module {
   import deviceState._
   val state = RegInit(aIDLE)
 
+
+  // 不关心的
+  in.writeResp.bits     := DontCare
   in.writeResp.valid    := false.B
+  in.writeData.ready    := false.B
+  in.writeAddr.ready := false.B
+
+  // 有关的
+  in.readAddr.ready := in.readAddr.valid
   in.readData.valid     := false.B
   in.readData.bits.resp := 1.U
-  in.writeResp.bits     := 1.U
 
   val mtime = RegInit(UInt(64.W), 0.U)
   mtime := mtime + 1.U

@@ -13,7 +13,7 @@ import cpu.utils._
 //   aREAD will have the value 2, and aACK will have the value 3.
 
 object SRAMState extends ChiselEnum {
-  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK, aUART, aRTC = Value
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK, aUART, aRTC, aUARTACK, aRTCACK = Value
 }
 
 class SRAM extends Module {
@@ -64,9 +64,8 @@ class SRAM extends Module {
   dmem.io.waddr := Mux(ifuEnable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
   dmem.io.wdata := Mux(ifuEnable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
   dmem.io.wmask := Mux(ifuEnable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
-  
 
-  dmem.io.memRW := 0.U
+  dmem.io.memRW     := 0.U
   dmem.io.memEnable := false.B
 
   ifuIn.readData.bits.data := dmem.io.rdata
@@ -135,17 +134,31 @@ class SRAM extends Module {
     }
     is(aUART) {
       printf("%c", lsuIn.writeData.bits.data(7, 0))
-      state := aWriteACK
+      state := aUARTACK
     }
     is(aRTC) {
       dmem.io.memRW := 0.U
-      state := aReadACK
+      state         := aRTCACK
+    }
+    is(aUARTACK) {
+      lsuIn.writeResp.valid := true.B
+      lsuIn.writeResp.bits  := 0.U
+      when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
+        state := aIDLE
+      }
+    }
+    is(aRTCACK) {
+      lsuIn.readData.valid     := 1.U
+      lsuIn.readData.bits.resp := 0.U
+      when(lsuIn.readData.ready && lsuIn.readData.valid) {
+        state := aIDLE
+      }
     }
     // finished write/read transaction
     is(aWriteACK) {
       // when (timer === 0.U) {
-      dmem.io.memEnable := true.B
-      dmem.io.memRW := 1.U
+      dmem.io.memEnable     := true.B
+      dmem.io.memRW         := 1.U
       lsuIn.writeResp.valid := true.B
       lsuIn.writeResp.bits  := 0.U
       when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
@@ -155,7 +168,7 @@ class SRAM extends Module {
     }
     is(aReadACK) {
       // when (timer === 0.U) {
-      dmem.io.memRW := 0.U
+      dmem.io.memRW     := 0.U
       dmem.io.memEnable := true.B
       when(ifuEnable) {
         ifuIn.readData.valid     := 1.U

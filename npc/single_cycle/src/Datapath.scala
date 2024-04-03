@@ -21,7 +21,7 @@ class Datapath(memoryFile: String) extends Module {
   val ex      = Module(new EX)
   val mem     = Module(new LSU)
   val wb      = Module(new WB)
-  val arbiter = Module(new Arbiter)
+  val arbiter = Module(new myArbiter)
 
   val sram = Module(new SRAM)
 

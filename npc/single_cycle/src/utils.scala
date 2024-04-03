@@ -59,7 +59,7 @@ object ArbiterState extends ChiselEnum {
   val sIDLE, sIFU, sLSU = Value
 }
 
-class Arbiter extends Module {
+class myArbiter extends Module {
   val ifuIn = IO(Flipped(AxiLiteMaster(width, width)))
   val lsuIn = IO(Flipped(AxiLiteMaster(width, width)))
   val out   = IO(AxiLiteMaster(width, width))

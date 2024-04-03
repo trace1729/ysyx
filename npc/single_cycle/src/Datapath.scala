@@ -60,9 +60,19 @@ class Arbiter extends Module {
   ifuIn.writeAddr.ready := false.B
   ifuIn.writeData.ready := false.B
 
+  ifuIn.readData.valid  := false.B
+  ifuIn.readData.bits   := DontCare
+  ifuIn.writeResp.valid := false.B
+  ifuIn.writeResp.bits  := false.B
+
   lsuIn.readAddr.ready  := false.B
   lsuIn.writeAddr.ready := false.B
   lsuIn.writeData.ready := false.B
+
+  lsuIn.readData.valid  := false.B
+  lsuIn.readData.bits   := DontCare
+  lsuIn.writeResp.valid := false.B
+  lsuIn.writeResp.bits  := false.B
 
   when(ifuIn.writeAddr.valid || ifuIn.writeData.valid || ifuIn.readAddr.valid) {
     out <> ifuIn

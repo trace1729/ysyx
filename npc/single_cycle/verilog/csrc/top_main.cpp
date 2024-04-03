@@ -86,8 +86,8 @@ int main(int argc, char** argv, char** env) {
 
   init_monitor(argc, argv);
   sdb_mainloop();
-  // dummy();
-  sim_end();
+  dummy();
+  // sim_end();
   Log("gracefully quit");
   
   return is_exit_status_bad();

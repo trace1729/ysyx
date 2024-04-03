@@ -9,9 +9,9 @@ import os.read
 import org.yaml.snakeyaml.events.Event.ID
 
 class LSU extends Module {
-  val ex2lsuIn            = IO(Flipped(Decoupled(new EXOutputIO)))
-  val lsuAxiOut   = IO(AxiLiteMaster(width, width))
-  val ex2lsuOut           = IO(Decoupled(new MEMOutputIO(width)))
+  val ex2lsuIn      = IO(Flipped(Decoupled(new EXOutputIO)))
+  val lsuAxiOut     = IO(AxiLiteMaster(width, width))
+  val ex2lsuOut     = IO(Decoupled(new MEMOutputIO(width)))
   val axiController = Module(AxiController(width, width))
 
   lsuAxiOut <> axiController.axiOut
@@ -52,16 +52,18 @@ class LSU extends Module {
       axiController.stageInput.writeAddr.valid := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, true.B, false.B)
       axiController.stageInput.writeData.valid := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, true.B, false.B)
 
-      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
-        lsu_state :=  Mux(ex2lsuIn.bits.ctrlsignals.memRW === 0.U, sACK, sIDLE)
+      when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+        lsu_state := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 0.U, sACK, sIDLE)
       }
 
-      when (axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready) {
+      when(
+        axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready
+      ) {
         lsu_state := Mux(ex2lsuIn.bits.ctrlsignals.memRW === 1.U, sACK, sIDLE)
       }
 
     }
-    is (sACK) {
+    is(sACK) {
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
         lsu_state := sCompleted
       }
@@ -69,13 +71,13 @@ class LSU extends Module {
         lsu_state := sCompleted
       }
     }
-    is (sCompleted) {
+    is(sCompleted) {
       lsu_state := sIDLE
     }
   }
 
   val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
-  val readData = RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
+  val readData      = RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
 
   // 处理读取的数据
   val rmemdata = Wire(UInt(width.W))
@@ -118,7 +120,6 @@ class LSU extends Module {
   ex2lsuOut.bits.mtvec := ex2lsuIn.bits.mtvec
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
- 
 
   // 处理握手信号
   val lsu_valid_reg = RegInit(0.U)

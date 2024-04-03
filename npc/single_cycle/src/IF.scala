@@ -74,7 +74,9 @@ class IFU(memoryFile: String) extends Module {
       }
     }
     is (sCompleted) {
-      ifu_state := sIDLE
+      when (if2idOut.valid && if2idOut.ready) {
+        ifu_state := sIDLE
+      }
     }
   }
 

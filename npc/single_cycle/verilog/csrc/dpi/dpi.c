@@ -67,6 +67,9 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 #endif
     return us;
   }
+  if (raddr < 0x8000000) {
+    return 0;
+  }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
   // printf("read addr %x, rdata %x\n", raddr, rdata);
   return rdata;

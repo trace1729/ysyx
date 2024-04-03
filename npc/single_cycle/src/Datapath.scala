@@ -28,7 +28,7 @@ class Datapath(memoryFile: String) extends Module {
   ifu.if2idOut <> idu.if2idIn
   idu.id2exOut <> ex.id2exIn
   ex.ex2memOut <> mem.ex2lsuIn
-  mem.ex2lsuOut <> wb.lsu2wbIn
+  mem.lsu2wbOut <> wb.lsu2wbIn
   wb.wb2ifuOut <> ifu.wb2ifIn
 
   // for axi interface

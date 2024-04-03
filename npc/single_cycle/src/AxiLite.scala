@@ -64,18 +64,6 @@ object AxiState extends ChiselEnum {
   val aIDLE, aWRITE, aREAD, aACK = Value
 }
 
-class ExternalInput extends Bundle {
-  val externalMemRW   = Flipped(Bool())
-  val externalMemEn   = Flipped(Bool())
-  val externalValid   = Flipped(Bool())
-  val externalData    = Flipped(UInt(32.W))
-  val externalWmask   = Flipped(UInt(4.W))
-  val externalAddress = Flipped(UInt(32.W))
-}
-
-object ExternalInput {
-  def apply() = new ExternalInput
-}
 
 object AxiController {
   def apply(addrWidth: Int, dataWidth: Int) = new AxiController(addrWidth, dataWidth)

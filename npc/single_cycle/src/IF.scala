@@ -4,6 +4,7 @@ import chisel3._
 import chisel3.util._
 import cpu.config._
 import cpu.utils._
+import os.read
 
 /** ********************IFU**************************
   */
@@ -14,7 +15,7 @@ class IFUOutputIO extends Bundle {
 }
 
 object stageState extends ChiselEnum {
-  val sIDLE, sWaitReady, sACK = Value
+  val sIDLE, sWaitReady, sACK, sCompleted = Value
 }
 
 // the axiController shall connected to the memArbiter
@@ -69,14 +70,21 @@ class IFU(memoryFile: String) extends Module {
     is(sACK) {
       ifuEnable := true.B
       when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
+        ifu_state := sCompleted
+      }
+    }
+    is (sCompleted) {
+      when (if2idOut.valid && if2idOut.ready) {
         ifu_state := sIDLE
       }
     }
   }
 
+  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+
   axiController.stageInput.readAddr.bits.addr := if2idOut.bits.pc
-  if2idOut.bits.inst                         := axiController.stageInput.readData.bits.data
-  if2idOut.valid                             := axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+  if2idOut.bits.inst                         := RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
+  if2idOut.valid                             := ifu_state === sCompleted
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2idOut.ready && (if2idOut.bits.pc =/= config.startPC.U)

@@ -13,14 +13,14 @@ import cpu.utils._
 //   aREAD will have the value 2, and aACK will have the value 3.
 
 object SRAMState extends ChiselEnum {
-  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK = Value
+  val aIDLE, awriteDataAddr, awriteData, awriteAddr, aREAD, aWriteACK, aReadACK, aUART, aRTC, aUARTACK, aRTCACK = Value
 }
 
 class SRAM extends Module {
   val ifuEnable = IO(Input(Bool()))
-  val ifuIn      = IO(Flipped(AxiLiteMaster(width, width)))
-  val lsuIn      = IO(Flipped(AxiLiteMaster(width, width)))
-  val dmem       = Module(new Dmem(width))
+  val ifuIn     = IO(Flipped(AxiLiteMaster(width, width)))
+  val lsuIn     = IO(Flipped(AxiLiteMaster(width, width)))
+  val dmem      = Module(new Dmem(width))
 
   // ready follows valid
 
@@ -44,6 +44,9 @@ class SRAM extends Module {
   //   then set the state to ack state
 
   val state = RegInit(aIDLE)
+  val mtime = RegInit(UInt(64.W), 0.U)
+  mtime := mtime + 1.U
+
 
   // 直接设置一个计数器，来模拟延迟，每一条指令的执行周期都不一样，这样也算模拟了随机延迟了。
   // TODO 为 valid / ready 信号设置一个随机延迟
@@ -54,20 +57,18 @@ class SRAM extends Module {
   dmem.io.waddr := Mux(ifuEnable, ifuIn.writeAddr.bits.addr, lsuIn.writeAddr.bits.addr)
   dmem.io.wdata := Mux(ifuEnable, ifuIn.writeData.bits.data, lsuIn.writeData.bits.data)
   dmem.io.wmask := Mux(ifuEnable, ifuIn.writeData.bits.strb, lsuIn.writeData.bits.strb)
-  dmem.io.memRW := MuxCase(
-    0.U,
+
+  dmem.io.memRW     := 0.U
+  dmem.io.memEnable := false.B
+
+  ifuIn.readData.bits.data := dmem.io.rdata
+  lsuIn.readData.bits.data := MuxCase(
+    dmem.io.rdata,
     Seq(
-      (state === aREAD) -> 0.U,
-      (state === awriteDataAddr) -> 1.U
+      (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) -> mtime(31, 0),
+      (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U) -> mtime(63, 32)
     )
   )
-  dmem.io.memEnable := (state === aREAD) || (state === awriteDataAddr)
-
-  ifuIn.readData.bits.data := 0.U
-  lsuIn.readData.bits.data := 0.U
-
-  ifuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable & ifuEnable)
-  lsuIn.readData.bits.data := RegEnable(dmem.io.rdata, dmem.io.memEnable)
 
   when(ifuEnable) {
     ifuIn.writeResp.valid    := false.B
@@ -85,7 +86,6 @@ class SRAM extends Module {
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
-
   switch(state) {
     is(aIDLE) {
       // received write data and address concurrently
@@ -95,14 +95,18 @@ class SRAM extends Module {
         }
       }.otherwise {
         when(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid && lsuIn.writeData.valid && lsuIn.writeData.ready) {
-          state := awriteDataAddr
+          state := Mux(lsuIn.writeAddr.bits.addr === config.SERAL_MNIO.U, aUART, awriteDataAddr)
         }.elsewhen(lsuIn.writeData.ready && lsuIn.writeData.valid) {
           state := awriteData
         }.elsewhen(lsuIn.writeAddr.ready && lsuIn.writeAddr.valid) {
           state := awriteAddr
         }
         when(lsuIn.readAddr.ready && lsuIn.readAddr.valid) {
-          state := aREAD
+          state := Mux(
+            (lsuIn.readAddr.bits.addr === config.RTC_MNIO.U) || (lsuIn.readAddr.bits.addr === (config.RTC_MNIO + 4).U),
+            aRTC,
+            aREAD
+          )
         }
       }
     }
@@ -127,9 +131,33 @@ class SRAM extends Module {
     is(aREAD) {
       state := aReadACK
     }
+    is(aUART) {
+      printf("%c", lsuIn.writeData.bits.data(7, 0))
+      state := aUARTACK
+    }
+    is(aRTC) {
+      dmem.io.memRW := 0.U
+      state         := aRTCACK
+    }
+    is(aUARTACK) {
+      lsuIn.writeResp.valid := true.B
+      lsuIn.writeResp.bits  := 0.U
+      when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
+        state := aIDLE
+      }
+    }
+    is(aRTCACK) {
+      lsuIn.readData.valid     := 1.U
+      lsuIn.readData.bits.resp := 0.U
+      when(lsuIn.readData.ready && lsuIn.readData.valid) {
+        state := aIDLE
+      }
+    }
     // finished write/read transaction
     is(aWriteACK) {
       // when (timer === 0.U) {
+      dmem.io.memEnable     := true.B
+      dmem.io.memRW         := 1.U
       lsuIn.writeResp.valid := true.B
       lsuIn.writeResp.bits  := 0.U
       when(lsuIn.writeResp.ready && lsuIn.writeResp.valid) {
@@ -139,6 +167,8 @@ class SRAM extends Module {
     }
     is(aReadACK) {
       // when (timer === 0.U) {
+      dmem.io.memRW     := 0.U
+      dmem.io.memEnable := true.B
       when(ifuEnable) {
         ifuIn.readData.valid     := 1.U
         ifuIn.readData.bits.resp := 0.U

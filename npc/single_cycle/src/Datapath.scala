@@ -18,8 +18,7 @@ class Datapath(memoryFile: String) extends Module {
 
   val ifu     = Module(new IFU(memoryFile))
   val idu     = Module(new IDU)
-  val ex      = Module(new EX)
-  val mem     = Module(new LSU)
+  val lsu     = Module(new LSU)
   val wb      = Module(new WB)
   val arbiter = Module(new myArbiter)
   val uart    = Module(new Uart)
@@ -28,14 +27,13 @@ class Datapath(memoryFile: String) extends Module {
   val sram = Module(new SRAM)
 
   ifu.if2idOut <> idu.if2idIn
-  idu.id2exOut <> ex.id2exIn
-  ex.ex2memOut <> mem.ex2lsuIn
-  mem.lsu2wbOut <> wb.lsu2wbIn
+  idu.id2exOut <> lsu.id2lsuIn
+  lsu.lsu2wbOut <> wb.lsu2wbIn
   wb.wb2ifuOut <> ifu.wb2ifIn
 
   // for axi interface
   arbiter.ifuIn <> ifu.ifuAxiOut
-  arbiter.lsuIn <> mem.lsuAxiOut
+  arbiter.lsuIn <> lsu.lsuAxiOut
   arbiter.sram <> sram.in
   arbiter.uart <> uart.in
   arbiter.rtc <> rtc.in

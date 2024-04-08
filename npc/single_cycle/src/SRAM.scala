@@ -41,7 +41,6 @@ class SRAM extends Module {
   // val timer = RegInit(0.U(32.W))
   // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
-  // TODO 这里应该把数据锁存在寄存器里，不应该直连
   dmem.io.raddr := in.readAddr.bits.addr
   dmem.io.waddr := in.writeAddr.bits.addr
   dmem.io.wdata := in.writeData.bits.data

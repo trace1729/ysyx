@@ -25,42 +25,42 @@ class EXOutputIO extends Bundle {
 }
 
 class EX extends Module {
-  val ex2lsuIn   = IO(Flipped(Decoupled(new IDUOutputIO)))
+  val id2exIn   = IO(Flipped(Decoupled(new IDUOutputIO)))
   val ex2memOut = IO(Decoupled(new EXOutputIO))
 
   val alu = Module(new Alu(width))
   // 因为控制逻辑是贯穿五个阶段的，所以每一个阶段(除了ID)都会有控制信号的输入
   // 这样就比较怪了，那我当前的阶段需要将控制信号传递给之后的阶段
 
-  alu.io.alusel := ex2lsuIn.bits.ctrlsignals.alusel
+  alu.io.alusel := id2exIn.bits.ctrlsignals.alusel
   // 0 for rs1, 1 for pc
-  alu.io.A := Mux(!ex2lsuIn.bits.ctrlsignals.asel, ex2lsuIn.bits.rs1, ex2lsuIn.bits.pc)
+  alu.io.A := Mux(!id2exIn.bits.ctrlsignals.asel, id2exIn.bits.rs1, id2exIn.bits.pc)
   // 0 for rs2, 1 for imm
-  alu.io.B := Mux(!ex2lsuIn.bits.ctrlsignals.bsel, ex2lsuIn.bits.rs2, ex2lsuIn.bits.immediate)
+  alu.io.B := Mux(!id2exIn.bits.ctrlsignals.bsel, id2exIn.bits.rs2, id2exIn.bits.immediate)
 
   ex2memOut.bits.carry       := alu.io.carry
   ex2memOut.bits.overflow    := alu.io.overflow
   ex2memOut.bits.alures      := alu.io.res
   ex2memOut.bits.zero        := alu.io.zero
-  ex2memOut.bits.ctrlsignals := ex2lsuIn.bits.ctrlsignals
+  ex2memOut.bits.ctrlsignals := id2exIn.bits.ctrlsignals
 
-  ex2memOut.bits.pc       := ex2lsuIn.bits.pc
-  ex2memOut.bits.inst     := ex2lsuIn.bits.inst
-  ex2memOut.bits.csrvalue := ex2lsuIn.bits.csrvalue
-  ex2memOut.bits.rs2      := ex2lsuIn.bits.rs2
+  ex2memOut.bits.pc       := id2exIn.bits.pc
+  ex2memOut.bits.inst     := id2exIn.bits.inst
+  ex2memOut.bits.csrvalue := id2exIn.bits.csrvalue
+  ex2memOut.bits.rs2      := id2exIn.bits.rs2
 
-  ex2memOut.bits.mepc  := ex2lsuIn.bits.mepc
-  ex2memOut.bits.mtvec := ex2lsuIn.bits.mtvec
+  ex2memOut.bits.mepc  := id2exIn.bits.mepc
+  ex2memOut.bits.mtvec := id2exIn.bits.mtvec
 
   // ready, valid 信号全部设置成1
   // id2ex_in.ready  := 1.U
   // ex2mem_out.valid := 1.U
 
-  ex2lsuIn.ready := ex2lsuIn.valid
+  id2exIn.ready := id2exIn.valid
   val exu_valid_reg = RegInit(0.U)
   ex2memOut.valid := exu_valid_reg
 
-  when(ex2lsuIn.valid) {
+  when(id2exIn.valid) {
     exu_valid_reg := 1.U
   }.elsewhen(ex2memOut.ready && ex2memOut.valid) {
     exu_valid_reg := 0.U

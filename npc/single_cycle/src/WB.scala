@@ -1,4 +1,3 @@
-
 package cpu
 
 import chisel3._
@@ -6,14 +5,13 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 
-
 /** *******************WB***************************
   */
 
 class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
-  val wbData        = Output(UInt(32.W))
-  val wbNextpc      = Output(UInt(32.W))
+  val wbData         = Output(UInt(32.W))
+  val wbNextpc       = Output(UInt(32.W))
   val regfileWriteEn = Output(Bool())
   val csrsWriteEn    = Output(Bool())
   val mepcWriteEn    = Output(Bool())
@@ -31,26 +29,24 @@ class WB extends Module {
   wb2ifuOut.bits.wbData   := wbDataReg
   wb2ifuOut.bits.wbNextpc := wbNextpcReg
 
-  when(lsu2wbIn.valid) {
-    wbDataReg := MuxCase(
-      0.U,
-      Seq(
-        (lsu2wbIn.bits.ctrlsignals.WBsel === 0.U) -> lsu2wbIn.bits.alures,
-        (lsu2wbIn.bits.ctrlsignals.WBsel === 1.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
-        (lsu2wbIn.bits.ctrlsignals.WBsel === 2.U) -> lsu2wbIn.bits.rdata,
-        (lsu2wbIn.bits.ctrlsignals.WBsel === 3.U) -> lsu2wbIn.bits.csrvalue
-      )
+  wbDataReg := MuxCase(
+    0.U,
+    Seq(
+      (lsu2wbIn.bits.ctrlsignals.WBsel === 0.U) -> lsu2wbIn.bits.alures,
+      (lsu2wbIn.bits.ctrlsignals.WBsel === 1.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
+      (lsu2wbIn.bits.ctrlsignals.WBsel === 2.U) -> lsu2wbIn.bits.rdata,
+      (lsu2wbIn.bits.ctrlsignals.WBsel === 3.U) -> lsu2wbIn.bits.csrvalue
     )
-    wbNextpcReg := MuxCase(
-      0.U,
-      Seq(
-        (lsu2wbIn.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
-        (lsu2wbIn.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbIn.bits.alures,
-        (lsu2wbIn.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbIn.bits.mepc,
-        (lsu2wbIn.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbIn.bits.mtvec
-      )
+  )
+  wbNextpcReg := MuxCase(
+    0.U,
+    Seq(
+      (lsu2wbIn.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbIn.bits.pc + config.XLEN.U),
+      (lsu2wbIn.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbIn.bits.alures,
+      (lsu2wbIn.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbIn.bits.mepc,
+      (lsu2wbIn.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbIn.bits.mtvec
     )
-  }
+  )
 
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc     := lsu2wbIn.bits.pc
@@ -82,4 +78,3 @@ class Dpi_itrace extends BlackBox with HasBlackBoxResource {
   })
   addResource("/Dpi_itrace.sv")
 }
-

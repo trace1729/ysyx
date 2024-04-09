@@ -14,14 +14,14 @@ class LSU extends Module {
   val axiController = Module(AxiController(width, width))
   val alu = Module(new Alu(width))
 
-  
+  // EX
   alu.io.alusel := id2lsuIn.bits.ctrlsignals.alusel
   // 0 for rs1, 1 for pc
   alu.io.A := Mux(!id2lsuIn.bits.ctrlsignals.asel, id2lsuIn.bits.rs1, id2lsuIn.bits.pc)
   // 0 for rs2, 1 for imm
   alu.io.B := Mux(!id2lsuIn.bits.ctrlsignals.bsel, id2lsuIn.bits.rs2, id2lsuIn.bits.immediate)
 
-
+  // MEM
   lsuAxiOut <> axiController.axiOut
 
   // activate the axiController

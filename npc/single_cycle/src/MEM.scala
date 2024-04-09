@@ -14,6 +14,24 @@ class LSU extends Module {
   val axiController = Module(AxiController(width, width))
   val alu = Module(new Alu(width))
 
+  val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
+  lsuNextpcReg := MuxCase(
+    0.U,
+    Seq(
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbOut.bits.pc + config.XLEN.U),
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbOut.bits.alures,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbOut.bits.mepc,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbOut.bits.mtvec
+    )
+  )
+
+  // 确定下一条指令
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := id2lsuIn.bits.pc
+  itrace.io.inst   := id2lsuIn.bits.inst
+  itrace.io.nextpc := lsuNextpcReg
+  
+
   // EX
   alu.io.alusel := id2lsuIn.bits.ctrlsignals.alusel
   // 0 for rs1, 1 for pc
@@ -151,6 +169,7 @@ class LSU extends Module {
 }
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
+  val nextPC      = Output(UInt(width.W))
   val inst        = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
@@ -158,4 +177,13 @@ class MEMOutputIO(width: Int) extends Bundle {
   val rdata       = Output(UInt(width.W))
   val mepc        = Output(UInt(width.W))
   val mtvec       = Output(UInt(width.W))
+}
+
+class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val pc     = Input(UInt(32.W))
+    val inst   = Input(UInt(32.W))
+    val nextpc = Input(UInt(32.W))
+  })
+  addResource("/Dpi_itrace.sv")
 }

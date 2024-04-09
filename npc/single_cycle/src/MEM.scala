@@ -12,7 +12,7 @@ class LSU extends Module {
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
   val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
   val axiController = Module(AxiController(width, width))
-  val alu = Module(new Alu(width))
+  val alu           = Module(new Alu(width))
 
   val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
   lsuNextpcReg := MuxCase(
@@ -30,7 +30,6 @@ class LSU extends Module {
   itrace.io.pc     := id2lsuIn.bits.pc
   itrace.io.inst   := id2lsuIn.bits.inst
   itrace.io.nextpc := lsuNextpcReg
-  
 
   // EX
   alu.io.alusel := id2lsuIn.bits.ctrlsignals.alusel
@@ -98,7 +97,7 @@ class LSU extends Module {
       }
     }
     is(sCompleted) {
-      when (lsu2wbOut.valid && lsu2wbOut.ready) {
+      when(lsu2wbOut.valid && lsu2wbOut.ready) {
         lsu_state := sIDLE
       }
     }
@@ -142,6 +141,7 @@ class LSU extends Module {
   lsu2wbOut.bits.ctrlsignals := id2lsuIn.bits.ctrlsignals
   lsu2wbOut.bits.rdata       := rmemdata
   lsu2wbOut.bits.inst        := id2lsuIn.bits.inst
+  lsu2wbOut.bits.nextPC      := lsuNextpcReg
 
   //csr
   lsu2wbOut.bits.mepc  := id2lsuIn.bits.mepc

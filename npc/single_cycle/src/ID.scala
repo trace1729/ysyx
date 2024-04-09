@@ -3,6 +3,7 @@ package cpu
 
 import chisel3._
 import chisel3.util._
+import chisel3.experimental.BundleLiterals._
 import cpu.config._
 import cpu.utils._
 
@@ -35,6 +36,17 @@ class IDU extends Module {
   val ctrlLogic = Module(new controlLogic(width))
   val immgen    = Module(new ImmGen(width))
   val csr       = Module(new CSR(10, width))
+
+
+  // pipeline registers
+  val if2idReg = RegInit(
+    (new IFUOutputIO).Lit(
+      _.inst -> config.NOP,
+      _.pc -> 0.U
+    )
+  )
+   
+
 
   // 输入的 ready 跟随 valid
   if2idIn.ready := if2idIn.valid

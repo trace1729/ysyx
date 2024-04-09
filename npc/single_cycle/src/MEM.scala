@@ -7,21 +7,31 @@ import cpu.utils._
 import scala.annotation.varargs
 import os.read
 
+class MEMOutputIO(width: Int) extends Bundle {
+  val pc          = Output(UInt(width.W))
+  val nextPC      = Output(UInt(width.W))
+  val inst        = Output(UInt(width.W))
+  val ctrlsignals = Output(new ctrlSignals)
+  val csrvalue    = Output(UInt(width.W))
+  val alures      = Output(UInt(width.W))
+  val rdata       = Output(UInt(width.W))
+}
+
 class LSU extends Module {
   val id2lsuIn      = IO(Flipped(Decoupled(new IDUOutputIO)))
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
   val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
   val axiController = Module(AxiController(width, width))
-  val alu           = Module(new Alu(width))
+  val alu = Module(new Alu(width))
 
   val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
   lsuNextpcReg := MuxCase(
     0.U,
     Seq(
-      (lsu2wbOut.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbOut.bits.pc + config.XLEN.U),
-      (lsu2wbOut.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbOut.bits.alures,
-      (lsu2wbOut.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbOut.bits.mepc,
-      (lsu2wbOut.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbOut.bits.mtvec
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 0.U) -> (id2lsuIn.bits.pc + config.XLEN.U),
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 1.U) -> alu.io.res,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 2.U) -> id2lsuIn.bits.mepc,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 3.U) -> id2lsuIn.bits.mtvec
     )
   )
 
@@ -30,6 +40,7 @@ class LSU extends Module {
   itrace.io.pc     := id2lsuIn.bits.pc
   itrace.io.inst   := id2lsuIn.bits.inst
   itrace.io.nextpc := lsuNextpcReg
+  
 
   // EX
   alu.io.alusel := id2lsuIn.bits.ctrlsignals.alusel
@@ -97,7 +108,7 @@ class LSU extends Module {
       }
     }
     is(sCompleted) {
-      when(lsu2wbOut.valid && lsu2wbOut.ready) {
+      when (lsu2wbOut.valid && lsu2wbOut.ready) {
         lsu_state := sIDLE
       }
     }
@@ -141,11 +152,8 @@ class LSU extends Module {
   lsu2wbOut.bits.ctrlsignals := id2lsuIn.bits.ctrlsignals
   lsu2wbOut.bits.rdata       := rmemdata
   lsu2wbOut.bits.inst        := id2lsuIn.bits.inst
-  lsu2wbOut.bits.nextPC      := lsuNextpcReg
+  lsu2wbOut.bits.nextPC := lsuNextpcReg
 
-  //csr
-  lsu2wbOut.bits.mepc  := id2lsuIn.bits.mepc
-  lsu2wbOut.bits.mtvec := id2lsuIn.bits.mtvec
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
 
@@ -166,17 +174,6 @@ class LSU extends Module {
     )
   )
 
-}
-class MEMOutputIO(width: Int) extends Bundle {
-  val pc          = Output(UInt(width.W))
-  val nextPC      = Output(UInt(width.W))
-  val inst        = Output(UInt(width.W))
-  val ctrlsignals = Output(new ctrlSignals)
-  val csrvalue    = Output(UInt(width.W))
-  val alures      = Output(UInt(width.W))
-  val rdata       = Output(UInt(width.W))
-  val mepc        = Output(UInt(width.W))
-  val mtvec       = Output(UInt(width.W))
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

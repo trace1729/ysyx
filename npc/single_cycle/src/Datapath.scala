@@ -39,6 +39,7 @@ class Datapath(memoryFile: String) extends Module {
   arbiter.rtc <> rtc.in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)
+  ifu.nextPC         := lsu.lsu2wbOut.bits.nextPC
   idu.data           := wb.wb2ifuOut.bits.wbData
   idu.regfileWriteEn := wb.wb2ifuOut.bits.regfileWriteEn
   idu.csrsWriteEn    := wb.wb2ifuOut.bits.csrsWriteEn

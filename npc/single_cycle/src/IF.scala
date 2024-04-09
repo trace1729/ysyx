@@ -23,6 +23,7 @@ object stageState extends ChiselEnum {
 // how to? axiController is defined inside the ifu, how can it connect to
 
 class IFU(memoryFile: String) extends Module {
+  val nextPC = IO(Input(UInt(width.W)))
   val wb2ifIn   = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2idOut  = IO(Decoupled(new IFUOutputIO))
   val ifuAxiOut = IO(AxiLiteMaster(width, width))
@@ -44,7 +45,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
-  if2idOut.bits.pc := RegEnable(wb2ifIn.bits.wbNextpc, config.startPC.U, wb2ifIn.valid)
+  if2idOut.bits.pc := RegEnable(nextPC, config.startPC.U, wb2ifIn.valid)
 
   axiController.stageInput.writeAddr := DontCare
   axiController.stageInput.writeData := DontCare

@@ -12,16 +12,33 @@ class LSU extends Module {
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
   val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
   val axiController = Module(AxiController(width, width))
-  val alu = Module(new Alu(width))
+  val alu           = Module(new Alu(width))
 
-  
+  val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
+  lsuNextpcReg := MuxCase(
+    0.U,
+    Seq(
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 0.U) -> (lsu2wbOut.bits.pc + config.XLEN.U),
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 1.U) -> lsu2wbOut.bits.alures,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 2.U) -> lsu2wbOut.bits.mepc,
+      (lsu2wbOut.bits.ctrlsignals.pcsel === 3.U) -> lsu2wbOut.bits.mtvec
+    )
+  )
+
+  // 确定下一条指令
+  val itrace = Module(new Dpi_itrace)
+  itrace.io.pc     := id2lsuIn.bits.pc
+  itrace.io.inst   := id2lsuIn.bits.inst
+  itrace.io.nextpc := lsuNextpcReg
+
+  // EX
   alu.io.alusel := id2lsuIn.bits.ctrlsignals.alusel
   // 0 for rs1, 1 for pc
   alu.io.A := Mux(!id2lsuIn.bits.ctrlsignals.asel, id2lsuIn.bits.rs1, id2lsuIn.bits.pc)
   // 0 for rs2, 1 for imm
   alu.io.B := Mux(!id2lsuIn.bits.ctrlsignals.bsel, id2lsuIn.bits.rs2, id2lsuIn.bits.immediate)
 
-
+  // MEM
   lsuAxiOut <> axiController.axiOut
 
   // activate the axiController
@@ -80,7 +97,7 @@ class LSU extends Module {
       }
     }
     is(sCompleted) {
-      when (lsu2wbOut.valid && lsu2wbOut.ready) {
+      when(lsu2wbOut.valid && lsu2wbOut.ready) {
         lsu_state := sIDLE
       }
     }
@@ -124,6 +141,7 @@ class LSU extends Module {
   lsu2wbOut.bits.ctrlsignals := id2lsuIn.bits.ctrlsignals
   lsu2wbOut.bits.rdata       := rmemdata
   lsu2wbOut.bits.inst        := id2lsuIn.bits.inst
+  lsu2wbOut.bits.nextPC      := lsuNextpcReg
 
   //csr
   lsu2wbOut.bits.mepc  := id2lsuIn.bits.mepc
@@ -151,6 +169,7 @@ class LSU extends Module {
 }
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
+  val nextPC      = Output(UInt(width.W))
   val inst        = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
@@ -158,4 +177,13 @@ class MEMOutputIO(width: Int) extends Bundle {
   val rdata       = Output(UInt(width.W))
   val mepc        = Output(UInt(width.W))
   val mtvec       = Output(UInt(width.W))
+}
+
+class Dpi_itrace extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val pc     = Input(UInt(32.W))
+    val inst   = Input(UInt(32.W))
+    val nextpc = Input(UInt(32.W))
+  })
+  addResource("/Dpi_itrace.sv")
 }

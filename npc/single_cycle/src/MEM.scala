@@ -7,6 +7,16 @@ import cpu.utils._
 import scala.annotation.varargs
 import os.read
 
+class MEMOutputIO(width: Int) extends Bundle {
+  val pc          = Output(UInt(width.W))
+  val nextPC      = Output(UInt(width.W))
+  val inst        = Output(UInt(width.W))
+  val ctrlsignals = Output(new ctrlSignals)
+  val csrvalue    = Output(UInt(width.W))
+  val alures      = Output(UInt(width.W))
+  val rdata       = Output(UInt(width.W))
+}
+
 class LSU extends Module {
   val id2lsuIn      = IO(Flipped(Decoupled(new IDUOutputIO)))
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
@@ -164,15 +174,6 @@ class LSU extends Module {
     )
   )
 
-}
-class MEMOutputIO(width: Int) extends Bundle {
-  val pc          = Output(UInt(width.W))
-  val nextPC      = Output(UInt(width.W))
-  val inst        = Output(UInt(width.W))
-  val ctrlsignals = Output(new ctrlSignals)
-  val csrvalue    = Output(UInt(width.W))
-  val alures      = Output(UInt(width.W))
-  val rdata       = Output(UInt(width.W))
 }
 
 class Dpi_itrace extends BlackBox with HasBlackBoxResource {

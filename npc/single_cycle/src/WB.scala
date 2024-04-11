@@ -74,9 +74,7 @@ class WB extends Module {
     }
   }
 
-  val wbDataReg = RegInit(0.U)
-  wb2ifuOut.bits.wbData := wbDataReg
-  wbDataReg := MuxCase(
+  wb2ifuOut.bits.wbData := MuxCase(
     0.U,
     Seq(
       (lsu2wbReg.ctrlsignals.WBsel === 0.U) -> lsu2wbReg.alures,

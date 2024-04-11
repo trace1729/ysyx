@@ -116,4 +116,3 @@ class IDU extends Module {
   id2lsuOut.bits.mtvec := csr.io.mtvec
 
 }
-

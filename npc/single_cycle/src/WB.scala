@@ -22,9 +22,8 @@ class WBOutputIO extends Bundle {
 class WB extends Module {
   val lsu2wbIn  = IO(Flipped(Decoupled(new MEMOutputIO(width))))
   val wb2ifuOut = IO(Decoupled(new WBOutputIO))
-  
 
-  lsu2wbIn.ready  := lsu2wbIn.valid
+  lsu2wbIn.ready := lsu2wbIn.valid
 
   val lsu2wbReg = RegInit(
     (new MEMOutputIO(config.width)).Lit(

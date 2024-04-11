@@ -11,7 +11,6 @@ import os.read
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
   val nextPC      = Output(UInt(width.W))
-  val inst        = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
   val alures      = Output(UInt(width.W))
@@ -222,7 +221,6 @@ class LSU extends Module {
   lsu2wbOut.bits.ctrlsignals := id2lsuReg.ctrlsignals
   lsu2wbOut.bits.rd := id2lsuReg.rd
   lsu2wbOut.bits.rdata       := rmemdata
-  lsu2wbOut.bits.inst        := id2lsuReg.inst
   lsu2wbOut.bits.nextPC      := lsuNextpcReg
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段

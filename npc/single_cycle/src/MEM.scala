@@ -16,6 +16,7 @@ class MEMOutputIO(width: Int) extends Bundle {
   val csrvalue    = Output(UInt(width.W))
   val alures      = Output(UInt(width.W))
   val rdata       = Output(UInt(width.W))
+  val rd = Output(UInt(width.W))
 }
 
 class LSU extends Module {

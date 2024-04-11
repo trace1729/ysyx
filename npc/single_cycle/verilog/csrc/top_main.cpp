@@ -85,8 +85,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  sdb_mainloop();
-  // dummy();
+  // sdb_mainloop();
+  dummy();
   sim_end();
   Log("gracefully quit");
   
@@ -100,11 +100,11 @@ void verilator_exec_once(Decode* s) {
       top->clock = 0;
       top->eval();
       contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      // tfp->dump(contextp->time());
       // tick = 1
       top->clock = 1;
       top->eval();
-      contextp->timeInc(1);
+      // contextp->timeInc(1);
       tfp->dump(contextp->time());
     }  
     s->isa.inst.val = itrace.isa.inst.val;

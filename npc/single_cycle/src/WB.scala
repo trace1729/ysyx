@@ -61,7 +61,7 @@ class WB extends Module {
 
   // wb 阶段的状态转移
   import stageState._
-  val wbState = RegInit(sIDLE)
+  val wbState = RegInit(sACK)
 
   switch(wbState) {
     is(sIDLE) {

@@ -27,7 +27,7 @@ class Datapath(memoryFile: String) extends Module {
   val sram = Module(new SRAM)
 
   ifu.if2idOut <> idu.if2idIn
-  idu.id2exOut <> lsu.id2lsuIn
+  idu.id2lsuOut <> lsu.id2lsuIn
   lsu.lsu2wbOut <> wb.lsu2wbIn
   wb.wb2ifuOut <> ifu.wb2ifIn
 

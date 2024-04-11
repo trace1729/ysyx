@@ -13,6 +13,7 @@ import cpu.utils._
 class IDUOutputIO extends Bundle {
   val rs1         = Output(UInt(width.W))
   val rs2         = Output(UInt(width.W))
+  val rd = Output(UInt(width.W))
   val immediate   = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
 
@@ -30,7 +31,7 @@ class IDU extends Module {
   val mepcWriteEn    = IO(Input(Bool()))
   val mcauseWriteEn  = IO(Input(Bool()))
   val if2idIn       = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val id2exOut      = IO(DecoupledIO(new IDUOutputIO))
+  val id2lsuOut      = IO(DecoupledIO(new IDUOutputIO))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -45,44 +46,47 @@ class IDU extends Module {
       _.pc -> 0.U
     )
   )
-   
 
-
-  // 输入的 ready 跟随 valid
+  // ifu 输入的 ready 跟随 valid
   if2idIn.ready := if2idIn.valid
 
-  // valid 信号
-  val idu_valid_reg = RegInit(0.U)
-  val idu_inst_reg  = RegInit(UInt(32.W), config.NOP)
-  val idu_pc_reg    = RegInit(UInt(32.W), 0.U)
-
-  id2exOut.valid := idu_valid_reg
-
-  when(if2idIn.valid) {
-    idu_valid_reg := 1.U
-  }.elsewhen(id2exOut.valid && id2exOut.ready) {
-    idu_valid_reg := 0.U
+  // 当握手成功时，将数据锁存到寄存器中
+  when (if2idIn.valid && if2idIn.ready) {
+    if2idReg.inst := if2idIn.bits.inst
+    if2idReg.pc := if2idIn.bits.pc
   }
 
-  when(if2idIn.valid) {
-    idu_inst_reg := if2idIn.bits.inst
-    idu_pc_reg   := if2idIn.bits.pc
+  import stageState._
+
+  val iduState = RegInit(sIDLE)
+
+  switch(iduState) {
+    is (sIDLE) {
+      when (if2idIn.valid && if2idIn.ready) {
+        iduState := sACK
+      }
+    }
+    is (sACK) {
+      iduState := sIDLE
+    }
   }
+
+  id2lsuOut.valid := (iduState === sACK)
 
   // 寄存器文件的连接
-  regfile.io.readreg1 := idu_inst_reg(19, 15)
-  regfile.io.readreg2 := idu_inst_reg(24, 20)
-  regfile.io.writereg := idu_inst_reg(11, 7)
+  regfile.io.readreg1 := if2idReg.inst(19, 15)
+  regfile.io.readreg2 := if2idReg.inst(24, 20)
+  regfile.io.writereg := if2idReg.inst(11, 7)
   regfile.io.writeEn  := regfileWriteEn
   regfile.io.data     := data
 
   // 控制逻辑的连接
-  ctrlLogic.io.inst := idu_inst_reg
+  ctrlLogic.io.inst := if2idReg.inst
   ctrlLogic.io.rs1  := regfile.io.rs1
   ctrlLogic.io.rs2  := regfile.io.rs2
 
   // 立即数生成器的连接
-  immgen.io.inst   := idu_inst_reg
+  immgen.io.inst   := if2idReg.inst
   immgen.io.immsel := ctrlLogic.io.ctrlsignals.immsel
 
   // csr 寄存器文件的连接
@@ -93,21 +97,22 @@ class IDU extends Module {
   // 需要写回寄存器文件的值
   csr.io.mcauseData    := 0xb.U
   csr.io.mcauseWriteEn := mcauseWriteEn
-  csr.io.mepcData      := idu_pc_reg
+  csr.io.mepcData      := if2idReg.pc
   csr.io.mepcWriteEn   := mepcWriteEn
 
   // 生成控制信号
-  id2exOut.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
+  id2lsuOut.bits.ctrlsignals := ctrlLogic.io.ctrlsignals
 
   // idu 模块的输出
-  id2exOut.bits.rs1       := regfile.io.rs1
-  id2exOut.bits.rs2       := regfile.io.rs2
-  id2exOut.bits.immediate := immgen.io.imm
-  id2exOut.bits.pc        := idu_pc_reg
-  id2exOut.bits.inst      := idu_inst_reg
-  id2exOut.bits.csrvalue  := csr.io.csrValue
+  id2lsuOut.bits.rs1       := regfile.io.rs1
+  id2lsuOut.bits.rs2       := regfile.io.rs2
+  id2lsuOut.bits.rd       := regfile.io.writereg
+  id2lsuOut.bits.immediate := immgen.io.imm
+  id2lsuOut.bits.pc        := if2idReg.pc
+  id2lsuOut.bits.inst      := if2idReg.inst
+  id2lsuOut.bits.csrvalue  := csr.io.csrValue
 
-  id2exOut.bits.mepc  := csr.io.mepc
-  id2exOut.bits.mtvec := csr.io.mtvec
+  id2lsuOut.bits.mepc  := csr.io.mepc
+  id2lsuOut.bits.mtvec := csr.io.mtvec
 
 }

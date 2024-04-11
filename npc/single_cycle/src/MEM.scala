@@ -220,6 +220,7 @@ class LSU extends Module {
   lsu2wbOut.bits.pc          := id2lsuReg.pc
   lsu2wbOut.bits.csrvalue    := id2lsuReg.csrvalue
   lsu2wbOut.bits.ctrlsignals := id2lsuReg.ctrlsignals
+  lsu2wbOut.bits.rd := id2lsuReg.rd
   lsu2wbOut.bits.rdata       := rmemdata
   lsu2wbOut.bits.inst        := id2lsuReg.inst
   lsu2wbOut.bits.nextPC      := lsuNextpcReg

@@ -75,7 +75,8 @@ class WB extends Module {
     }
   }
 
-  val wbDataReg = RegNext(wb2ifuOut.bits.wbData, 0.U)
+  val wbDataReg = RegInit(0.U)
+  wb2ifuOut.bits.wbData := wbDataReg
   wbDataReg := MuxCase(
     0.U,
     Seq(

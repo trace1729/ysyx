@@ -13,6 +13,7 @@ import cpu.utils._
 class IDUOutputIO extends Bundle {
   val rs1         = Output(UInt(width.W))
   val rs2         = Output(UInt(width.W))
+  val rd = Output(UInt(width.W))
   val immediate   = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
 
@@ -105,6 +106,7 @@ class IDU extends Module {
   // idu 模块的输出
   id2lsuOut.bits.rs1       := regfile.io.rs1
   id2lsuOut.bits.rs2       := regfile.io.rs2
+  id2lsuOut.bits.rd       := regfile.io.writereg
   id2lsuOut.bits.immediate := immgen.io.imm
   id2lsuOut.bits.pc        := if2idReg.pc
   id2lsuOut.bits.inst      := if2idReg.inst

@@ -74,6 +74,7 @@ class LSU extends Module {
   import stageState._
   val lsu_state = RegInit(sIDLE)
 
+  // IDU 的 ready 跟随 valid
   id2lsuIn.ready := id2lsuIn.valid
 
   switch(lsu_state) {

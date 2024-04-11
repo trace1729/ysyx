@@ -41,7 +41,6 @@ class IFU(memoryFile: String) extends Module {
   // after fetching pc, we may want to latch the pc value until
   // the instruction is ready to be sent to the next stage
 
-  wb2ifIn.ready                           := 0.U
   axiController.stageInput.readAddr.valid := false.B
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
@@ -51,11 +50,11 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeData := DontCare
   axiController.stageInput.writeResp := DontCare
 
+  wb2ifIn.ready := wb2ifIn.valid
 
   switch(ifu_state) {
     is(sIDLE) {
       when(wb2ifIn.valid) {
-        wb2ifIn.ready := 1.U
         ifu_state     := sWaitReady
       }
     }

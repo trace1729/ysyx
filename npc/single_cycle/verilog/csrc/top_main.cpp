@@ -104,8 +104,8 @@ void verilator_exec_once(Decode* s) {
       // tick = 1
       top->clock = 1;
       top->eval();
-      // contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      contextp->timeInc(1);
+      // tfp->dump(contextp->time());
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;

@@ -45,7 +45,8 @@ class WB extends Module {
       ),
       _.pc -> 0.U,
       _.inst -> 0.U,
-      _.csrvalue -> 0.U
+      _.csrvalue -> 0.U,
+      _.alures -> 0.U
     )
   )
 
@@ -57,6 +58,7 @@ class WB extends Module {
     lsu2wbReg.pc          := lsu2wbIn.bits.pc
     lsu2wbReg.inst        := lsu2wbIn.bits.inst
     lsu2wbReg.csrvalue    := lsu2wbIn.bits.csrvalue
+    lsu2wbReg.alures      := lsu2wbIn.bits.alures
   }
 
   // wb 阶段的状态转移

@@ -70,7 +70,7 @@ static void dummy() {
     top->clock = 1;
     top->eval();
     contextp->timeInc(1);
-    tfp->dump(contextp->time());
+    // tfp->dump(contextp->time());
 
     if (nemu_state.state == NEMU_END) {
       Log("execution ended at cycle %d", num_i);
@@ -85,8 +85,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  // sdb_mainloop();
-  dummy();
+  sdb_mainloop();
+  // dummy();
   sim_end();
   Log("gracefully quit");
   

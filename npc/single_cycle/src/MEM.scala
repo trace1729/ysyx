@@ -20,7 +20,7 @@ class MEMOutputIO(width: Int) extends Bundle {
 }
 
 class LSU extends Module {
-  val jump = Output(Bool())
+  val jump = IO(Output(Bool()))
 
   val id2lsuIn      = IO(Flipped(Decoupled(new IDUOutputIO)))
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))

@@ -67,7 +67,9 @@ class IDU extends Module {
       }
     }
     is (sACK) {
-      iduState := sIDLE
+      when (id2lsuOut.valid && id2lsuOut.ready) {
+        iduState := sIDLE
+      }
     }
   }
 

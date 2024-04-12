@@ -73,9 +73,7 @@ class LSU extends Module {
   }
 
   // 定义一个寄存器保存 nextPC
-  val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
-
-  lsuNextpcReg := MuxCase(
+  lsu2wbOut.bits.nextPC := MuxCase(
     0.U,
     Seq(
       (id2lsuReg.ctrlsignals.pcsel === 0.U) -> (id2lsuReg.pc + config.XLEN.U),
@@ -89,7 +87,7 @@ class LSU extends Module {
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc     := id2lsuReg.pc
   itrace.io.inst   := id2lsuReg.inst
-  itrace.io.nextpc := lsuNextpcReg
+  itrace.io.nextpc := lsu2wbOut.bits.nextPC
 
   // EX
   alu.io.alusel := id2lsuReg.ctrlsignals.alusel
@@ -221,7 +219,7 @@ class LSU extends Module {
   lsu2wbOut.bits.ctrlsignals := id2lsuReg.ctrlsignals
   lsu2wbOut.bits.rd := id2lsuReg.rd
   lsu2wbOut.bits.rdata       := rmemdata
-  lsu2wbOut.bits.nextPC      := lsuNextpcReg
+  // lsu2wbOut.bits.nextPC      := lsuNextpcReg
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
 

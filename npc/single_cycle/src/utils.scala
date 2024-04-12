@@ -3,7 +3,6 @@ package cpu
 import chisel3._
 import chisel3.util._
 import cpu.config._
-import org.w3c.dom.DOMError
 
 object utils {
   def padding(len: Int, v: UInt): UInt = Cat(Seq.fill(len)(v))

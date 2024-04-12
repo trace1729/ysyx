@@ -54,7 +54,7 @@ class IFU(memoryFile: String) extends Module {
 
   switch(ifu_state) {
     is(sIDLE) {
-      when(wb2ifIn.valid) {
+      when(wb2ifIn.valid && wb2ifIn.ready) {
         ifu_state     := sWaitReady
       }
     }
@@ -69,6 +69,7 @@ class IFU(memoryFile: String) extends Module {
         ifu_state := sCompleted
       }
     }
+    // 为什么要多一个 sCompleted 状态 --> 为了延迟一个周期，这样可以把 从控制器拿到的数据放置在寄存器里 L83
     is(sCompleted) {
       when(if2idOut.valid && if2idOut.ready) {
         ifu_state := sIDLE

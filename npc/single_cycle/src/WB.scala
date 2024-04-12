@@ -72,7 +72,9 @@ class WB extends Module {
       }
     }
     is(sACK) {
-      wbState := sIDLE
+      when (wb2ifuOut.valid && wb2ifuOut.ready) {
+        wbState := sIDLE
+      }
     }
   }
 

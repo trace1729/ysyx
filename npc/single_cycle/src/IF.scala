@@ -75,6 +75,8 @@ class IFU(memoryFile: String) extends Module {
   if2idOut.bits.pc                            := PC
   if2idOut.valid                              := readCompleted
 
+  wb2ifIn.ready := 1.U
+
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2idOut.ready
   next_inst.io.valid := if2idOut.valid

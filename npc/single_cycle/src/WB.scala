@@ -11,6 +11,7 @@ import chisel3.experimental.BundleLiterals._
 
 class WBOutputIO extends Bundle {
   // 暂时不太清楚 wb 需要输出什么
+  val rd             = Output(UInt(5.W))
   val wbData         = Output(UInt(32.W))
   val regfileWriteEn = Output(Bool())
   val csrsWriteEn    = Output(Bool())
@@ -72,7 +73,9 @@ class WB extends Module {
       }
     }
     is(sACK) {
-      wbState := sIDLE
+      when(wb2ifuOut.valid && wb2ifuOut.ready) {
+        wbState := sIDLE
+      }
     }
   }
 
@@ -93,4 +96,7 @@ class WB extends Module {
   wb2ifuOut.bits.mepcWriteEn    := wb2ifuOut.valid & lsu2wbIn.bits.ctrlsignals.mepcWriteEn
   wb2ifuOut.bits.mcauseWriteEn  := wb2ifuOut.valid & lsu2wbIn.bits.ctrlsignals.mcauseWriteEn
 
+  wb2ifuOut.bits.rd := lsu2wbReg.rd
+
+  // 写回总是能够一周期内结束，所以设计 ready 信号为 1
 }

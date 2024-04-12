@@ -1,4 +1,3 @@
-
 package cpu
 
 import chisel3._
@@ -11,9 +10,10 @@ import cpu.utils._
   */
 
 class IDUOutputIO extends Bundle {
-  val rs1         = Output(UInt(width.W))
-  val rs2         = Output(UInt(width.W))
-  val rd = Output(UInt(width.W))
+  val rs1        = Output(UInt(width.W))
+  val rs2        = Output(UInt(width.W))
+  val rd         = Output(UInt(width.W))
+
   val immediate   = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
 
@@ -30,14 +30,15 @@ class IDU extends Module {
   val csrsWriteEn    = IO(Input(Bool()))
   val mepcWriteEn    = IO(Input(Bool()))
   val mcauseWriteEn  = IO(Input(Bool()))
-  val if2idIn       = IO(Flipped(Decoupled(new IFUOutputIO)))
+
+  val backwardRd = IO(Input(UInt(width.W)))
+  val if2idIn        = IO(Flipped(Decoupled(new IFUOutputIO)))
   val id2lsuOut      = IO(DecoupledIO(new IDUOutputIO))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
   val immgen    = Module(new ImmGen(width))
   val csr       = Module(new CSR(10, width))
-
 
   // pipeline registers
   val if2idReg = RegInit(
@@ -47,13 +48,13 @@ class IDU extends Module {
     )
   )
 
-  // ifu 输入的 ready 跟随 valid
-  if2idIn.ready := if2idIn.valid
+  // 理想情况西 idu 总是能在一周期内完成译码，所以将 ready 恒置为 1
+  if2idIn.ready := 1.U
 
   // 当握手成功时，将数据锁存到寄存器中
-  when (if2idIn.valid && if2idIn.ready) {
+  when(if2idIn.valid && if2idIn.ready) {
     if2idReg.inst := if2idIn.bits.inst
-    if2idReg.pc := if2idIn.bits.pc
+    if2idReg.pc   := if2idIn.bits.pc
   }
 
   import stageState._
@@ -61,13 +62,16 @@ class IDU extends Module {
   val iduState = RegInit(sIDLE)
 
   switch(iduState) {
-    is (sIDLE) {
-      when (if2idIn.valid && if2idIn.ready) {
+    // 这里需要状态转化是因为需要等 数据存入寄存器中
+    is(sIDLE) {
+      when(if2idIn.valid && if2idIn.ready) {
         iduState := sACK
       }
     }
-    is (sACK) {
-      iduState := sIDLE
+    is(sACK) {
+      when(id2lsuOut.valid && id2lsuOut.ready) {
+        iduState := sIDLE
+      }
     }
   }
 
@@ -76,7 +80,7 @@ class IDU extends Module {
   // 寄存器文件的连接
   regfile.io.readreg1 := if2idReg.inst(19, 15)
   regfile.io.readreg2 := if2idReg.inst(24, 20)
-  regfile.io.writereg := if2idReg.inst(11, 7)
+  regfile.io.writereg := backwardRd
   regfile.io.writeEn  := regfileWriteEn
   regfile.io.data     := data
 
@@ -106,7 +110,7 @@ class IDU extends Module {
   // idu 模块的输出
   id2lsuOut.bits.rs1       := regfile.io.rs1
   id2lsuOut.bits.rs2       := regfile.io.rs2
-  id2lsuOut.bits.rd       := regfile.io.writereg
+  id2lsuOut.bits.rd        := if2idReg.inst(11, 7)
   id2lsuOut.bits.immediate := immgen.io.imm
   id2lsuOut.bits.pc        := if2idReg.pc
   id2lsuOut.bits.inst      := if2idReg.inst

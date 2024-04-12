@@ -42,10 +42,10 @@ class SRAM extends Module {
   // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
   // TODO 这里应该把数据锁存在寄存器里，不应该直连
-  dmem.io.raddr := in.readAddr.bits.addr
-  dmem.io.waddr := in.writeAddr.bits.addr
-  dmem.io.wdata := in.writeData.bits.data
-  dmem.io.wmask := in.writeData.bits.strb
+  dmem.io.raddr := RegEnable(in.readAddr.bits.addr, in.readAddr.valid && in.readAddr.ready)
+  dmem.io.waddr := RegEnable(in.writeAddr.bits.addr, in.writeAddr.valid && in.writeAddr.ready)
+  dmem.io.wdata := RegEnable(in.writeData.bits.data, in.writeData.valid && in.writeData.ready)
+  dmem.io.wmask := RegEnable(in.writeData.bits.strb, in.writeData.valid && in.writeData.ready)
 
   dmem.io.memRW     := 0.U
   dmem.io.memEnable := false.B
@@ -69,6 +69,7 @@ class SRAM extends Module {
       }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
         state := awriteAddr
       }
+      // receive read address
       when(in.readAddr.ready && in.readAddr.valid) {
         state := aREAD
       }

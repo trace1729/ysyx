@@ -10,15 +10,18 @@ import os.read
 
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
-  val nextPC      = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
   val csrvalue    = Output(UInt(width.W))
   val alures      = Output(UInt(width.W))
   val rdata       = Output(UInt(width.W))
-  val rd = Output(UInt(width.W))
+  val rd          = Output(UInt(width.W))
+
+  val npc  = Output(UInt(width.W))
 }
 
 class LSU extends Module {
+  val jump = IO(Output(Bool()))
+
   val id2lsuIn      = IO(Flipped(Decoupled(new IDUOutputIO)))
   val lsuAxiOut     = IO(AxiLiteMaster(width, width))
   val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
@@ -73,9 +76,7 @@ class LSU extends Module {
   }
 
   // 定义一个寄存器保存 nextPC
-  val lsuNextpcReg = RegNext(lsu2wbOut.bits.nextPC, config.startPC.U)
-
-  lsuNextpcReg := MuxCase(
+  lsu2wbOut.bits.npc := MuxCase(
     0.U,
     Seq(
       (id2lsuReg.ctrlsignals.pcsel === 0.U) -> (id2lsuReg.pc + config.XLEN.U),
@@ -84,12 +85,13 @@ class LSU extends Module {
       (id2lsuReg.ctrlsignals.pcsel === 3.U) -> id2lsuReg.mtvec
     )
   )
+  jump := (id2lsuReg.ctrlsignals.pcsel =/= 0.U)
 
   // Dpi-itrace 跟踪指令
   val itrace = Module(new Dpi_itrace)
   itrace.io.pc     := id2lsuReg.pc
   itrace.io.inst   := id2lsuReg.inst
-  itrace.io.nextpc := lsuNextpcReg
+  itrace.io.nextpc := lsu2wbOut.bits.npc
 
   // EX
   alu.io.alusel := id2lsuReg.ctrlsignals.alusel
@@ -163,7 +165,7 @@ class LSU extends Module {
         lsu_state := Mux(id2lsuReg.ctrlsignals.memRW === 1.U, sACK, sIDLE)
       }
 
-      when (id2lsuReg.ctrlsignals.memEnable === 0.U) {
+      when(id2lsuReg.ctrlsignals.memEnable === 0.U) {
         lsu_state := sCompleted
       }
 
@@ -219,13 +221,13 @@ class LSU extends Module {
   lsu2wbOut.bits.pc          := id2lsuReg.pc
   lsu2wbOut.bits.csrvalue    := id2lsuReg.csrvalue
   lsu2wbOut.bits.ctrlsignals := id2lsuReg.ctrlsignals
-  lsu2wbOut.bits.rd := id2lsuReg.rd
+  lsu2wbOut.bits.rd          := id2lsuReg.rd
   lsu2wbOut.bits.rdata       := rmemdata
-  lsu2wbOut.bits.nextPC      := lsuNextpcReg
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
 
   lsu2wbOut.valid := lsu_state === sCompleted
+  
 
 }
 

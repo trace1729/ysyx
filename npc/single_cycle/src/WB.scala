@@ -98,4 +98,7 @@ class WB extends Module {
 
   wb2ifuOut.bits.rd := lsu2wbReg.rd
 
+  // 写回总是能够一周期内结束，所以设计 ready 信号为 1
+  wb2ifuOut.ready := 1.U
+
 }

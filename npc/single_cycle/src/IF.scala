@@ -30,6 +30,8 @@ class IFU(memoryFile: String) extends Module {
   val ifuAxiOut = IO(AxiLiteMaster(width, width))
 
   val axiController = Module(AxiController(width, width))
+  import stageState._
+  val ifu_state = RegInit(sIDLE)
 
   // 和 axi 控制器相连接
   ifuAxiOut <> axiController.axiOut
@@ -45,6 +47,7 @@ class IFU(memoryFile: String) extends Module {
   }
 
   // 为 axiController 设置默认值
+  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
   axiController.stageInput.writeAddr      := DontCare
   axiController.stageInput.writeData      := DontCare
   axiController.stageInput.writeResp      := DontCare
@@ -53,13 +56,9 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.readAddr.bits.addr := nextPC
   // 处理器 read ack 请求
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
-  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
 
 
   // 处理 ifu 的状态转移
-  import stageState._
-  val ifu_state = RegInit(sIDLE)
-
   switch(ifu_state) {
     is(sIDLE) {
       ifu_state := sWaitReady

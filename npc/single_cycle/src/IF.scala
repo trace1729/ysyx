@@ -72,7 +72,7 @@ class IFU(memoryFile: String) extends Module {
 
   // 处理输出
   if2idOut.bits.inst                          := axiController.stageInput.readData.bits.data
-  if2idOut.bits.pc                            := PC
+  if2idOut.bits.pc                            := nextPC
   if2idOut.valid                              := readCompleted
 
   wb2ifIn.ready := 1.U

@@ -44,6 +44,18 @@ class IFU(memoryFile: String) extends Module {
     PC := nextPC
   }
 
+  // 为 axiController 设置默认值
+  axiController.stageInput.writeAddr      := DontCare
+  axiController.stageInput.writeData      := DontCare
+  axiController.stageInput.writeResp      := DontCare
+  axiController.stageInput.readAddr.valid := (ifu_state === stageState.sWaitReady)
+  // nextPC 作为取值的请求
+  axiController.stageInput.readAddr.bits.addr := nextPC
+  // 处理器 read ack 请求
+  axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
+  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+
+
   // 处理 ifu 的状态转移
   import stageState._
   val ifu_state = RegInit(sIDLE)
@@ -60,18 +72,7 @@ class IFU(memoryFile: String) extends Module {
     }
   }
 
-  // 为 axiController 设置默认值
-  axiController.stageInput.writeAddr      := DontCare
-  axiController.stageInput.writeData      := DontCare
-  axiController.stageInput.writeResp      := DontCare
-  axiController.stageInput.readAddr.valid := (ifu_state === stageState.sWaitReady)
-
-  // 处理器 read ack 请求
-  axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
-  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
-
-
-  axiController.stageInput.readAddr.bits.addr := nextPC
+  // 处理输出
   if2idOut.bits.inst                          := axiController.stageInput.readData.bits.data
   if2idOut.bits.pc                            := PC
   if2idOut.valid                              := readCompleted

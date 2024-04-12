@@ -31,7 +31,7 @@ class IDU extends Module {
   val mepcWriteEn    = IO(Input(Bool()))
   val mcauseWriteEn  = IO(Input(Bool()))
 
-  val backwardRd = Input(UInt(width.W))
+  val backwardRd = IO(Input(UInt(width.W)))
   val if2idIn        = IO(Flipped(Decoupled(new IFUOutputIO)))
   val id2lsuOut      = IO(DecoupledIO(new IDUOutputIO))
 

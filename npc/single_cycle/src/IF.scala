@@ -57,7 +57,6 @@ class IFU(memoryFile: String) extends Module {
   // 处理器 read ack 请求
   axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
 
-
   // 处理 ifu 的状态转移
   switch(ifu_state) {
     is(sIDLE) {

@@ -41,7 +41,7 @@ class IFU(memoryFile: String) extends Module {
   // pc 生成逻辑
   val PC     = RegInit(config.startPC.U - config.XLEN.U)
   val nextPC = Wire(UInt(config.width.W))
-  nextPC := Mux(jump, npc, PC + config.XLEN.U)
+  nextPC := Mux(jump && (ifu_state =/= sWaitAXI), npc, PC + config.XLEN.U)
 
   // 当if阶段和id阶段完成握手之后，就可以更新 PC 了
   when(if2idOut.valid && if2idOut.ready) {

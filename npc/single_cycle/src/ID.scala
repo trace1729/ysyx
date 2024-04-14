@@ -10,9 +10,9 @@ import cpu.utils._
   */
 
 class IDUOutputIO extends Bundle {
-  val rs1        = Output(UInt(width.W))
-  val rs2        = Output(UInt(width.W))
-  val rd         = Output(UInt(width.W))
+  val rs1 = Output(UInt(width.W))
+  val rs2 = Output(UInt(width.W))
+  val rd  = Output(UInt(width.W))
 
   val immediate   = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
@@ -32,8 +32,8 @@ class IDU extends Module {
   val mcauseWriteEn  = IO(Input(Bool()))
 
   val backwardRd = IO(Input(UInt(width.W)))
-  val if2idIn        = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val id2lsuOut      = IO(DecoupledIO(new IDUOutputIO))
+  val if2idIn    = IO(Flipped(Decoupled(new IFUOutputIO)))
+  val id2lsuOut  = IO(DecoupledIO(new IDUOutputIO))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))

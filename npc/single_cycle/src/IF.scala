@@ -32,6 +32,9 @@ class IFU(memoryFile: String) extends Module {
   import stageState._
   val ifu_state = RegInit(sIDLE)
 
+  // passing syntax check
+  wb2ifIn.ready := 1.U
+
   // 和 axi 控制器相连接
   ifuAxiOut <> axiController.axiOut
 

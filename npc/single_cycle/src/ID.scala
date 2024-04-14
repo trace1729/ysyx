@@ -48,8 +48,6 @@ class IDU extends Module {
     )
   )
 
-  // id 更新寄存器输入的时机，取决于 lsu 是否准备好接受 id 传递下来的数据
-  if2idIn.ready := id2lsuOut.ready
 
   // 当握手成功时，将数据锁存到寄存器中
   when(if2idIn.valid && if2idIn.ready) {
@@ -60,6 +58,8 @@ class IDU extends Module {
   import stageState._
 
   val iduState = RegInit(sIDLE)
+  // id 更新寄存器输入的时机，取决于 lsu 是否准备好接受 id 传递下来的数据
+  if2idIn.ready := id2lsuOut.ready
 
   switch(iduState) {
     // 这里需要状态转化是因为需要等 数据存入寄存器中

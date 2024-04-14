@@ -124,9 +124,7 @@ class LSU extends Module {
   val lsu_state = RegInit(sIDLE)
 
   // TODO IDU 的 ready ？
-  val startSignal = RegInit(true.B)
-  startSignal := false.B
-  id2lsuIn.ready := (startSignal || id2lsuIn.valid) && lsu2wbOut.ready
+  id2lsuIn.ready := (lsu_state === sIDLE) && lsu2wbOut.ready
 
   val readCompleted  = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
   val writeCompleted = axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready

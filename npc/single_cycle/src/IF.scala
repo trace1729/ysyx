@@ -62,7 +62,7 @@ class IFU(memoryFile: String) extends Module {
   // 处理 ifu 的状态转移
   switch(ifu_state) {
     is(sIDLE) {
-      ifu_state := sWaitReady
+      ifu_state := sWaitAXI
     }
     is(sWaitAXI) {
       // 进入 sWaitReady 状态之后，设置置 ar Valid

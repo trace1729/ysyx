@@ -24,7 +24,8 @@ class WB extends Module {
   val lsu2wbIn  = IO(Flipped(Decoupled(new MEMOutputIO(width))))
   val wb2ifuOut = IO(Decoupled(new WBOutputIO))
 
-  lsu2wbIn.ready := lsu2wbIn.valid
+  // 一定能在一个周期内完成写入，所以一直为 1
+  lsu2wbIn.ready := 1.U
 
   val lsu2wbReg = RegInit(
     (new MEMOutputIO(config.width)).Lit(
@@ -64,7 +65,7 @@ class WB extends Module {
 
   // wb 阶段的状态转移
   import stageState._
-  val wbState = RegInit(sACK)
+  val wbState = RegInit(sIDLE)
 
   switch(wbState) {
     is(sIDLE) {
@@ -99,4 +100,19 @@ class WB extends Module {
   wb2ifuOut.bits.rd := lsu2wbReg.rd
 
   // 写回总是能够一周期内结束，所以设计 ready 信号为 1
+  // 延迟一周期触发 difftest
+  val instEnded = RegInit(false.B)
+  instEnded := wb2ifuOut.valid
+  
+  val next_inst = Module(new Next_inst)
+  next_inst.io.ready := instEnded
+  next_inst.io.valid := instEnded
+}
+
+class Next_inst extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val valid = Input(Bool())
+    val ready = Input(Bool())
+  })
+  addResource("/Next_inst.sv")
 }

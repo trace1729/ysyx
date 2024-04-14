@@ -10,9 +10,9 @@ import cpu.utils._
   */
 
 class IDUOutputIO extends Bundle {
-  val rs1        = Output(UInt(width.W))
-  val rs2        = Output(UInt(width.W))
-  val rd         = Output(UInt(width.W))
+  val rs1 = Output(UInt(width.W))
+  val rs2 = Output(UInt(width.W))
+  val rd  = Output(UInt(width.W))
 
   val immediate   = Output(UInt(width.W))
   val ctrlsignals = Output(new ctrlSignals)
@@ -32,8 +32,8 @@ class IDU extends Module {
   val mcauseWriteEn  = IO(Input(Bool()))
 
   val backwardRd = IO(Input(UInt(width.W)))
-  val if2idIn        = IO(Flipped(Decoupled(new IFUOutputIO)))
-  val id2lsuOut      = IO(DecoupledIO(new IDUOutputIO))
+  val if2idIn    = IO(Flipped(Decoupled(new IFUOutputIO)))
+  val id2lsuOut  = IO(DecoupledIO(new IDUOutputIO))
 
   val regfile   = Module(new Regfile(num = regsNum, width = width))
   val ctrlLogic = Module(new controlLogic(width))
@@ -48,8 +48,6 @@ class IDU extends Module {
     )
   )
 
-  // 理想情况西 idu 总是能在一周期内完成译码，所以将 ready 恒置为 1
-  if2idIn.ready := 1.U
 
   // 当握手成功时，将数据锁存到寄存器中
   when(if2idIn.valid && if2idIn.ready) {
@@ -60,6 +58,8 @@ class IDU extends Module {
   import stageState._
 
   val iduState = RegInit(sIDLE)
+  // id 更新寄存器输入的时机，取决于 lsu 是否准备好接受 id 传递下来的数据
+  if2idIn.ready := id2lsuOut.ready
 
   switch(iduState) {
     // 这里需要状态转化是因为需要等 数据存入寄存器中

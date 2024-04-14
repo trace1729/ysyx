@@ -5,7 +5,6 @@ import chisel3.util._
 import cpu.config._
 import cpu.utils._
 import os.read
-import org.yaml.snakeyaml.events.Event.ID
 
 /** ********************IFU**************************
   */
@@ -16,7 +15,7 @@ class IFUOutputIO extends Bundle {
 }
 
 object stageState extends ChiselEnum {
-  val sIDLE, sWaitReady, sACK, sCompleted = Value
+  val sIDLE, sWaitAXI, sWaitReady, sACK = Value
 }
 
 // the axiController shall connected to the memArbiter
@@ -41,7 +40,7 @@ class IFU(memoryFile: String) extends Module {
   val nextPC = Wire(UInt(config.width.W))
   nextPC := Mux(jump, npc, PC + config.XLEN.U)
 
-  // 当if阶段和id阶段完成一次握手之后，就可以更新 PC 了
+  // 当if阶段和id阶段完成握手之后，就可以更新 PC 了
   when(if2idOut.valid && if2idOut.ready) {
     PC := nextPC
   }
@@ -51,7 +50,7 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.writeAddr      := DontCare
   axiController.stageInput.writeData      := DontCare
   axiController.stageInput.writeResp      := DontCare
-  axiController.stageInput.readAddr.valid := (ifu_state === stageState.sWaitReady)
+  axiController.stageInput.readAddr.valid := (ifu_state === stageState.sWaitAXI)
   // nextPC 作为取值的请求
   axiController.stageInput.readAddr.bits.addr := nextPC
   // 处理器 read ack 请求
@@ -62,20 +61,28 @@ class IFU(memoryFile: String) extends Module {
     is(sIDLE) {
       ifu_state := sWaitReady
     }
-    is(sWaitReady) {
+    is(sWaitAXI) {
       // 进入 sWaitReady 状态之后，设置置 ar Valid
+      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+        ifu_state := sWaitReady
+      }
+    }
+    is (sWaitReady) {
       when(readCompleted) {
+        ifu_state := sACK
+      }
+    }
+    is (sACK) {
+      when (if2idOut.ready && if2idOut.valid) {
         ifu_state := sIDLE
       }
     }
   }
 
   // 处理输出
-  if2idOut.bits.inst                          := axiController.stageInput.readData.bits.data
-  if2idOut.bits.pc                            := nextPC
-  if2idOut.valid                              := readCompleted
-
-  wb2ifIn.ready := 1.U
+  if2idOut.bits.inst := RegEnable(axiController.stageInput.readData.bits.data, readCompleted)
+  if2idOut.bits.pc   := nextPC
+  if2idOut.valid     := ifu_state === sACK
 
   val next_inst = Module(new Next_inst)
   next_inst.io.ready := if2idOut.ready

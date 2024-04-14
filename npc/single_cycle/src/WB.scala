@@ -24,7 +24,8 @@ class WB extends Module {
   val lsu2wbIn  = IO(Flipped(Decoupled(new MEMOutputIO(width))))
   val wb2ifuOut = IO(Decoupled(new WBOutputIO))
 
-  lsu2wbIn.ready := lsu2wbIn.valid
+  // 一定能在一个周期内完成写入，所以一直为 1
+  lsu2wbIn.ready := 1.U
 
   val lsu2wbReg = RegInit(
     (new MEMOutputIO(config.width)).Lit(

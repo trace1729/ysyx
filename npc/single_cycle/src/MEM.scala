@@ -6,7 +6,6 @@ import cpu.config._
 import cpu.utils._
 import scala.annotation.varargs
 import chisel3.experimental.BundleLiterals._
-import os.read
 
 class MEMOutputIO(width: Int) extends Bundle {
   val pc          = Output(UInt(width.W))
@@ -16,7 +15,7 @@ class MEMOutputIO(width: Int) extends Bundle {
   val rdata       = Output(UInt(width.W))
   val rd          = Output(UInt(width.W))
 
-  val npc  = Output(UInt(width.W))
+  val npc = Output(UInt(width.W))
 }
 
 class LSU extends Module {
@@ -59,7 +58,6 @@ class LSU extends Module {
   )
 
   // 当同时检测到 valid 和 ready 信号时, 将上一个阶段传过来的数据保存在寄存器中
-  // 有一些特定的 technique 但是我不太清楚
   // 在检测到这些握手信号之前，这些寄存器的值都是 0, 要确定初值不会触发什么奇怪的错误。
 
   when(id2lsuIn.valid && id2lsuIn.ready) {
@@ -125,19 +123,26 @@ class LSU extends Module {
   import stageState._
   val lsu_state = RegInit(sIDLE)
 
-  // IDU 的 ready 跟随 valid
-  id2lsuIn.ready := id2lsuIn.valid
+  // TODO IDU 的 ready ？
+  val startSignal = RegInit(true.B)
+  startSignal := false.B
+  id2lsuIn.ready := (startSignal || id2lsuIn.valid) && lsu2wbOut.ready
+
+  val readCompleted  = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
+  val writeCompleted = axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready
+  val readData       = RegEnable(axiController.stageInput.readData.bits.data, readCompleted)
 
   switch(lsu_state) {
     is(sIDLE) {
-      // 在 sIDLE 状态, 没有任何输出
-      when(id2lsuIn.valid) {
-        lsu_state := sWaitReady
+      // 在 sIDLE 状态, 等待将上一阶段的值写入寄存器
+      when(id2lsuIn.valid && id2lsuIn.ready) {
+        lsu_state := sWaitAXI
       }
     }
-    is(sWaitReady) {
+    is(sWaitAXI) {
       // 在 waitReady 状态，数据已经保存到了 mem 的寄存器中
 
+      // 下面三个大行设置 axiController 的 valid 信号
       // 如果 memEnable===0.U, 说明该条指令不涉及到访存操作，我们可以将 axiController 的valid 位全部置低
       axiController.stageInput.readAddr.valid := Mux(
         (id2lsuReg.ctrlsignals.memEnable === 1.U) && (id2lsuReg.ctrlsignals.memRW === 0.U),
@@ -155,38 +160,42 @@ class LSU extends Module {
         false.B
       )
 
-      when(axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
-        lsu_state := Mux(id2lsuReg.ctrlsignals.memRW === 0.U, sACK, sIDLE)
+      // 握手成功之后，数据锁存到 sram 的寄存器中，然后就跳转到 ack 状态，拉低 valid 信号
+      when(
+        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready
+      ) {
+        lsu_state := sWaitReady
       }
 
       when(
-        axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready
+        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready
       ) {
-        lsu_state := Mux(id2lsuReg.ctrlsignals.memRW === 1.U, sACK, sIDLE)
+        lsu_state := sWaitReady
       }
 
       when(id2lsuReg.ctrlsignals.memEnable === 0.U) {
-        lsu_state := sCompleted
+        lsu_state := sWaitReady
       }
 
     }
-    is(sACK) {
-      when(axiController.stageInput.readData.valid && axiController.stageInput.readData.ready) {
-        lsu_state := sCompleted
+    is(sWaitReady) {
+      when(readCompleted) {
+        lsu_state := sACK
       }
-      when(axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready) {
-        lsu_state := sCompleted
+      when(writeCompleted) {
+        lsu_state := sACK
+      }
+      when(id2lsuReg.ctrlsignals.memEnable === 0.U) {
+        lsu_state := sACK
       }
     }
-    is(sCompleted) {
+    is(sACK) {
       when(lsu2wbOut.valid && lsu2wbOut.ready) {
         lsu_state := sIDLE
       }
     }
-  }
 
-  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
-  val readData      = RegEnable(axiController.stageInput.readData.bits.data, 0.U, readCompleted)
+  }
 
   // 处理读取的数据
   val rmemdata = Wire(UInt(width.W))
@@ -225,9 +234,8 @@ class LSU extends Module {
   lsu2wbOut.bits.rdata       := rmemdata
 
   // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
-
-  lsu2wbOut.valid := lsu_state === sCompleted
-  
+  // 如果 valid 是由这些信号构成的，那么他最多持续一个周期，这是合理的吗， 不合理，再增加一个状态把
+  lsu2wbOut.valid := lsu_state === sACK
 
 }
 

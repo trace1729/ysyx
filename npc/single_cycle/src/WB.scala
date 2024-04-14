@@ -99,5 +99,16 @@ class WB extends Module {
 
   wb2ifuOut.bits.rd := lsu2wbReg.rd
 
+  val next_inst = Module(new Next_inst)
+  next_inst.io.ready := wb2ifuOut.ready
+  next_inst.io.valid := wb2ifuOut.valid
   // 写回总是能够一周期内结束，所以设计 ready 信号为 1
+}
+
+class Next_inst extends BlackBox with HasBlackBoxResource {
+  val io = IO(new Bundle {
+    val valid = Input(Bool())
+    val ready = Input(Bool())
+  })
+  addResource("/Next_inst.sv")
 }

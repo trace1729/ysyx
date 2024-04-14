@@ -87,15 +87,4 @@ class IFU(memoryFile: String) extends Module {
   if2idOut.bits.pc   := nextPC
   if2idOut.valid     := ifu_state === sACK
 
-  val next_inst = Module(new Next_inst)
-  next_inst.io.ready := if2idOut.ready
-  next_inst.io.valid := if2idOut.valid
-}
-
-class Next_inst extends BlackBox with HasBlackBoxResource {
-  val io = IO(new Bundle {
-    val valid = Input(Bool())
-    val ready = Input(Bool())
-  })
-  addResource("/Next_inst.sv")
 }

@@ -65,8 +65,12 @@ class IDU extends Module {
     // 这里需要状态转化是因为需要等 数据存入寄存器中
     is(sIDLE) {
       when(if2idIn.valid && if2idIn.ready) {
-        iduState := sACK
+        iduState := sWaitReady
       }
+    }
+    // 这个状态一点用也没有，特意延误一周期以模拟真实环境
+    is (sWaitReady) {
+      iduState := sACK
     }
     is(sACK) {
       when(id2lsuOut.valid && id2lsuOut.ready) {

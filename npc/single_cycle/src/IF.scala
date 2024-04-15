@@ -93,8 +93,8 @@ class IFU(memoryFile: String) extends Module {
   }
 
   // 处理输出
-  if2idOut.bits.inst := RegEnable(Mux(jump_r, NOP, axiController.stageInput.readData.bits.data), readCompleted)
-  if2idOut.bits.pc   := Mux(jump_r, 0.U, nextPC)
+  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.readData.bits.data), readCompleted)
+  if2idOut.bits.pc   := Mux(jump || jump_r, 0.U, nextPC)
   if2idOut.valid     := ifu_state === sACK
 
 }

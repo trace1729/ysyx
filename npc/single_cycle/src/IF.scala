@@ -30,7 +30,7 @@ class IFU(memoryFile: String) extends Module {
 
   val axiController = Module(AxiController(width, width))
   import stageState._
-  val ifu_state = RegInit(sWaitReady)
+  val ifu_state = RegInit(sWaitAXI)
 
   // passing syntax check
   wb2ifIn.ready := 1.U

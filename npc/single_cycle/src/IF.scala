@@ -57,7 +57,7 @@ class IFU(memoryFile: String) extends Module {
   when(if2idOut.valid && if2idOut.ready) {
     PC := Mux(jump_r, npc_r - config.XLEN.U, nextPC)
     // flush 掉跳转信号
-    jump := false.B
+    jump_r := false.B
     npc_r := 0.U
   }
 

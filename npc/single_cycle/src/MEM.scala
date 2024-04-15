@@ -83,7 +83,7 @@ class LSU extends Module {
       (id2lsuReg.ctrlsignals.pcsel === 3.U) -> id2lsuReg.mtvec
     )
   )
-  jump := (id2lsuReg.ctrlsignals.pcsel =/= 0.U)
+  jump := (id2lsuReg.ctrlsignals.pcsel =/= 0.U) && lsu2wbOut.valid && lsu2wbOut.ready
 
   // Dpi-itrace 跟踪指令
   val itrace = Module(new Dpi_itrace)
@@ -231,9 +231,8 @@ class LSU extends Module {
   lsu2wbOut.bits.rd          := id2lsuReg.rd
   lsu2wbOut.bits.rdata       := rmemdata
 
-  // 如果该条指令有访问内存的阶段，那么看是读取还是写入，根据读写的 response 信号，来决定是否结束 mem 阶段
-  // 如果 valid 是由这些信号构成的，那么他最多持续一个周期，这是合理的吗， 不合理，再增加一个状态把
   lsu2wbOut.valid := lsu_state === sACK
+  
 
 }
 

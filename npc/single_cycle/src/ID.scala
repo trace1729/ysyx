@@ -68,7 +68,6 @@ class IDU extends Module {
         iduState := sACK
       }
     }
-    // 这个状态一点用也没有，特意延误一周期以模拟真实环境
     is(sACK) {
       when(id2lsuOut.valid && id2lsuOut.ready) {
         iduState := sIDLE

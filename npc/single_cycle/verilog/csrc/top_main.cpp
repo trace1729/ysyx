@@ -100,12 +100,12 @@ void verilator_exec_once(Decode* s) {
       top->clock = 0;
       top->eval();
       contextp->timeInc(1);
-      // tfp->dump(contextp->time());
+      tfp->dump(contextp->time());
       // tick = 1
       top->clock = 1;
       top->eval();
       contextp->timeInc(1);
-      // tfp->dump(contextp->time());
+      tfp->dump(contextp->time());
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;
@@ -129,6 +129,10 @@ void verilator_exec_once(Decode* s) {
         NEMUTRAP(s->dnpc, cpu.gpr[10]);
     // 没实现的指令
     } 
+    if (s->pc == 0) {
+      void skip_nop();
+      skip_nop();
+    }
     // else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
     //     INV(s->dnpc, next_inst);
     // }

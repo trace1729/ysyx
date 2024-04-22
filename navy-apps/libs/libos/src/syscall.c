@@ -1,4 +1,3 @@
-#include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
 #include <sys/time.h>
@@ -67,8 +66,8 @@ int _open(const char *path, int flags, mode_t mode) {
 }
 
 int _write(int fd, void *buf, size_t count) {
-  int cnt = _syscall_(SYS_write, fd, (uintptr_t)buf, count);
-  return cnt;
+  _exit(SYS_write);
+  return 0;
 }
 
 void *_sbrk(intptr_t increment) {

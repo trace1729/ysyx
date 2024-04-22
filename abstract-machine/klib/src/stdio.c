@@ -3,19 +3,15 @@
 #include <klib-macros.h>
 #include <stdarg.h>
 
-#define BUFSIZE 4000
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
 
 int printf(const char *fmt, ...) {
-	char out[BUFSIZE];
+	char out[128];
 	va_list args;
 	va_start(args, fmt);
 	int size = vsprintf(out, fmt, args);
 	va_end(args);
     putstr(out);
-    if (size >= BUFSIZE) {
-      panic("printf buffer overflow");
-    }
 	return size;
 }
 
@@ -24,22 +20,18 @@ static char tochar(int num) {
   else return 'A' + num - 10;
 }
 
-static long long abs_l(long long num) {
-  return num > 0? num: -num;
-}
 int int2str(char *out, int n, int idx, int base) {
   if (n == 0) {
 	  out[idx++] = '0';
 	  return idx;
   }
   long long num = n;
-  if (base == 10 && n < 0) {
+  if (n < 0) {
     out[idx++] = '-';
     num = -num;
   }
   if (base == 16) {
     out[idx++] = '0'; out[idx++] = 'x';
-    num = abs_l(num);
   }
   int len = -1;
   char buf[32];

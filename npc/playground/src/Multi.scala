@@ -25,6 +25,7 @@ class IFU extends Module {
   }.elsewhen(io.out.valid && io.out.ready) {
     temp_valid := 0.U
   }
+
 }
 
 class IDU extends Module {

@@ -19,7 +19,6 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr);
 extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask);
 extern "C" void Regs_display(const svLogicVecVal* regs);
 extern "C" void Csrs_display(const svLogicVecVal* regs);
-extern "C" void Next_inst();
 void ftrace(int rd, int type, Decode* s, word_t src1);
 
 #endif

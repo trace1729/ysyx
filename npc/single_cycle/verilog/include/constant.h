@@ -46,7 +46,7 @@
 // #define CONFIG_ITRACE_COND "false"
 // #define CONFIG_ITRACE 1
 // #define CONFIG_FTRACE 1
-// #define CONFIG_MTRACE 1
+#define CONFIG_MTRACE 1
 // #define CONFIG_DIFFTEST 1
 // #define CONFIG_AUDIO_CTL_MMIO 0xa0000200
 // #define CONFIG_RTC_MMIO 0xa0000048

@@ -152,17 +152,6 @@ object topSpec extends ChiselUtestTester {
             dut.io.imm.expect(int2uint(-1))
         }
       }
-      test("shiftRegister") {
-        testCircuit(new LSFR(4)) {
-          dut =>
-            dut.clock.step(1)
-            println(dut.out.peek().litValue)
-            dut.clock.step(1)
-            println(dut.out.peek().litValue)
-            dut.clock.step(1)
-            println(dut.out.peek().litValue)
-        }
-      }
     }
   }
 }

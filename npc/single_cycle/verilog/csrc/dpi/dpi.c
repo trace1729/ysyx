@@ -9,14 +9,7 @@
 
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
-extern bool next_inst;
 
-extern "C" void Next_inst() 
-{
-  // Log("ebreak encounterd, execution ended");
-  // printf("%x %x\n", itrace.pc, itrace.isa.inst.val);
-  next_inst = true;
-}
 extern "C" void stop() 
 {
   // Log("ebreak encounterd, execution ended");
@@ -54,21 +47,16 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
   if (raddr == CONFIG_RTC_MMIO) {
     uint32_t us = (get_time() & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_ref();
-    // difftest_skip_next_ref();
+    difftest_skip_next_ref();
 #endif
     return us;
   }
   if (raddr == CONFIG_RTC_MMIO + 4) {
     uint32_t us = ((get_time() >> 32) & 0xffffffff);
 #if CONFIG_DIFFTEST
-    difftest_skip_ref();
-    // difftest_skip_next_ref();
+    difftest_skip_next_ref();
 #endif
     return us;
-  }
-  if (raddr < 0x8000000) {
-    return 0;
   }
   unsigned rdata = host_read(guest_to_host(raddr & ~0x3u), 4);
   // printf("read addr %x, rdata %x\n", raddr, rdata);
@@ -76,14 +64,26 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 }
 
 extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
+  // 偷个懒，这里应该使用位操作写入数据，比如
+  /* wmask: 0110
+  // 根据 wmask 生成
+          00000000 11111111 11111111 00000000
+     MEM: 00000001 11001100 11001001 10021002
+     做或 | 运算
+          00000001 11111111 11111111 10021002
+     数据：11111111 10101010 10101010 11111111
+     做与 & 运算
+     MEM: 00000001 10101010 10101010 10021002
+  */
+  // 不过使用这种方法的效果和下面的 switch 语句是等效的。
+  // printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
 #if CONFIG_MTRACE
   printf("paddr_write: Accessing memory at location %02x, data %x\n", waddr, wdata);
 #endif
   if (waddr == CONFIG_SERIAL_MMIO) {
     putc(wdata, stderr);
 #if CONFIG_DIFFTEST
-    difftest_skip_ref();
-    // difftest_skip_next_ref();
+    difftest_skip_next_ref();
 #endif
     return; 
   }

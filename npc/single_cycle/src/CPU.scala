@@ -14,36 +14,6 @@ class top(memoryFile: String = "") extends Module {
 }
 
 
-
-class MemIO(width: Int) extends Bundle {
-  // val raddr = Input(UInt(width.W))
-  val addr      = Input(UInt(width.W))
-  val rdata     = Output(UInt(width.W))
-  val wdata     = Input(UInt(width.W))
-  val wmask     = Input(UInt(8.W))
-  val memEnable = Input(Bool())
-  val memRW     = Input(Bool())
-  // val waddr = Input(UInt(width.W))
-}
-
-//   val io = IO(new Bundle {
-//     val pc   = Output(UInt(width.W))
-//     val inst = Output(UInt(width.W))
-
-//     // for testing purpose
-//     val x1           = Output(UInt(width.W))
-//     val x2           = Output(UInt(width.W))
-//     val x5           = Output(UInt(width.W))
-//     val x6           = Output(UInt(width.W))
-//     val x7           = Output(UInt(width.W))
-//     val x8           = Output(UInt(width.W))
-//     val x9           = Output(UInt(width.W))
-//     val x10          = Output(UInt(width.W))
-//     val writereg     = Output(UInt(5.W))
-//     val test_alu_res = Output(UInt(width.W))
-//   })
-
-
 //   val ftrace = Module(new Dpi_ftrace)
 //   ftrace.io.optype := cntlLogic.io.optype
 //   ftrace.io.rd := io.inst(11, 7)

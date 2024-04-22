@@ -1,7 +1,7 @@
 import circt.stage._
 
 object Elaborate extends App {
-  def top       = new CSR(10, 32) 
+  def top       = new top
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => top))
 
   val chiselStageOptions = Seq(
@@ -13,8 +13,8 @@ object Elaborate extends App {
     FirtoolOption(
       "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoStyle=wrapInAtSquareBracket"
     ),
-    // FirtoolOption("--split-verilog"), 
-    // FirtoolOption("-o=build/sv-gen"),
+    FirtoolOption("--split-verilog"), 
+    FirtoolOption("-o=build/sv-gen"),
     FirtoolOption("--disable-all-randomization")
   )
 

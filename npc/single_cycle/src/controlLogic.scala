@@ -20,7 +20,6 @@ class ctrlSignals extends Bundle {
   val WBsel     = Output(UInt(3.W))
   val optype    = Output(UInt(type_width.W))
 
-  val isCsrInst     = Output(Bool())
   val csrsWriteEn   = Output(Bool())
   val mepcWriteEn   = Output(Bool())
   val mcauseWriteEn = Output(Bool())
@@ -93,8 +92,6 @@ class controlLogic(width: Int) extends Module {
   io.ctrlsignals.mepcWriteEn   := 0.U
   io.ctrlsignals.mcauseWriteEn := 0.U
 
-  // csrrw, csrrs, ecall, mret
-  io.ctrlsignals.isCsrInst := 0.U
 
   // 比较器
   val comparator = Module(new Comparator)

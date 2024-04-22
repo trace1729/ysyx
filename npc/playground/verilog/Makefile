@@ -2,7 +2,7 @@ TOPNAME = top
 INC_PATH ?=
 
 # source files
-VSRCS = $(shell find $(abspath ./vsrc) -name "*.v")
+VSRCS = $(shell find $(abspath ./vsrc) -name "*.v" -or -name "*.sv")
 CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 
 # verilator

@@ -76,19 +76,6 @@ extern "C" unsigned dpi_pmem_read (unsigned int raddr) {
 }
 
 extern "C" void dpi_pmem_write(unsigned int waddr, unsigned int wdata, unsigned char wmask) {
-  // 偷个懒，这里应该使用位操作写入数据，比如
-  /* wmask: 0110
-  // 根据 wmask 生成
-          00000000 11111111 11111111 00000000
-     MEM: 00000001 11001100 11001001 10021002
-     做或 | 运算
-          00000001 11111111 11111111 10021002
-     数据：11111111 10101010 10101010 11111111
-     做与 & 运算
-     MEM: 00000001 10101010 10101010 10021002
-  */
-  // 不过使用这种方法的效果和下面的 switch 语句是等效的。
-  // printf("write waddr %x, wdata %x, wmask %x\n", waddr, wdata, wmask);
 #if CONFIG_MTRACE
   printf("paddr_write: Accessing memory at location %02x, data %x\n", waddr, wdata);
 #endif

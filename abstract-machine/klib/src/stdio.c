@@ -257,7 +257,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
         *start = arg.i;
         break;
       case 's':
-        putch('1');
+        putch(st==0);
         putch('\n');
         start = arg.p ? arg.p : "(null)";
         end = start + strlen(start);

@@ -111,11 +111,11 @@ static char *fmt_u(uintmax_t x, char *s)
 
 static void out(char** buffer, const char *s, size_t l)
 {
-  /* memcpy((void*)(*buffer), s, l); */
-  /* (*buffer) += l; */
-  for (int i =0; i < l; i++) {
-    putch(s[i]);
-  } 
+  memcpy((void*)(*buffer), s, l);
+  (*buffer) += l;
+  /* for (int i =0; i < l; i++) { */
+  /*   putch(s[i]); */
+  /* }  */
 }
 
 // 填充字符处理 
@@ -127,13 +127,13 @@ static void pad(char** buffer, char c, int w, int l, int fl)
 	l = w - l;
 	memset(pad, c, l>sizeof pad ? sizeof pad : l);
 	for (; l >= sizeof pad; l -= sizeof pad) {
-    /* memcpy(*buffer, pad, sizeof pad); */
-    /* (*buffer) += sizeof pad; */
-    out(buffer, pad, sizeof pad);
+    memcpy(*buffer, pad, sizeof pad);
+    (*buffer) += sizeof pad;
+    /* out(buffer, pad, sizeof pad); */
   }
-  /* memcpy(*buffer, pad, l); */
-  /* (*buffer) += l; */
-  out(buffer, pad, l);
+  memcpy(*buffer, pad, l);
+  (*buffer) += l;
+  /* out(buffer, pad, l); */
 }
 
 int printf(const char *restrict fmt, ...)
@@ -223,7 +223,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
     
     // 根据类型从 va_list 取参数
     pop_arg(&arg, st, &ap);
-    putch((uintptr_t)(arg.p) == 0x48? '1': '0');
 
     // 准备将参数转化为字符串
     end = buf + sizeof(buf);
@@ -264,7 +263,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
         *start = arg.i;
         break;
       case 's':
-        putch((uintptr_t)(arg.p) == 0x48? '1': '0');
         start = arg.p ? arg.p : "(null)";
         end = start + strlen(start);
         p = start - end;

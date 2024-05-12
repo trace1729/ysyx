@@ -168,7 +168,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
   char buf[sizeof(uintmax_t) * 3];
   const char* prefix;
 
-  int type, pl; // pl for place_holder
+  int type = 0, pl = 0; // pl for place_holder
 
   for ( ; ; ) {
 

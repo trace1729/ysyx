@@ -143,9 +143,9 @@ int printf(const char *restrict fmt, ...)
 	va_start(ap, fmt);
 	ret = vsprintf(buffer, fmt, ap);
 	va_end(ap);
-  for (int i = 0; i < ret; i++) {
-    putch(buffer[i]);
-  }
+  /* for (int i = 0; i < ret; i++) { */
+  /*   putch(buffer[i]); */
+  /* } */
 	return ret;
 }
 

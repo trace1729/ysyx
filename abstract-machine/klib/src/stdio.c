@@ -75,17 +75,17 @@ static int getint(char **s) {
 	return i;
 }
 
-static void pop_arg(union arg *arg, int type, va_list ap)
+static void pop_arg(union arg *arg, int type, va_list* ap)
 {
 	switch (type) {
-	       case PTR:	arg->p = va_arg(ap, void *);
-	break; case INT:	arg->i = va_arg(ap, int);
-	break; case UINT:	arg->i = va_arg(ap, unsigned int);
-	break; case LONG:	arg->i = va_arg(ap, long);
-	break; case CHAR:	arg->i = (signed char)va_arg(ap, int);
-	break; case ULONG:	arg->i = va_arg(ap, unsigned long);
-	break; case ULLONG:	arg->i = va_arg(ap, unsigned long long);
-	break; case UIPTR:	arg->i = (uintptr_t)va_arg(ap, void *);
+	       case PTR:	arg->p = va_arg(*ap, void *);
+	break; case INT:	arg->i = va_arg(*ap, int);
+	break; case UINT:	arg->i = va_arg(*ap, unsigned int);
+	break; case LONG:	arg->i = va_arg(*ap, long);
+	break; case CHAR:	arg->i = (signed char)va_arg(*ap, int);
+	break; case ULONG:	arg->i = va_arg(*ap, unsigned long);
+	break; case ULLONG:	arg->i = va_arg(*ap, unsigned long long);
+	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
 	}
 }
     
@@ -222,7 +222,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		if (!st) goto error;
     
     // 根据类型从 va_list 取参数
-    pop_arg(&arg, st, ap);
+    pop_arg(&arg, st, &ap);
     putch((uintptr_t)(arg.p) == 0x48? '1': '0');
 
     // 准备将参数转化为字符串

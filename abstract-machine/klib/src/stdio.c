@@ -115,16 +115,19 @@ static void out(char** buffer, const char *s, size_t l)
 }
 
 // 填充字符处理 
-static void pad(char* buffer, char c, int w, int l, int fl)
+static void pad(char** buffer, char c, int w, int l, int fl)
 {
 	char pad[256];
   // 如果 fl 的 ZERO_PAD 标志位为1，那不输出
 	if (fl & (LEFT_ADJ | ZERO_PAD) || l >= w) return;
 	l = w - l;
 	memset(pad, c, l>sizeof pad ? sizeof pad : l);
-	for (; l >= sizeof pad; l -= sizeof pad)
-		out(&buffer, pad, sizeof pad);
-	out(&buffer, pad, l);
+	for (; l >= sizeof pad; l -= sizeof pad) {
+    memcpy(*buffer, pad, sizeof pad);
+    (*buffer) += sizeof pad;
+  }
+  memcpy(*buffer, pad, l);
+  (*buffer) += l;
 }
 
 int printf(const char *restrict fmt, ...)
@@ -135,7 +138,9 @@ int printf(const char *restrict fmt, ...)
 	va_start(ap, fmt);
 	ret = vsprintf(buffer, fmt, ap);
 	va_end(ap);
-  putstr(buffer);
+  for (int i = 0; i < ret; i++) {
+    putch(buffer[i]);
+  }
 	return ret;
 }
 
@@ -151,11 +156,11 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
   
   char *start, *end, *str=(char*)fmt;
   unsigned flag = 0;
-  int w, p = 0;
+  int w = 0, p = 0;
   union arg arg;
 
-  /* unsigned ps; // ps for length specifier, and st for actual type */
-  unsigned st; 
+  unsigned st = BARE;
+  /* unsigned ps = BARE; // ps for length specifier, and st for actual type */
   int cnt = 0, len = 0;
 
   char buf[sizeof(uintmax_t) * 3];
@@ -269,17 +274,18 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		if (w > INT_MAX-cnt) goto error;
 
     // 正常情况下，使用空格进行填充
-		pad(buffer, ' ', w, pl+p, flag);
+		pad(&buffer, ' ', w, pl+p, flag);
     // 输出前缀
 		out(&buffer, prefix, pl);
     // 有 zero flag 用 '0' 填充
-		pad(buffer, '0', w, pl+p, flag^ZERO_PAD);
+    // why does not print 0?
+		pad(&buffer, '0', w, pl+p, flag^ZERO_PAD);
     // 当 z-a 为0时，打印输出一个0
-		pad(buffer, '0', p, end - start, 0);
+		pad(&buffer, '0', p, end - start, 0);
     // 输出实际内容
 		out(&buffer, start, end - start);
     // 处理左对齐
-		pad(buffer, ' ', w, pl+p, flag^LEFT_ADJ);
+		pad(&buffer, ' ', w, pl+p, flag^LEFT_ADJ);
     // w 是总输出长度
 		len = w;
   }
@@ -290,11 +296,11 @@ error:
   return -1;
 }
 int snprintf(char *out, size_t n, const char *fmt, ...) {
-  panic("Not implemented");
+  panic("not implemented");
 }
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  panic("Not implemented");
+  panic("not implemented");
 }
 
 #endif

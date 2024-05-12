@@ -2,6 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #define BUFSIZE 4000
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
@@ -263,6 +264,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
         break;
       case 's':
         putch('0' + st);
+        putch((uintptr_t)(arg.p) == 0x48? '1': '0');
         start = arg.p ? arg.p : "(null)";
         end = start + strlen(start);
         p = start - end;

@@ -110,8 +110,11 @@ static char *fmt_u(uintmax_t x, char *s)
 
 static void out(char** buffer, const char *s, size_t l)
 {
-  memcpy((void*)(*buffer), s, l);
-  (*buffer) += l;
+  /* memcpy((void*)(*buffer), s, l); */
+  /* (*buffer) += l; */
+  for (int i =0; i < l; i++) {
+    putch(s[i]);
+  } 
 }
 
 // 填充字符处理 
@@ -123,11 +126,13 @@ static void pad(char** buffer, char c, int w, int l, int fl)
 	l = w - l;
 	memset(pad, c, l>sizeof pad ? sizeof pad : l);
 	for (; l >= sizeof pad; l -= sizeof pad) {
-    memcpy(*buffer, pad, sizeof pad);
-    (*buffer) += sizeof pad;
+    /* memcpy(*buffer, pad, sizeof pad); */
+    /* (*buffer) += sizeof pad; */
+    out(buffer, pad, sizeof pad);
   }
-  memcpy(*buffer, pad, l);
-  (*buffer) += l;
+  /* memcpy(*buffer, pad, l); */
+  /* (*buffer) += l; */
+  out(buffer, pad, l);
 }
 
 int printf(const char *restrict fmt, ...)
@@ -257,13 +262,9 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
         *start = arg.i;
         break;
       case 's':
-        putch(st + '0');
-        putch('\n');
         start = arg.p ? arg.p : "(null)";
-        putch(*(char*)(start));
         end = start + strlen(start);
         p = start - end;
-        putch(p + '0');
         break;
     }
     

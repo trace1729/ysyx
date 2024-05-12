@@ -23,5 +23,4 @@ out/
 .idea/
 .idea_modules/
 test_run_dir/
-.metals/.tmp/.metals/.tmp
-.metals/.tmp
+.metals/

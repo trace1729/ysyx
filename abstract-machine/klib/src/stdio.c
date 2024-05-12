@@ -2,6 +2,7 @@
 #include <klib.h>
 #include <klib-macros.h>
 #include <stdarg.h>
+#include <stdint.h>
 
 #define BUFSIZE 4000
 #if !defined(__ISA_NATIVE__) || defined(__NATIVE_USE_KLIB__)
@@ -74,17 +75,17 @@ static int getint(char **s) {
 	return i;
 }
 
-static void pop_arg(union arg *arg, int type, va_list ap)
+static void pop_arg(union arg *arg, int type, va_list* ap)
 {
 	switch (type) {
-	       case PTR:	arg->p = va_arg(ap, void *);
-	break; case INT:	arg->i = va_arg(ap, int);
-	break; case UINT:	arg->i = va_arg(ap, unsigned int);
-	break; case LONG:	arg->i = va_arg(ap, long);
-	break; case CHAR:	arg->i = (signed char)va_arg(ap, int);
-	break; case ULONG:	arg->i = va_arg(ap, unsigned long);
-	break; case ULLONG:	arg->i = va_arg(ap, unsigned long long);
-	break; case UIPTR:	arg->i = (uintptr_t)va_arg(ap, void *);
+	       case PTR:	arg->p = va_arg(*ap, void *);
+	break; case INT:	arg->i = va_arg(*ap, int);
+	break; case UINT:	arg->i = va_arg(*ap, unsigned int);
+	break; case LONG:	arg->i = va_arg(*ap, long);
+	break; case CHAR:	arg->i = (signed char)va_arg(*ap, int);
+	break; case ULONG:	arg->i = va_arg(*ap, unsigned long);
+	break; case ULLONG:	arg->i = va_arg(*ap, unsigned long long);
+	break; case UIPTR:	arg->i = (uintptr_t)va_arg(*ap, void *);
 	}
 }
     
@@ -112,6 +113,9 @@ static void out(char** buffer, const char *s, size_t l)
 {
   memcpy((void*)(*buffer), s, l);
   (*buffer) += l;
+  /* for (int i =0; i < l; i++) { */
+  /*   putch(s[i]); */
+  /* }  */
 }
 
 // 填充字符处理 
@@ -123,11 +127,9 @@ static void pad(char** buffer, char c, int w, int l, int fl)
 	l = w - l;
 	memset(pad, c, l>sizeof pad ? sizeof pad : l);
 	for (; l >= sizeof pad; l -= sizeof pad) {
-    memcpy(*buffer, pad, sizeof pad);
-    (*buffer) += sizeof pad;
+    out(buffer, pad, sizeof pad);
   }
-  memcpy(*buffer, pad, l);
-  (*buffer) += l;
+  out(buffer, pad, l);
 }
 
 int printf(const char *restrict fmt, ...)
@@ -204,6 +206,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 
     // 下面读取指定的
     w = getint(&str);
+
     if (w < 0) goto error;
   
     // 使用状态机读取 输出类型
@@ -216,7 +219,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		if (!st) goto error;
     
     // 根据类型从 va_list 取参数
-    pop_arg(&arg, st, ap);
+    pop_arg(&arg, st, &ap);
 
     // 准备将参数转化为字符串
     end = buf + sizeof(buf);
@@ -288,6 +291,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		pad(&buffer, ' ', w, pl+p, flag^LEFT_ADJ);
     // w 是总输出长度
 		len = w;
+    p = 0;
   }
   
   return cnt;

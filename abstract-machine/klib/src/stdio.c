@@ -276,8 +276,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
     w = MAX(w, pl + p);
     putch(p + '0');
     putch('\n');
-    putch(pl + '0');
-    putch('\n');
 		if (w > INT_MAX-cnt) goto error;
 
     // 正常情况下，使用空格进行填充

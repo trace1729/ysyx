@@ -259,7 +259,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
       case 's':
         putch(st + '0');
         putch('\n');
-        putch((unsigned long)(arg.p) == 48? '1': '0');
+        putch((unsigned long)(arg.p) > 48? '1': '0');
         start = arg.p ? arg.p : "(null)";
         end = start + strlen(start);
         p = start - end;

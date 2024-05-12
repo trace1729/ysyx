@@ -223,6 +223,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
     
     // 根据类型从 va_list 取参数
     pop_arg(&arg, st, ap);
+    putch((uintptr_t)(arg.p) == 0x48? '1': '0');
 
     // 准备将参数转化为字符串
     end = buf + sizeof(buf);
@@ -263,7 +264,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
         *start = arg.i;
         break;
       case 's':
-        putch('0' + st);
         putch((uintptr_t)(arg.p) == 0x48? '1': '0');
         start = arg.p ? arg.p : "(null)";
         end = start + strlen(start);

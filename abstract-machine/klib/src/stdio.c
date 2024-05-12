@@ -168,7 +168,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
   char buf[sizeof(uintmax_t) * 3];
   const char* prefix;
 
-  int type = 0, pl = 0; // pl for place_holder
+  int type, pl; // pl for place_holder
 
   for ( ; ; ) {
 
@@ -206,6 +206,9 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 
     // 下面读取指定的
     w = getint(&str);
+    putch('0' + w);
+    putch('\n');
+
     if (w < 0) goto error;
   
     // 使用状态机读取 输出类型

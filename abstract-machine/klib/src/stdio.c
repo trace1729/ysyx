@@ -206,8 +206,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 
     // 下面读取指定的
     w = getint(&str);
-    putch('0' + w);
-    putch('\n');
 
     if (w < 0) goto error;
   
@@ -276,6 +274,9 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
     // if length is greater than specified width, then padding 
     // is unnessary
     w = MAX(w, pl + p);
+    putch((pl + p) + '0');
+    putch((w) + '0');
+    putch('\n');
 		if (w > INT_MAX-cnt) goto error;
 
     // 正常情况下，使用空格进行填充
@@ -293,6 +294,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		pad(&buffer, ' ', w, pl+p, flag^LEFT_ADJ);
     // w 是总输出长度
 		len = w;
+    w = 0;
   }
   
   return cnt;

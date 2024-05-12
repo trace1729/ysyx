@@ -273,9 +273,10 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 
     // if length is greater than specified width, then padding 
     // is unnessary
-    putch((w) + '0');
     w = MAX(w, pl + p);
-    putch((pl + p) + '0');
+    putch(p + '0');
+    putch('\n');
+    putch(pl + '0');
     putch('\n');
 		if (w > INT_MAX-cnt) goto error;
 

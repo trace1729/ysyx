@@ -127,13 +127,9 @@ static void pad(char** buffer, char c, int w, int l, int fl)
 	l = w - l;
 	memset(pad, c, l>sizeof pad ? sizeof pad : l);
 	for (; l >= sizeof pad; l -= sizeof pad) {
-    memcpy(*buffer, pad, sizeof pad);
-    (*buffer) += sizeof pad;
-    /* out(buffer, pad, sizeof pad); */
+    out(buffer, pad, sizeof pad);
   }
-  memcpy(*buffer, pad, l);
-  (*buffer) += l;
-  /* out(buffer, pad, l); */
+  out(buffer, pad, l);
 }
 
 int printf(const char *restrict fmt, ...)

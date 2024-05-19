@@ -34,7 +34,7 @@ class Alu(width: Int) extends Module {
   val less = Wire(Bool())
   // 0: signed
   // 1: unsigned
-  less := Mux(!io.alusel(0), adder_res(width - 1) ^ io.overflow, io.carry ^ add.io.Cin
+  less := Mux(!io.alusel(0), adder_res(width - 1) ^ io.overflow, io.carry ^ add.io.Cin)
 
   /* 移位器 */
   val shifter_res = Wire(UInt(width.W))

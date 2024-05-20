@@ -139,8 +139,9 @@ int printf(const char *restrict fmt, ...)
 	va_list ap;
 	va_start(ap, fmt);
 	ret = vsprintf(buffer, fmt, ap);
-	va_end(ap);
+  buffer[ret] = '\0';
   putstr(buffer);
+	va_end(ap);
 	return ret;
 }
 
@@ -148,8 +149,8 @@ int sprintf(char *out, const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
 	int size = vsprintf(out, fmt, args);
+  out[size] = '\0';
 	va_end(args);
-  /* putstr(out); */
 	return size;
 }
 
@@ -292,7 +293,6 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		len = w;
     p = 0;
   }
-  buffer[cnt] = '\0';
   return cnt;
 error:
   // panic("Overflow");

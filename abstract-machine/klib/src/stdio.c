@@ -149,8 +149,7 @@ int printf(const char *restrict fmt, ...)
 int sprintf(char *out, const char *fmt, ...) {
 	va_list args;
 	va_start(args, fmt);
-  char* copy = out;
-	int size = vsprintf(copy, fmt, args);
+	int size = vsprintf(out, fmt, args);
 	va_end(args);
 	return size;
 }

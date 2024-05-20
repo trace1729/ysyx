@@ -294,7 +294,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
 		len = w;
     p = 0;
   }
-  buffer[cnt] = '\0';
+  /* buffer[cnt] = '\0'; */
   return cnt;
 error:
   // panic("Overflow");

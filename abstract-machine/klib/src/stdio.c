@@ -298,12 +298,20 @@ error:
   // panic("Overflow");
   return -1;
 }
-int snprintf(char *out, size_t n, const char *fmt, ...) {
-  panic("not implemented");
-}
 
 int vsnprintf(char *out, size_t n, const char *fmt, va_list ap) {
-  panic("not implemented");
+  int size = vsprintf(out, fmt, ap);
+  out[n] = '\0';
+  return size;
 }
+
+int snprintf(char *out, size_t n, const char *fmt, ...) {
+	va_list args;
+	va_start(args, fmt);
+	int size = vsnprintf(out, n, fmt, args);
+	va_end(args);
+	return size;
+}
+
 
 #endif

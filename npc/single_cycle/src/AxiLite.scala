@@ -74,7 +74,7 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
   val stageInput = IO(Flipped(AxiLiteMaster(addrWidth, dataWidth)))
   val axiOut     = IO(AxiLiteMaster(addrWidth, dataWidth))
 
-  stageInput <> axiOut
+  stageInput <> 
 
 }
 

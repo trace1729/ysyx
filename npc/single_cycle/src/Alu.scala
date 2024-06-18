@@ -67,7 +67,7 @@ class Alu(width: Int) extends Module {
       (io.alusel === "b1111".asUInt) -> io.B
     )
   )
-  
+
 }
 
 class adder(width: Int = 32) extends Module {

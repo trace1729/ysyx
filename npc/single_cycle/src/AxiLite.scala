@@ -64,7 +64,6 @@ object AxiState extends ChiselEnum {
   val aIDLE, aWRITE, aREAD, aACK = Value
 }
 
-
 object AxiController {
   def apply(addrWidth: Int, dataWidth: Int) = new AxiController(addrWidth, dataWidth)
 }
@@ -73,9 +72,9 @@ class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
 
   // 控制器的输入应该是可以通用化的
   val stageInput = IO(Flipped(AxiLiteMaster(addrWidth, dataWidth)))
-  val axiOut = IO(AxiLiteMaster(addrWidth, dataWidth))
+  val axiOut     = IO(AxiLiteMaster(addrWidth, dataWidth))
 
   stageInput <> axiOut
-  
 
 }
+

@@ -18,7 +18,7 @@ object SRAMState extends ChiselEnum {
 
 class SRAM extends Module {
 
-  val in   = IO(Flipped(AxiLiteMaster(width, width)))
+  val in   = IO(AxiLiteSlave(width, width))
   val dmem = Module(new Dmem(width))
 
   // ready follows valid

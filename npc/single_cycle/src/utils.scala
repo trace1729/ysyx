@@ -57,8 +57,8 @@ object ArbiterState extends ChiselEnum {
 }
 
 class myArbiter extends Module {
-  val ifuIn = IO(Flipped(AxiLiteMaster(width, width)))
-  val lsuIn = IO(Flipped(AxiLiteMaster(width, width)))
+  val ifuIn = IO(AxiLiteSlave(width, width))
+  val lsuIn = IO(AxiLiteSlave(width, width))
 
   val sram = IO(AxiLiteMaster(width, width))
   val uart = IO(AxiLiteMaster(width, width))
@@ -151,7 +151,7 @@ object deviceState extends ChiselEnum {
 
 class Uart extends Module {
 
-  val in = IO(Flipped(AxiLiteMaster(width, width)))
+  val in = IO(AxiLiteSlave(width, width))
   import deviceState._
   val state = RegInit(aIDLE)
 
@@ -193,7 +193,7 @@ class Uart extends Module {
 
 class RTC extends Module {
 
-  val in = IO(Flipped(AxiLiteMaster(width, width)))
+  val in = IO(AxiLiteSlave(width, width))
   import deviceState._
   val state = RegInit(aIDLE)
 

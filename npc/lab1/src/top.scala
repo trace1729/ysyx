@@ -1,11 +1,30 @@
 import chisel3._
 import chisel3.util._
 
+
+class right extends Module {
+  val io = IO(new Bundle {
+    val right_out = Output(UInt(10.W))
+    val right_in = Input(UInt(10.W))
+  })
+}
+class left extends Module {
+  val io = IO(new Bundle {
+    val left_in = Input(UInt(10.W))
+    val left_out = Output(UInt(10.W))
+  })
+}
+
 class top extends Module {
   val io = IO(new Bundle {
     val sw = Input(UInt(10.W))
     val led = Output(UInt(2.W))
   })
+
+  val l = Module(new left)
+  val r = Module(new right)
+
+  l.io <> r.io
 
   val selector = Module(new selector)
   selector.io.in(0) := io.sw(3, 2)

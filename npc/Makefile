@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = single_cycle
+TARGET = lab1
 
 export PATH := $(PATH):$(abspath ./utils)
 

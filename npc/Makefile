@@ -9,7 +9,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill -i --full-stacktrace $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM) 
+	mill --full-stacktrace $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM) 
 
 help:
 	mill -i __.test.runMain Elaborate --help

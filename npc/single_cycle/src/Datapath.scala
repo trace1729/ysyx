@@ -23,6 +23,9 @@ class Datapath(memoryFile: String) extends Module {
     val io_slave     = AxiLiteSlave(width, width)
   })
 
+  io.io_slave := DontCare
+  io.io_master := DontCare
+
   val ifu     = Module(new IFU(memoryFile))
   val idu     = Module(new IDU)
   val lsu     = Module(new LSU)

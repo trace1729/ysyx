@@ -6,7 +6,7 @@ import cpu.config._
 import cpu.utils._
 
 
-class top(memoryFile: String = "") extends Module {
+class ysyx(memoryFile: String = "") extends Module {
   val io = IO(new DatapathIO)
   val datapath = Module(new Datapath(memoryFile))
   io.inst := datapath.io.inst

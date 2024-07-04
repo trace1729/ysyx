@@ -1,11 +1,8 @@
-#include "svdpi.h"
 #include "utils.h"
 #include <cstdio>
 #include <cstdlib>
-#include <iostream>
 #include <memory>
 
-#include <Vtop.h>
 #include <verilated.h>
 #include <verilated_vcd_c.h> //可选，如果要导出vcd则需要加上
 #include <isa.h>
@@ -15,12 +12,18 @@
 #include <cpu/cpu.h>
 #include <dpi.h>
 
+#define STRINGIFY(x) #x
+#define HEADER(x) STRINGIFY(x.h)
+
+#include HEADER(TOP_NAME)
+
+
 void init_monitor(int argc, char* argv[]);
 void sdb_mainloop();
 int is_exit_status_bad();
 
 std::unique_ptr<VerilatedContext> contextp {};
-std::unique_ptr<Vtop> top {};
+std::unique_ptr<TOP_NAME> top {};
 VerilatedVcdC* tfp = new VerilatedVcdC;
 
 Decode itrace;
@@ -30,7 +33,7 @@ bool next_inst = false;
 
 void sim_init(char argc, char* argv[]) {
   contextp = std::make_unique<VerilatedContext>();
-  top = std::make_unique<Vtop>(contextp.get());
+  top = std::make_unique<TOP_NAME>(contextp.get());
   Verilated::commandArgs(argc, argv);
   /* generate wave */
   contextp->traceEverOn(true);
@@ -38,7 +41,7 @@ void sim_init(char argc, char* argv[]) {
   tfp->open("wave.vcd");
 }
 
-void sim_reset(Vtop* top) {
+void sim_reset(TOP_NAME* top) {
   top->reset = 1;
   top->clock = 0;
   top->eval();

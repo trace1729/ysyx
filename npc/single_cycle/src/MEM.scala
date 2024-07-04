@@ -102,23 +102,23 @@ class LSU extends Module {
   lsuAxiOut <> axiController.axiOut
 
   // activate the axiController
-  axiController.stageInput.readAddr.valid  := false.B
-  axiController.stageInput.writeData.valid := false.B
-  axiController.stageInput.writeAddr.valid := false.B
+  axiController.stageInput.ar.valid  := false.B
+  axiController.stageInput.w.valid := false.B
+  axiController.stageInput.aw.valid := false.B
 
-  axiController.stageInput.writeData.bits.data := id2lsuReg.rs2
-  axiController.stageInput.writeData.bits.strb := Mux(
+  axiController.stageInput.w.bits.data := id2lsuReg.rs2
+  axiController.stageInput.w.bits.strb := Mux(
     !id2lsuReg.ctrlsignals.memRW,
     0.U,
     wmaskGen(id2lsuReg.inst(14, 12), alu.io.res(1, 0))
   )
 
-  axiController.stageInput.writeAddr.bits.addr := alu.io.res
-  axiController.stageInput.readAddr.bits.addr  := alu.io.res
+  axiController.stageInput.aw.bits.addr := alu.io.res
+  axiController.stageInput.ar.bits.addr  := alu.io.res
 
   // valid 跟随 ready
-  axiController.stageInput.writeResp.ready := axiController.stageInput.writeResp.valid
-  axiController.stageInput.readData.ready  := axiController.stageInput.readData.valid
+  axiController.stageInput.b.ready := axiController.stageInput.b.valid
+  axiController.stageInput.r.ready  := axiController.stageInput.r.valid
 
   import stageState._
   val lsu_state = RegInit(sIDLE)
@@ -126,9 +126,9 @@ class LSU extends Module {
   // TODO IDU 的 ready ？
   id2lsuIn.ready := (lsu_state === sIDLE) && lsu2wbOut.ready
 
-  val readCompleted  = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
-  val writeCompleted = axiController.stageInput.writeResp.valid && axiController.stageInput.writeResp.ready
-  val readData       = RegEnable(axiController.stageInput.readData.bits.data, readCompleted)
+  val readCompleted  = axiController.stageInput.r.valid && axiController.stageInput.r.ready
+  val writeCompleted = axiController.stageInput.b.valid && axiController.stageInput.b.ready
+  val readData       = RegEnable(axiController.stageInput.r.bits.data, readCompleted)
 
   switch(lsu_state) {
     is(sIDLE) {
@@ -142,17 +142,17 @@ class LSU extends Module {
 
       // 下面三个大行设置 axiController 的 valid 信号
       // 如果 memEnable===0.U, 说明该条指令不涉及到访存操作，我们可以将 axiController 的valid 位全部置低
-      axiController.stageInput.readAddr.valid := Mux(
+      axiController.stageInput.ar.valid := Mux(
         (id2lsuReg.ctrlsignals.memEnable === 1.U) && (id2lsuReg.ctrlsignals.memRW === 0.U),
         true.B,
         false.B
       )
-      axiController.stageInput.writeAddr.valid := Mux(
+      axiController.stageInput.aw.valid := Mux(
         (id2lsuReg.ctrlsignals.memEnable === 1.U) && (id2lsuReg.ctrlsignals.memRW === 1.U),
         true.B,
         false.B
       )
-      axiController.stageInput.writeData.valid := Mux(
+      axiController.stageInput.w.valid := Mux(
         (id2lsuReg.ctrlsignals.memEnable === 1.U) && (id2lsuReg.ctrlsignals.memRW === 1.U),
         true.B,
         false.B
@@ -160,13 +160,13 @@ class LSU extends Module {
 
       // 握手成功之后，数据锁存到 sram 的寄存器中，然后就跳转到 ack 状态，拉低 valid 信号
       when(
-        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready
+        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.ar.valid && axiController.stageInput.ar.ready
       ) {
         lsu_state := sWaitReady
       }
 
       when(
-        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.writeAddr.valid && axiController.stageInput.writeAddr.ready && axiController.stageInput.writeData.valid && axiController.stageInput.writeData.ready
+        id2lsuReg.ctrlsignals.memEnable === 1.U && axiController.stageInput.aw.valid && axiController.stageInput.aw.ready && axiController.stageInput.w.valid && axiController.stageInput.w.ready
       ) {
         lsu_state := sWaitReady
       }

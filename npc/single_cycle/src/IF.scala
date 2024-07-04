@@ -62,21 +62,21 @@ class IFU(memoryFile: String) extends Module {
   }
 
   // 为 axiController 设置默认值
-  val readCompleted = axiController.stageInput.readData.valid && axiController.stageInput.readData.ready
-  axiController.stageInput.writeAddr      := DontCare
-  axiController.stageInput.writeData      := DontCare
-  axiController.stageInput.writeResp      := DontCare
-  axiController.stageInput.readAddr.valid := (ifu_state === stageState.sWaitAXI)
+  val readCompleted = axiController.stageInput.r.valid && axiController.stageInput.r.ready
+  axiController.stageInput.aw      := DontCare
+  axiController.stageInput.w      := DontCare
+  axiController.stageInput.b      := DontCare
+  axiController.stageInput.ar.valid := (ifu_state === stageState.sWaitAXI)
   // nextPC 作为取值的请求
-  axiController.stageInput.readAddr.bits.addr := nextPC
+  axiController.stageInput.ar.bits.addr := nextPC
   // 处理器 read ack 请求
-  axiController.stageInput.readData.ready := axiController.stageInput.readData.valid
+  axiController.stageInput.r.ready := axiController.stageInput.r.valid
 
   // 处理 ifu 的状态转移
   switch(ifu_state) {
     is(sWaitAXI) {
       // 进入 sWaitReady 状态之后，设置置 ar Valid
-      when (axiController.stageInput.readAddr.valid && axiController.stageInput.readAddr.ready) {
+      when (axiController.stageInput.ar.valid && axiController.stageInput.ar.ready) {
         ifu_state := sWaitReady
       }
     }
@@ -93,7 +93,7 @@ class IFU(memoryFile: String) extends Module {
   }
 
   // 处理输出
-  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.readData.bits.data), readCompleted)
+  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.r.bits.data), readCompleted)
   if2idOut.bits.pc   := Mux(jump || jump_r, 0.U, nextPC)
   if2idOut.valid     := ifu_state === sACK
 

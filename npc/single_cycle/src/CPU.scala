@@ -6,11 +6,11 @@ import cpu.config._
 import cpu.utils._
 
 
+// the functionality of this class overlaps with the Datapath class
+// abaondon now.
 class ysyx(memoryFile: String = "") extends Module {
   val io = IO(new DatapathIO)
   val datapath = Module(new Datapath(memoryFile))
-  io.inst := datapath.io.inst
-  io.pc := datapath.io.pc
 }
 
 

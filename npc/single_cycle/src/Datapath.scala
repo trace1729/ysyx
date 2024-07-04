@@ -10,21 +10,18 @@ import cpu.utils._
 class DatapathIO extends Bundle {
   val pc   = Output(UInt(width.W))
   val inst = Output(UInt(width.W))
-
 }
 
 class Datapath(memoryFile: String) extends Module {
 
   val io = IO(new Bundle {
-    val clock        = Input(Clock())
-    val reset        = Input(Reset())
-    val io_interrupt = Input(Bool())
-    val io_master    = AxiLiteMaster(width, width)
-    val io_slave     = AxiLiteSlave(width, width)
+    val interrupt = Input(Bool())
+    val master    = AxiLiteMaster(width, width)
+    val slave     = AxiLiteSlave(width, width)
   })
 
-  io.io_slave := DontCare
-  io.io_master := DontCare
+  io.slave := DontCare
+  io.master := DontCare
 
   val ifu     = Module(new IFU(memoryFile))
   val idu     = Module(new IDU)

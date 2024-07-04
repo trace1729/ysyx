@@ -136,6 +136,7 @@ void verilator_exec_once(Decode* s) {
       void skip_nop();
       skip_nop();
     }
+    top->io_inst = 1;
     // else if (nemu_state.state == NEMU_END && next_inst != 0x00100073) {
     //     INV(s->dnpc, next_inst);
     // }

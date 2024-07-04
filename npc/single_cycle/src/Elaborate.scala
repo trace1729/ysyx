@@ -1,12 +1,13 @@
 import circt.stage._
 
 import cpu.ysyx
+import cpu.Datapath
 
 object Elaborate extends App {
   // Argument is appended after --
   val seperator = args.indexWhere(_ == "--")
   assert(seperator != -1, "please pass img for program to executed!")
-  def cpu       = new ysyx(memoryFile = args(seperator + 1))
+  def cpu       = new Datapath(memoryFile = args(seperator + 1))
 
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => cpu))
   val chiselStageOptions = Seq(

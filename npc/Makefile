@@ -1,5 +1,5 @@
 BUILD_DIR = ./build
-TARGET = lab1
+TARGET = single_cycle
 
 export PATH := $(PATH):$(abspath ./utils)
 
@@ -9,7 +9,7 @@ test:
 verilog:
 	$(call git_commit, "generate verilog")
 	mkdir -p $(BUILD_DIR)
-	mill --full-stacktrace $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM) 
+	mill -i $(TARGET).test.runMain Elaborate -td $(BUILD_DIR) -- $(MEM)
 
 help:
 	mill -i __.test.runMain Elaborate --help

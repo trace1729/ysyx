@@ -21,11 +21,6 @@ class top extends Module {
     val led = Output(UInt(2.W))
   })
 
-  val l = Module(new left)
-  val r = Module(new right)
-
-  l.io <> r.io
-
   val selector = Module(new selector)
   selector.io.in(0) := io.sw(3, 2)
   selector.io.in(1) := io.sw(5, 4)

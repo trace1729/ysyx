@@ -81,6 +81,10 @@ void *_sbrk(intptr_t increment) {
   assert (program_break != 0);
   char* old_break = program_break;
 
+  if (old_break != & end) {
+    putstr("test!\n");
+  }
+
   program_break += increment;
   char* new_break = program_break;
 

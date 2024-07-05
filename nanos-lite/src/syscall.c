@@ -48,9 +48,6 @@ void do_syscall(Context *c) {
 
   int result_code = 0;
 
-#ifdef strace
-  printf("%s(%d, %d, %d)\n", syscalls[a[0]], a[1], a[2], a[3]);
-#endif
 
   switch (a[0]) {
     case SYS_yield: result_code = sys_yield(); break;
@@ -61,6 +58,9 @@ void do_syscall(Context *c) {
   }
 
   c->GPRx = result_code;
+#ifdef strace
+  printf("%s(%d, %d, %d) = %d\n", syscalls[a[0]], a[1], a[2], a[3], result_code);
+#endif
 }
 
 

@@ -9,5 +9,6 @@ int main() {
 		j ++;
       printf("Hello World from Navy-apps for the %dth time!\n", i ++);
     }
+  exit(0);
   return 0;
 }

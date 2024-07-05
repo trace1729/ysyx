@@ -4,7 +4,7 @@
 char buf[200];
 int main() {
   
-  setbuffer(stdout, buf, 2);
+  setbuffer(stdout, buf, 100);
   printf("hello world");
 
   return 0;

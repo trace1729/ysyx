@@ -156,7 +156,7 @@ int sprintf(char *out, const char *fmt, ...) {
 
 int vsprintf(char* buffer, const char* fmt, va_list ap) {
   
-  halt(0);
+  halt(1);
   char *start, *end, *str=(char*)fmt;
   unsigned flag = 0;
   int w = 0, p = 0;

@@ -76,7 +76,8 @@ int _write(int fd, void *buf, size_t count) {
 }
 
 void *_sbrk(intptr_t increment) {
-  
+ 
+  return (void* ) -1;
   static char* program_break = &end;
   assert (program_break != 0);
   char* old_break = program_break;
@@ -85,9 +86,6 @@ void *_sbrk(intptr_t increment) {
   char* new_break = program_break;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
-
-  char test[100];
-  sprintf(test, "old_break = %f, new_break=%p, increment = %lu\n", 1, new_break, increment);
   return status == 0? (void*) old_break: (void*)(-1);
 }
 

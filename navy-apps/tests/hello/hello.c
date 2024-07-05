@@ -2,7 +2,7 @@
 #include <stdio.h>
 
 int main() {
-  void* a = sbrk(0);
-  write(1, "hello\n", 6);
+
+  printf("hello world!");
   return 0;
 }

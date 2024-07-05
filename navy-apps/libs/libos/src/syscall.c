@@ -85,7 +85,7 @@ void *_sbrk(intptr_t increment) {
   char* new_break = program_break;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
-  return (status == 0)? (void*) old_break: (void*) -1;
+  return old_break;
 }
 
 int _read(int fd, void *buf, size_t count) {

@@ -89,8 +89,8 @@ void *_sbrk(intptr_t increment) {
   char test[100];
   sprintf(test, "old_break = %p, new_break=%p, increment = %lu\n", old_break, new_break, increment);
   _write(1, test, strlen(test));
-
   return status == 0? (void*) old_break: (void*)(-1);
+
 }
 
 int _read(int fd, void *buf, size_t count) {

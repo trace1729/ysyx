@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -87,6 +88,7 @@ void *_sbrk(intptr_t increment) {
   _write(1, "_sbrk\n", 6);
   char test[100];
   sprintf(test, "old_break = %p\n", old_break);
+  _write(1, test, strlen(test));
 
   return (void*)-1;
   return status == 0? (void*) old_break: (void*)(-1);

@@ -87,7 +87,7 @@ void *_sbrk(intptr_t increment) {
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
   _write(1, "_sbrk\n", 6);
   char test[100];
-  sprintf(test, "old_break = %p, increment = %lu\n", old_break, increment);
+  sprintf(test, "old_break = %p, new_break=%p, increment = %lu\n", old_break, new_break, increment);
   _write(1, test, strlen(test));
 
   return (void*)-1;

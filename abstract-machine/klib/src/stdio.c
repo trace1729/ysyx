@@ -296,6 +296,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
   return cnt;
 error:
   putstr("error!");
+  halt(0);
   return -1;
 }
 

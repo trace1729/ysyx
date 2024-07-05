@@ -86,7 +86,7 @@ class myArbiter extends Module {
   ifuIn.r.valid  := false.B
   ifuIn.r.bits   := DontCare
   ifuIn.b.valid := false.B
-  ifuIn.b.bits  := false.B
+  ifuIn.b.bits.resp  := false.B
 
   lsuIn.ar.ready  := false.B
   lsuIn.aw.ready := false.B
@@ -95,7 +95,7 @@ class myArbiter extends Module {
   lsuIn.r.valid  := false.B
   lsuIn.r.bits   := DontCare
   lsuIn.b.valid := false.B
-  lsuIn.b.bits  := false.B
+  lsuIn.b.bits.resp  := false.B
 
   import ArbiterState._
   val arbiterState = RegInit(sIDLE)
@@ -162,7 +162,7 @@ class Uart extends Module {
 
   // 有关
   in.b.valid    := false.B
-  in.b.bits     := 1.U
+  in.b.bits.resp     := 1.U
 
   // ready follows valid
   in.aw.ready := in.aw.valid
@@ -183,7 +183,7 @@ class Uart extends Module {
     }
     is(aUARTACK) {
       in.b.valid := true.B
-      in.b.bits  := 0.U
+      in.b.bits.resp  := 0.U
       when(in.b.ready && in.b.valid) {
         state := aIDLE
       }
@@ -199,7 +199,7 @@ class RTC extends Module {
 
 
   // 不关心的
-  in.b.bits     := DontCare
+  in.b.bits.resp    := DontCare
   in.b.valid    := false.B
   in.w.ready    := false.B
   in.aw.ready := false.B

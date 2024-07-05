@@ -39,8 +39,12 @@ class Datapath(memoryFile: String) extends Module {
   wb.wb2ifuOut <> ifu.wb2ifIn
 
   // for axi interface
+  // 如果要能让我写的 CPU 核心接入 ysyxSOC, 就要想方法让 IFU 和 LSU 能通过 axi 总线和外设进行通讯。
+  // for CPU
   arbiter.ifuIn <> ifu.ifuAxiOut
   arbiter.lsuIn <> lsu.lsuAxiOut
+
+  // for Peripheral
   arbiter.sram <> sram.in
   arbiter.uart <> uart.in
   arbiter.rtc <> rtc.in

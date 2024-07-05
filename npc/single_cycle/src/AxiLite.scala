@@ -3,6 +3,7 @@ package cpu
 
 import chisel3._
 import chisel3.util._
+import dataclass.data
 
 class AxiLiteAddr(val addrWidth: Int) extends Bundle {
   val addr = UInt(addrWidth.W)
@@ -32,13 +33,21 @@ object AxiLiteReadData {
   def apply(dataWidth: Int) = new AxiLiteReadData(dataWidth)
 }
 
+class AxiLiteWriteResponse(val dataWidth: Int) extends Bundle {
+  val resp = UInt(2.W)
+}
+
+object AxiLiteWriteResponse {
+  def apply(dataWidth: Int) = new AxiLiteWriteResponse(dataWidth)
+}
+
 class AxiLiteSlave(val addrWidth: Int, val dataWidth: Int) extends Bundle {
   val ar = Flipped(Decoupled(AxiLiteAddr(addrWidth)))
   val r = Decoupled(AxiLiteReadData(dataWidth))
 
   val aw = Flipped(Decoupled(AxiLiteAddr(addrWidth)))
   val w = Flipped(Decoupled(AxiLiteWriteData(dataWidth)))
-  val b = Decoupled(UInt(2.W))
+  val b = Decoupled(AxiLiteWriteResponse(dataWidth))
 }
 
 object AxiLiteSlave {
@@ -52,7 +61,7 @@ class AxiLiteMaster(val addrWidth: Int, val dataWidth: Int) extends Bundle {
 
   val aw = Decoupled(AxiLiteAddr(addrWidth))
   val w = Decoupled(AxiLiteWriteData(dataWidth))
-  val b = Flipped(Decoupled(UInt(2.W)))
+  val b = Flipped(AxiLiteWriteResponse(dataWidth))
 }
 
 object AxiLiteMaster {

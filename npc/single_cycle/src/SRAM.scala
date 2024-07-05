@@ -55,7 +55,7 @@ class SRAM extends Module {
   in.b.valid    := false.B
   in.r.valid     := false.B
   in.r.bits.resp := 1.U
-  in.b.bits     := 1.U
+  in.b.bits.resp     := 1.U
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
@@ -101,7 +101,7 @@ class SRAM extends Module {
       dmem.io.memEnable  := true.B
       dmem.io.memRW      := 1.U
       in.b.valid := true.B
-      in.b.bits  := 0.U
+      in.b.bits.resp  := 0.U
       when(in.b.ready && in.b.valid) {
         state := aIDLE
       }

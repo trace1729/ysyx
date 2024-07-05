@@ -11,6 +11,7 @@ char syscalls[][100] = {
   [SYS_kill] = "SYS_kill",
   [SYS_exit] = "SYS_exit",
   [SYS_write] = "SYS_write",
+  [SYS_yield] = "SYS_yield",
 };
 
 int sys_yield()

@@ -1,7 +1,17 @@
 #include <common.h>
 #include <stdint.h>
+#include <stdio.h>
 #include "am.h"
 #include "syscall.h"
+
+#define strace
+
+char syscalls[][100] = {
+  [SYS_brk] = "SYS_brk",
+  [SYS_kill] = "SYS_kill",
+  [SYS_exit] = "SYS_exit",
+  [SYS_write] = "SYS_write",
+};
 
 int sys_yield()
 {
@@ -37,6 +47,10 @@ void do_syscall(Context *c) {
   a[3] = c->GPR4;
 
   int result_code = 0;
+
+#ifdef strace
+  printf("%s(%d, %d, %d)\n", syscalls[a[0]], a[1], a[2], a[3]);
+#endif
 
   switch (a[0]) {
     case SYS_yield: result_code = sys_yield(); break;

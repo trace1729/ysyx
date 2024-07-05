@@ -60,7 +60,9 @@ intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   return ret;
 }
 
+int _write(int fd, void *buf, size_t count);
 void _exit(int status) {
+  _write(1, "end", 3);
   _syscall_(SYS_exit, status, 0, 0);
   while (1);
 }

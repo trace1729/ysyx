@@ -22,9 +22,6 @@ int sys_yield()
 
 int sys_exit(int status) 
 {
-#ifdef strace
-    printf("%s(%d)\n", syscalls[SYS_exit], status);
-#endif
   halt(status);
   while(1);
   return -1;

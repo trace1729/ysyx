@@ -82,7 +82,7 @@ void *_sbrk(intptr_t increment) {
   char* old_break = program_break;
 
   if (old_break != & end) {
-    putstr("test!\n");
+    _write(1, "test!\n", 6);
   }
 
   program_break += increment;

@@ -240,7 +240,7 @@ int vsprintf(char* buffer, const char* fmt, va_list ap) {
           prefix += (type >> 4);
           pl = 2;
         }
-        p = MAX(p, end - start + !arg.i);
+        p = MAX(p, 2*sizeof(void*));
         break;
       case 'd': case 'i':
         pl = 1; // 负号

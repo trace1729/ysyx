@@ -59,7 +59,8 @@ void do_syscall(Context *c) {
 
   c->GPRx = result_code;
 #ifdef strace
-  printf("%s(%d, %d, %d) = %d\n", syscalls[a[0]], a[1], a[2], a[3], result_code);
+  if (a[0] == SYS_brk)
+    printf("%s(%d, %d, %d) = %d\n", syscalls[a[0]], a[1], a[2], a[3], result_code);
 #endif
 }
 

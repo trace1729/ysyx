@@ -84,7 +84,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     file_offset_array[fd] += offset;
     break;
   case SEEK_SET:
-    printf("mode start!\n, %d", whence);
+    printf("mode start! %d\n", whence);
     assert(offset < file_table[fd].size);
     file_offset_array[fd] = file_table[fd].disk_offset + offset;
     break;

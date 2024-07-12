@@ -2,7 +2,9 @@
 #include <assert.h>
 
 int main() {
+  printf("before\n");
   FILE *fp = fopen("/share/files/num", "r+");
+  printf("after\n");
   assert(fp);
 
   fseek(fp, 0, SEEK_END);

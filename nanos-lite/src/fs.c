@@ -51,6 +51,7 @@ int fs_open(const char *pathname, int flags, int mode) {
     printf("comparing with %s\n", file_table[i].name);
     if (strcmp(file_table[i].name, pathname) == 0) {
       fd = i;
+      break;
     }
   }
   assert(fd != -1);

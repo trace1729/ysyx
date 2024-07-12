@@ -71,7 +71,7 @@ size_t fs_write(int fd, const void *buf, size_t len) {
 }
 
 size_t fs_lseek(int fd, size_t offset, int whence) {
-  assert(offset > 0);
+ //  assert(offset > 0);
 
   switch (whence) {
   case SEEK_CUR:

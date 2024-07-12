@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -65,15 +64,7 @@ void _exit(int status) {
   while (1);
 }
 
-int _open(const char *path, int flags, mode_t mode) {
-  _exit(SYS_open);
-  return 0;
-}
 
-int _write(int fd, void *buf, size_t count) {
-  int cnt = _syscall_(SYS_write, fd, (uintptr_t)buf, count);
-  return cnt;
-}
 
 void *_sbrk(intptr_t increment) {
 
@@ -81,30 +72,36 @@ void *_sbrk(intptr_t increment) {
   assert (program_break != 0);
   char* old_break = program_break;
 
-  if (old_break != & end) {
-    _write(1, "test!\n", 6);
-  }
-
   program_break += increment;
   char* new_break = program_break;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
-  return status == 0? (void*) old_break: (void*)(-1);
+  return (status == 0)? (void*) old_break: (void*)-1;
+}
+
+int _open(const char *path, int flags, mode_t mode) {
+  int status = _syscall_(SYS_open, (intptr_t)path, flags, mode);
+  return status;
 }
 
 int _read(int fd, void *buf, size_t count) {
-  _exit(SYS_read);
-  return 0;
+  int cnt = _syscall_(SYS_read, fd, (intptr_t)buf, count);
+  return cnt;
+}
+
+int _write(int fd, void *buf, size_t count) {
+  int cnt = _syscall_(SYS_write, fd, (uintptr_t)buf, count);
+  return cnt;
 }
 
 int _close(int fd) {
-  _exit(SYS_close);
-  return 0;
+  int status = _syscall_(SYS_close, fd, 0, 0);
+  return status;
 }
 
 off_t _lseek(int fd, off_t offset, int whence) {
-  _exit(SYS_lseek);
-  return 0;
+  int cnt = _syscall_(SYS_lseek, fd, offset, whence);
+  return cnt;
 }
 
 int _gettimeofday(struct timeval *tv, struct timezone *tz) {

@@ -48,8 +48,8 @@ int fs_open(const char *pathname, int flags, int mode) {
   // ignoring flag and mode
   int fd = -1;
   for (int i = 0; i < FILE_NUM; i++) {
+    printf("comparing with %s\n", file_table[i].name);
     if (strcmp(file_table[i].name, pathname) == 0) {
-      printf("comparing with %s\n", file_table[i].name);
       fd = i;
     }
   }

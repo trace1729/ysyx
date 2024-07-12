@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include "am.h"
 #include "syscall.h"
+#include <fs.h>
 
 #define strace
 
@@ -10,9 +11,14 @@ char syscalls[][100] = {
   [SYS_brk] = "SYS_brk",
   [SYS_kill] = "SYS_kill",
   [SYS_exit] = "SYS_exit",
-  [SYS_write] = "SYS_write",
   [SYS_yield] = "SYS_yield",
+  [SYS_open] =  "SYS_open",
+  [SYS_read] = "SYS_read", 
+  [SYS_write] = "SYS_write",
+  [SYS_close] = "SYS_close",
+  [SYS_lseek] = "SYS_lseek" 
 };
+
 
 int sys_yield()
 {
@@ -31,13 +37,22 @@ int sys_exit(int status)
 }
 
 int sys_write(uintptr_t fd, uintptr_t buf, uintptr_t count) {
-  if (fd != 1 && fd != 2)  {
-    return -1;
+  int len = count;
+  if (fd < 3)  {
+    for (int i = 0; i < count; i++) {
+      putch(((uint8_t*)buf)[i]);
+    }
+    return len;
   }
-  for (int i = 0; i < count; i++) {
-    putch(((uint8_t*)buf)[i]);
+  len = fs_write(fd, (const void *)buf, count);
+  return len;
+}
+
+int sys_read(uintptr_t fd, uintptr_t buf, uintptr_t count) {
+  if (fd < 3) {
+    assert(0);
   }
-  return count;
+  return fs_read(fd, (char *)buf, count);
 }
 
 int sys_brk(uintptr_t addr) {
@@ -57,8 +72,15 @@ void do_syscall(Context *c) {
   switch (a[0]) {
     case SYS_yield: result_code = sys_yield(); break;
     case SYS_exit:  sys_exit(a[1]); break;
-    case SYS_write: result_code = sys_write(a[1], a[2], a[3]); break;
     case SYS_brk: result_code = sys_brk(a[1]); break;
+
+    case SYS_read: result_code = sys_read(a[1], a[2], a[3]); break;
+    case SYS_write: result_code = sys_write(a[1], a[2], a[3]); break;
+
+    case SYS_open: result_code = fs_open((const char*)a[1], a[2], a[3]); break;
+    case SYS_close: result_code = fs_close(a[1]); break;
+
+    case SYS_lseek: result_code = fs_lseek(a[1], a[2], a[3]); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 

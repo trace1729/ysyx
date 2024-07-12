@@ -169,14 +169,15 @@ $(CLEAN_ALL):
 APPS =
 TESTS = dummy hello
 
+# install program in dir apps/
 fsimg: $(addprefix apps/, $(APPS)) $(addprefix tests/, $(TESTS))
 	-for t in $^; do $(MAKE) -s -C $(NAVY_HOME)/$$t install; done
 
 RAMDISK = build/ramdisk.img
 RAMDISK_H = build/ramdisk.h
 $(RAMDISK): fsimg
-	$(eval FSIMG_FILES := $(shell find -L ./fsimg -type f))
-	@mkdir -p $(@D)
+	$(eval FSIMG_FILES := $(shell find -L ./fsimg -type f)) # all file path under fsimg/
+	@mkdir -p $(@D) # @D 表示目标文件的目录部分 如果 $(RAMDISK) 是 `dir/abc`, 那就是 @D 就是 dir
 	@cat $(FSIMG_FILES) > $@
 	@truncate -s \%512 $@
 	@echo "// file path, file size, offset in disk" > $(RAMDISK_H)

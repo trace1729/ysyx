@@ -33,6 +33,8 @@ static Finfo file_table[] __attribute__((used)) = {
 
 #define FILE_NUM (sizeof (file_table) / sizeof(file_table[0]))
 
+size_t file_offset_array[FILE_NUM];
+
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
 
@@ -50,26 +52,29 @@ int fs_open(const char *pathname, int flags, int mode) {
     }
   }
   assert(fd != -1);
+  // do initialization for file_offset_array
+  file_offset_array[fd] = file_table[fd].disk_offset;
   return fd;
 }
 
 size_t fs_read(int fd, void *buf, size_t len) {
-  Finfo file = file_table[fd];
-  size_t actual = ramdisk_read(buf, file.disk_offset, len);
-  file.disk_offset += actual;
+  size_t offset = file_offset_array[fd];
+  size_t actual = ramdisk_read(buf, offset, len);
+  file_offset_array[fd] += actual;
   return actual;
 }
 size_t fs_write(int fd, const void *buf, size_t len) {
-  Finfo file = file_table[fd];
-  size_t actual = ramdisk_write(buf, file.disk_offset, len);
-  file.disk_offset += actual;
+  size_t offset = file_offset_array[fd];
+  size_t actual = ramdisk_write(buf, offset, len);
+  file_offset_array[fd] += actual;
   return actual;
 }
 
 size_t fs_lseek(int fd, size_t offset, int whence) {
-  file_table[fd].disk_offset = offset;
+  file_offset_array[fd] = file_table[fd].disk_offset + offset;
   return offset;
 }
+
 int fs_close(int fd) {
   return 0;
 }

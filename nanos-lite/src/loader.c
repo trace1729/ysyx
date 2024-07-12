@@ -41,8 +41,6 @@
   printf("program header table:\n");
   assert(e_hdr.e_machine == EXPECTED_TYPE);
 
-  fs_lseek(fd, e_hdr.e_phoff, SEEK_SET);
-
   for (int i = 0; i < e_hdr.e_phnum; i++) {
     Elf_Phdr p_hdr;
     fs_lseek(fd, e_hdr.e_phoff + i * e_hdr.e_phentsize, SEEK_SET);

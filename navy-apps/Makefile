@@ -167,7 +167,7 @@ $(CLEAN_ALL):
 
 ### Build fsimg and ramdisk for Nanos-lite
 APPS =
-TESTS = dummy hello file-test
+TESTS = file-test
 
 # install program in dir apps/
 fsimg: $(addprefix apps/, $(APPS)) $(addprefix tests/, $(TESTS))

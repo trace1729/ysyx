@@ -1,4 +1,5 @@
 #include <fs.h>
+#include <stdio.h>
 
 typedef size_t (*ReadFn)(void *buf, size_t offset, size_t len);
 typedef size_t (*WriteFn)(const void *buf, size_t offset, size_t len);
@@ -48,6 +49,7 @@ int fs_open(const char *pathname, int flags, int mode) {
   int fd = -1;
   for (int i = 0; i < FILE_NUM; i++) {
     if (strcmp(file_table[i].name, pathname) == 0) {
+      printf("comparing with %s\n", file_table[i].name);
       fd = i;
     }
   }

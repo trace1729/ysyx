@@ -78,13 +78,13 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
   switch (whence) {
     
   case SEEK_CUR:
-    printf("mode current!\n");
+    printf("mode current! %d\n", whence);
     // 为什么会在这个位置报错，在 file-test 里没有使用这个模式呀。
     assert(file_offset_array[fd] + offset < file_table[fd].size + file_table[fd].disk_offset);
     file_offset_array[fd] += offset;
     break;
   case SEEK_SET:
-    printf("mode start!\n");
+    printf("mode start!\n, %d", whence);
     assert(offset < file_table[fd].size);
     file_offset_array[fd] = file_table[fd].disk_offset + offset;
     break;

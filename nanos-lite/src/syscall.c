@@ -6,7 +6,6 @@
 #include <fs.h>
 
 #define strace
-#undef strace
 
 char syscalls[][100] = {
   [SYS_brk] = "SYS_brk",

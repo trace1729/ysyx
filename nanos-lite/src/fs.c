@@ -86,8 +86,7 @@ size_t fs_lseek(int fd, size_t offset, int whence) {
     file_offset_array[fd] = file_table[fd].disk_offset + file_table[fd].size - offset;
     break;
   }
-  file_offset_array[fd] = file_table[fd].disk_offset + offset;
-  return offset;
+  return file_offset_array[fd];
 }
 
 int fs_close(int fd) { return 0; }

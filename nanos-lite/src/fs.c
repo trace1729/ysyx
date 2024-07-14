@@ -1,5 +1,4 @@
 #include <fs.h>
-#include <stdio.h>
 
 typedef size_t (*ReadFn)(void *buf, size_t offset, size_t len);
 typedef size_t (*WriteFn)(const void *buf, size_t offset, size_t len);
@@ -34,7 +33,7 @@ static Finfo file_table[] __attribute__((used)) = {
 
 #define FILE_NUM (sizeof(file_table) / sizeof(file_table[0]))
 
-size_t file_offset_array[FILE_NUM];
+off_t file_offset_array[FILE_NUM];
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
@@ -73,7 +72,7 @@ size_t fs_write(int fd, const void *buf, size_t len) {
   return actual;
 }
 
-size_t fs_lseek(int fd, size_t offset, int whence) {
+off_t fs_lseek(int fd, off_t offset, int whence) {
 
   switch (whence) {
     case SEEK_SET:

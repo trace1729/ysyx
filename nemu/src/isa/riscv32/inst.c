@@ -63,6 +63,7 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
       || memcmp(function, "sprintf", strlen(function)) == 0 
       || memcmp(function, "memcpy", strlen(function)) == 0 
       || memcmp(function, "vprintf", strlen(function)) == 0 
+      || memcmp(function, "vsprintf", strlen(function)) == 0 
     ) {
     return;
   }

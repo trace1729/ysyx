@@ -60,6 +60,8 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
   get_function_symbol_by_address(s->pc, function);
   if (memcmp(function, "printf", strlen(function)) == 0
       || memcmp(function, "putch", strlen(function)) == 0 
+      || memcmp(function, "sprintf", strlen(function)) == 0 
+      || memcmp(function, "memcpy", strlen(function)) == 0 
     ) {
     return;
   }

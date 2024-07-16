@@ -75,6 +75,11 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
     // if register is ra, and instruction type is jal(r)
     // then it is function call
     get_function_symbol_by_address(s->dnpc, function);
+    if (memcmp(function, "printf", strlen(function)) == 0
+        || memcmp(function, "putch", strlen(function)) == 0 
+      ) {
+      return;
+    }
     printf("0x%x: ", s->pc);
     for (int i = 0; i < depth; i++) printf(" ");
     printf("call[%s@0x%x]\n", function, s->dnpc);

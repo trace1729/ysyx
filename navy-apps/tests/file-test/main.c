@@ -2,10 +2,10 @@
 #include <assert.h>
 
 int main() {
-  /* FILE *fp = fopen("/share/files/num", "r+"); */
-  /* assert(fp); */
+  FILE *fp = fopen("/share/files/num", "r+");
+  assert(fp);
 
-  fseek((FILE*)5, 0, SEEK_END);
+  fseek(fp, 0, SEEK_END);
   /* long size = ftell(fp); */
   /* assert(size == 5000); */
   /*  */
@@ -32,7 +32,7 @@ int main() {
   /*   assert(n == i + 1 + 1000); */
   /* } */
 
-  /* fclose(fp); */
+  fclose(fp);
 
   /* printf("PASS!!!\n"); */
 

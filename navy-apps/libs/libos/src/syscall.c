@@ -69,14 +69,8 @@ void _exit(int status) {
 
 void *_sbrk(intptr_t increment) {
 
-  // init program_break
-  static int init  = 0;
-  if (init == 0) {
-    putchar('a');
-    putchar('\n');
-    __pb = _end;
-    init = 1;
-  }
+  __pb = _end;
+  printf("_end = %p", (void*)(intptr_t)_end);
   assert (__pb != 0);
   char old_break = __pb;
 

@@ -79,7 +79,7 @@ void *_sbrk(intptr_t increment) {
   if (status == 0) {
     return (void*) old_break;
   } else {
-    printf("-1\n");
+    printf("-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1--1-1-1-1-1-1\n");
     return (void*) -1;
   }
 }

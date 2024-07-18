@@ -37,6 +37,8 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
   }
   if (i == e_symnum)
     strcpy(buf, "???");
+  else
+    return;
   for (i = 0; i < e_symnum2; i++) {
     // 类型是 func 的 symbol
     if ((e_symbols2[i].st_info & STT_FUNC) == 0) {

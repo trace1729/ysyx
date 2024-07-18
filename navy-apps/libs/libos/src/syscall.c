@@ -47,7 +47,8 @@
 #error _syscall_ is not implemented
 #endif
 
-extern char a;
+extern char _end;
+char program_break = 0;
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
@@ -68,16 +69,20 @@ void _exit(int status) {
 
 void *_sbrk(intptr_t increment) {
 
-  static char* program_break = &a;
+  // init program_break
+  if (program_break == 0) {
+    program_break = _end;
+  }
+
   assert (program_break != 0);
-  char* old_break = program_break;
+  char old_break = program_break;
 
   program_break += increment;
-  char* new_break = program_break;
+  char new_break = program_break;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
   if (status == 0) {
-    return (void*) old_break;
+    return (void*)(intptr_t)old_break;
   } else {
     printf("-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1--1-1-1-1-1-1\n");
     return (void*) -1;

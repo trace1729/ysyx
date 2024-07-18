@@ -57,21 +57,22 @@ int depth = 0;
 void get_function_symbol_by_address(uint32_t addr, char *buf);
 void ftrace(int rd, int type, Decode* s, word_t src1) {
   char function[128];
-  /* if (memcmp(function, "printf", strlen(function)) == 0 */
-  /*     || memcmp(function, "putch", strlen(function)) == 0  */
-  /*     || memcmp(function, "sprintf", strlen(function)) == 0  */
-  /*     || memcmp(function, "memcpy", strlen(function)) == 0  */
-  /*     || memcmp(function, "vprintf", strlen(function)) == 0  */
-  /*     || memcmp(function, "vsprintf", strlen(function)) == 0  */
-  /*   ) { */
-  /*   return; */
-  /* } */
+
   //      jalr          x0              x1
   if (type == JALR && rd == ZERO && src1 == R(RA)) {
     // if register is x0, and instructio type is jalr
     // then it is function return
     // return from instead of return to
     get_function_symbol_by_address(s->pc, function);
+  if (memcmp(function, "printf", strlen(function)) == 0
+      || memcmp(function, "putch", strlen(function)) == 0 
+      || memcmp(function, "sprintf", strlen(function)) == 0 
+      || memcmp(function, "memcpy", strlen(function)) == 0 
+      || memcmp(function, "vprintf", strlen(function)) == 0 
+      || memcmp(function, "vsprintf", strlen(function)) == 0 
+    ) {
+    return;
+  }
     printf("0x%x: ", s->pc);
     for (int i = 0; i < depth; i++) printf(" ");
     printf("ret[%s]\n", function);
@@ -83,6 +84,15 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
     // if register is ra, and instruction type is jal(r)
     // then it is function call
     get_function_symbol_by_address(s->dnpc, function);
+  if (memcmp(function, "printf", strlen(function)) == 0
+      || memcmp(function, "putch", strlen(function)) == 0 
+      || memcmp(function, "sprintf", strlen(function)) == 0 
+      || memcmp(function, "memcpy", strlen(function)) == 0 
+      || memcmp(function, "vprintf", strlen(function)) == 0 
+      || memcmp(function, "vsprintf", strlen(function)) == 0 
+    ) {
+    return;
+  }
     printf("0x%x: ", s->pc);
     for (int i = 0; i < depth; i++) printf(" ");
     printf("call[%s@0x%x]\n", function, s->dnpc);

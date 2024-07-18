@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -47,7 +48,8 @@
 #error _syscall_ is not implemented
 #endif
 
-extern char end;
+extern char _end;
+char __pb = 0;
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
@@ -68,15 +70,25 @@ void _exit(int status) {
 
 void *_sbrk(intptr_t increment) {
 
-  static char* program_break = &end;
-  assert (program_break != 0);
-  char* old_break = program_break;
+  __pb = _end;
+  char buf[200];
+  sprintf(buf, "_end = %p\n", (void*)(uintptr_t)(_end));
 
-  program_break += increment;
-  char* new_break = program_break;
+  int _write(int fd, void *buf, size_t count);
+  _write(1, buf, strlen(buf));
+  
+  assert (__pb != 0);
+  char old_break = __pb;
+
+  __pb += increment;
+  char new_break = __pb;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
-  return (status == 0)? (void*) old_break: (void*)-1;
+  if (status == 0) {
+    return (void*)(intptr_t)old_break;
+  } else {
+    return (void*) -1;
+  }
 }
 
 int _open(const char *path, int flags, mode_t mode) {

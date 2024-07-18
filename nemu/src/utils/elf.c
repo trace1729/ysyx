@@ -37,20 +37,20 @@ void get_function_symbol_by_address(uint32_t addr, char *buf) {
   }
   if (i == e_symnum)
     strcpy(buf, "???");
-  /* for (i = 0; i < e_symnum2; i++) { */
-  /*   // 类型是 func 的 symbol */
-  /*   if ((e_symbols2[i].st_info & STT_FUNC) == 0) { */
-  /*     continue; */
-  /*   } */
-  /*   if (addr >= e_symbols2[i].st_value && addr < (e_symbols2[i].st_value + e_symbols2[i].st_size)) { */
-  /*     uint32_t nameoff = e_symbols2[i].st_name; */
-  /*     strcpy(buf, e_strtab2 + nameoff); */
-  /*     break; */
-  /*     // printf("%s\n", e_strtab2 + nameoff); */
-  /*   } */
-  /* } */
-  /* if (i == e_symnum2) */
-  /*   strcpy(buf, "???"); */
+  for (i = 0; i < e_symnum2; i++) {
+    // 类型是 func 的 symbol
+    if ((e_symbols2[i].st_info & STT_FUNC) == 0) {
+      continue;
+    }
+    if (addr >= e_symbols2[i].st_value && addr < (e_symbols2[i].st_value + e_symbols2[i].st_size)) {
+      uint32_t nameoff = e_symbols2[i].st_name;
+      strcpy(buf, e_strtab2 + nameoff);
+      break;
+      // printf("%s\n", e_strtab2 + nameoff);
+    }
+  }
+  if (i == e_symnum2)
+    strcpy(buf, "???");
   return;
 }
 

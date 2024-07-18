@@ -70,9 +70,11 @@ void _exit(int status) {
 void *_sbrk(intptr_t increment) {
 
   // init program_break
-  if (__pb == 0) {
+  static int init  = 0;
+  if (init == 0) {
     printf("program_break is = %d\n", _end);
     __pb = _end;
+    init = 1;
   }
 
   assert (__pb != 0);

@@ -5,7 +5,7 @@
 #include "syscall.h"
 #include <fs.h>
 
-// #define strace
+#define strace
 
 char syscalls[][100] = {
   [SYS_brk] = "SYS_brk",

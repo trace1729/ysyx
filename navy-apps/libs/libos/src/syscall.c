@@ -48,7 +48,7 @@
 #endif
 
 extern char _end;
-char program_break = 0;
+char __pb = 0;
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
@@ -70,21 +70,21 @@ void _exit(int status) {
 void *_sbrk(intptr_t increment) {
 
   // init program_break
-  if (program_break == 0) {
-    program_break = _end;
+  if (__pb == 0) {
+    printf("program_break is = %d\n", _end);
+    __pb = _end;
   }
 
-  assert (program_break != 0);
-  char old_break = program_break;
+  assert (__pb != 0);
+  char old_break = __pb;
 
-  program_break += increment;
-  char new_break = program_break;
+  __pb += increment;
+  char new_break = __pb;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
   if (status == 0) {
     return (void*)(intptr_t)old_break;
   } else {
-    printf("-1-1-1-1-1-1-1-1-1-1-1-1-1-1-1--1-1-1-1-1-1\n");
     return (void*) -1;
   }
 }

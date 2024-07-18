@@ -72,6 +72,8 @@ void *_sbrk(intptr_t increment) {
   // init program_break
   static int init  = 0;
   if (init == 0) {
+    putch('a');
+    putch('\n');
     __pb = _end;
     init = 1;
   }

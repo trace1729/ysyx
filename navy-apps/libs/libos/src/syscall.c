@@ -73,10 +73,12 @@ void *_sbrk(intptr_t increment) {
   static int init  = 0;
   if (init == 0) {
     printf("program_break is = %d\n", _end);
+    printf("program_break is = %d\n", _end);
+    printf("program_break is = %d\n", _end);
+    printf("program_break is = %d\n", _end);
     __pb = _end;
     init = 1;
   }
-
   assert (__pb != 0);
   char old_break = __pb;
 

@@ -76,8 +76,12 @@ void *_sbrk(intptr_t increment) {
   char* new_break = program_break;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
-  return (void*)-1;
-  /* return (status == 0)? (void*) old_break: (void*)-1; */
+  if (status == 0) {
+    return (void*) old_break;
+  } else {
+    printf("-1\n");
+    return (void*) -1;
+  }
 }
 
 int _open(const char *path, int flags, mode_t mode) {

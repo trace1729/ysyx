@@ -51,7 +51,7 @@
     if (p_hdr.p_type != PT_LOAD) {
       continue;
     }
-    printf("p_vaddr: %p, p_paddr: %p, Filesize: %d, Memsize:%d\n",  p_hdr.p_vaddr, p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
+    printf("p_vaddr: %p, p_paddr: %p, Filesize: %d, Memsize:%d\n",  (void*)p_hdr.p_vaddr, (void*)p_hdr.p_paddr, p_hdr.p_filesz, p_hdr.p_memsz);
   
     // 将程序从 elf 文件拷贝到 对应的物理地址 (这里物理地址和虚拟地址是一样的)
     fs_lseek(fd, p_hdr.p_offset, SEEK_SET);
@@ -67,7 +67,7 @@
 
 void naive_uload(PCB *pcb, const char *filename) {
   uintptr_t entry = loader(pcb, filename);
-  Log("Jump to entry = %p", entry);
+  Log("Jump to entry = %p", (void*)entry);
   ((void(*)())entry) ();
 }
 

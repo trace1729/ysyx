@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -70,7 +71,12 @@ void _exit(int status) {
 void *_sbrk(intptr_t increment) {
 
   __pb = _end;
-  printf("_end = %p", (void*)(intptr_t)_end);
+  char buf[200];
+  sprintf(buf, "_end = %p\n", (void*)(uintptr_t)(_end));
+
+  int _write(int fd, void *buf, size_t count);
+  _write(1, buf, strlen(buf));
+  
   assert (__pb != 0);
   char old_break = __pb;
 

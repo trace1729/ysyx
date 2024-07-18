@@ -77,6 +77,10 @@ void *_sbrk(intptr_t increment) {
     __pb = _end;
     init = 1;
   }
+  putchar('a');
+  putchar('b');
+  putchar('r');
+  putchar('\n');
   assert (__pb != 0);
   char old_break = __pb;
 

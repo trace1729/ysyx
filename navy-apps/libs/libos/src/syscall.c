@@ -70,21 +70,19 @@ void _exit(int status) {
 
 void *_sbrk(intptr_t increment) {
 
-  char buf[200];
-  sprintf(buf, "_end = %p, __pb = %p, increment = %p\n", (void*)(uintptr_t)(& _end), __pb, (char* )(intptr_t)increment);
-
-  int _write(int fd, void *buf, size_t count);
-  _write(1, buf, strlen(buf));
+  /* char buf[200]; */
+  /* sprintf(buf, "_end = %p, __pb = %p, increment = %p\n", (void*)(uintptr_t)(& _end), __pb, (char* )(intptr_t)increment); */
+  /* int _write(int fd, void *buf, size_t count); */
+  /* _write(1, buf, strlen(buf)); */
   
   assert (__pb != 0);
   char* old_break = __pb;
 
-  // TODO: Log("sbrk limit the maxmium increment in physical address");
+  // TODO: Warning("sbrk limits the maxmium increment in physical address");
   increment = (unsigned)increment > 0x8000000u? 0x8000000u: (unsigned)increment;
-  sprintf(buf, "increment = %p", (char* )(intptr_t)increment);
 
-  int _write(int fd, void *buf, size_t count);
-  _write(1, buf, strlen(buf));
+  /* sprintf(buf, "increment = %p", (char* )(intptr_t)increment); */
+  /* _write(1, buf, strlen(buf)); */
 
   __pb += increment;
   char* new_break = __pb;

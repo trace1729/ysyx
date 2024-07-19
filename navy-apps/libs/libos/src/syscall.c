@@ -71,7 +71,7 @@ void _exit(int status) {
 void *_sbrk(intptr_t increment) {
 
   char buf[200];
-  sprintf(buf, "_end = %p, __pb = %p\n", (void*)(uintptr_t)(& _end), __pb);
+  sprintf(buf, "_end = %p, __pb = %p, increment = %p\n", (void*)(uintptr_t)(& _end), __pb, (char* )(intptr_t)increment);
 
   int _write(int fd, void *buf, size_t count);
   _write(1, buf, strlen(buf));

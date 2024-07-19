@@ -1,5 +1,4 @@
 #include <stdio.h>
-#include <string.h>
 #include <stdint.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -49,7 +48,7 @@
 #endif
 
 extern char _end;
-char __pb = 0;
+char* __pb = &_end;
 
 intptr_t _syscall_(intptr_t type, intptr_t a0, intptr_t a1, intptr_t a2) {
   register intptr_t _gpr1 asm (GPR1) = type;
@@ -70,18 +69,22 @@ void _exit(int status) {
 
 void *_sbrk(intptr_t increment) {
 
-  __pb = _end;
-  char buf[200];
-  sprintf(buf, "_end = %p\n", (void*)(uintptr_t)(_end));
-
-  int _write(int fd, void *buf, size_t count);
-  _write(1, buf, strlen(buf));
+  /* char buf[200]; */
+  /* sprintf(buf, "_end = %p, __pb = %p, increment = %p\n", (void*)(uintptr_t)(& _end), __pb, (char* )(intptr_t)increment); */
+  /* int _write(int fd, void *buf, size_t count); */
+  /* _write(1, buf, strlen(buf)); */
   
   assert (__pb != 0);
-  char old_break = __pb;
+  char* old_break = __pb;
+
+  // TODO: Warning("sbrk limits the maxmium increment in physical address");
+  increment = (unsigned)increment > 0x8000000u? 0x8000000u: (unsigned)increment;
+
+  /* sprintf(buf, "increment = %p", (char* )(intptr_t)increment); */
+  /* _write(1, buf, strlen(buf)); */
 
   __pb += increment;
-  char new_break = __pb;
+  char* new_break = __pb;
 
   int status = _syscall_(SYS_brk, (intptr_t)new_break, 0, 0);
   if (status == 0) {

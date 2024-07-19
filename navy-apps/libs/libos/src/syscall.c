@@ -81,6 +81,10 @@ void *_sbrk(intptr_t increment) {
 
   // TODO: Log("sbrk limit the maxmium increment in physical address");
   increment = increment > 0x8000000? 0x8000000: increment;
+  sprintf(buf, "increment = %p", (char* )(intptr_t)increment);
+
+  int _write(int fd, void *buf, size_t count);
+  _write(1, buf, strlen(buf));
 
   __pb += increment;
   char* new_break = __pb;

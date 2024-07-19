@@ -79,6 +79,9 @@ void *_sbrk(intptr_t increment) {
   assert (__pb != 0);
   char* old_break = __pb;
 
+  // TODO: Log("sbrk limit the maxmium increment in physical address");
+  increment = increment > 0x8000000? 0x8000000: increment;
+
   __pb += increment;
   char* new_break = __pb;
 

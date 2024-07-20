@@ -1,5 +1,6 @@
 #include <common.h>
 #include <debug.h>
+#include <stdint.h>
 
 extern uint64_t g_nr_guest_inst;
 
@@ -20,6 +21,40 @@ static char e_strtab2[STR_SIZE];
 static Elf32_Sym e_symbols2[SYM_NUM];
 static int e_symnum2;
 
+void tail_recursion_detection(uint32_t addr, char* buf){
+  unsigned i; 
+  for (i = 0; i < e_symnum; i++) {
+    // 类型是 func 的 symbol
+    if ((e_symbols[i].st_info & STT_FUNC) == 0) {
+      continue;
+    }
+    if (addr == e_symbols[i].st_value) {
+      uint32_t nameoff = e_symbols[i].st_name;
+      strcpy(buf, e_strtab + nameoff);
+      break;
+      // printf("%s\n", e_strtab + nameoff);
+    }
+  }
+  if (i == e_symnum)
+    strcpy(buf, "???");
+  else
+    return;
+  for (i = 0; i < e_symnum2; i++) {
+    // 类型是 func 的 symbol
+    if ((e_symbols2[i].st_info & STT_FUNC) == 0) {
+      continue;
+    }
+    if (addr == e_symbols2[i].st_value) {
+      uint32_t nameoff = e_symbols2[i].st_name;
+      strcpy(buf, e_strtab2 + nameoff);
+      break;
+      // printf("%s\n", e_strtab2 + nameoff);
+    }
+  }
+  if (i == e_symnum2)
+    strcpy(buf, "???");
+  return;
+}
 void get_function_symbol_by_address(uint32_t addr, char *buf) {
 
   unsigned i; 
@@ -116,7 +151,7 @@ void init_elf(const char* elf_file) {
   fclose(fp);
 
   void init_elf2(const char*);
-  init_elf2("/home/trace/trace/learning/ysyx/ysyx-workbench/navy-apps/tests/hello/build/hello-riscv32");
+   init_elf2("/home/trace/trace/learning/ysyx/ysyx-workbench/navy-apps/tests/timer-test/build/timer-test-riscv32");
   return;
 
   /* test how to find symbol by address */

@@ -55,6 +55,7 @@ enum {
 
 int depth = 0;
 void get_function_symbol_by_address(uint32_t addr, char *buf);
+void tail_recursion_detection(uint32_t addr, char* buf);
 void ftrace(int rd, int type, Decode* s, word_t src1) {
   char function[128];
 
@@ -96,6 +97,14 @@ void ftrace(int rd, int type, Decode* s, word_t src1) {
     for (int i = 0; i < depth; i++) printf(" ");
     printf("call[%s@0x%x]\n", function, s->dnpc);
     depth++;
+  } else if (type == JALR && rd == ZERO && src1 != R(RA)){
+    return;
+    tail_recursion_detection(s->dnpc, function);
+    if (strcmp(function, "???") == 0) {
+      return;
+    }
+    printf("0x%x: ", s->pc);
+    printf("call[%s@0x%x]\n", function, s->dnpc);
   }
 }
 #endif

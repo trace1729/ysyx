@@ -67,6 +67,12 @@ void do_syscall(Context *c) {
   a[3] = c->GPR4;
 
   int result_code = 0;
+  bool has_fd = false;
+
+  // determine whether we need to parse fd.
+  switch (a[0]) {
+    case SYS_read: case SYS_write: case SYS_close: has_fd = true;
+  }
 
 
   switch (a[0]) {
@@ -87,6 +93,9 @@ void do_syscall(Context *c) {
   c->GPRx = result_code;
 #ifdef strace
     printf("%s(%d, %p, %d) = %d\n", syscalls[a[0]], a[1], (char*)a[2], a[3], result_code);
+    if (has_fd) {
+      printf("operaing on file [%s]\n", get_filename_by_fd(a[1]));
+    }
 #endif
 }
 

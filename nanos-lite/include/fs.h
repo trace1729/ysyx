@@ -14,5 +14,6 @@ size_t fs_read(int fd, void *buf, size_t len);
 int fs_close(int fd);
 
 off_t fs_lseek(int fd, off_t offset, int whence);
+const char* get_filename_by_fd(int fd);
 
 #endif

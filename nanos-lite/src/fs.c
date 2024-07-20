@@ -39,9 +39,19 @@ off_t file_offset_array[FILE_NUM];
 
 size_t ramdisk_read(void *buf, size_t offset, size_t len);
 size_t ramdisk_write(const void *buf, size_t offset, size_t len);
+size_t serial_write(const void *buf, size_t offset, size_t len);
 
 void init_fs() {
   // TODO: initialize the size of /dev/fb
+  for (int i = FD_FB; i < FILE_NUM; i++) {
+    if (file_table[i].read == NULL) {
+      file_table[i].read = ramdisk_read;
+    } 
+    if (file_table[i].write == NULL) {
+      file_table[i].write = ramdisk_write;
+    }
+  }
+  file_table[FD_STDOUT].write = serial_write;
 }
 
 const char* get_filename_by_fd(int fd) {
@@ -66,13 +76,13 @@ int fs_open(const char *pathname, int flags, int mode) {
 
 size_t fs_read(int fd, void *buf, size_t len) {
   size_t offset = file_offset_array[fd];
-  size_t actual = ramdisk_read(buf, offset, len);
+  size_t actual = file_table[fd].read(buf, offset, len);
   file_offset_array[fd] += actual;
   return actual;
 }
 size_t fs_write(int fd, const void *buf, size_t len) {
   size_t offset = file_offset_array[fd];
-  size_t actual = ramdisk_write(buf, offset, len);
+  size_t actual = file_table[fd].write(buf, offset, len);
   file_offset_array[fd] += actual;
   return actual;
 }

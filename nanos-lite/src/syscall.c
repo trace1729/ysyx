@@ -1,11 +1,11 @@
 #include <common.h>
 #include <stdint.h>
 #include <stdio.h>
-#include "am.h"
 #include "syscall.h"
+#include "klib-macros.h"
 #include <fs.h>
 
-#define strace
+// #define strace
 
 char syscalls[][100] = {
   [SYS_brk] = "SYS_brk",
@@ -16,7 +16,8 @@ char syscalls[][100] = {
   [SYS_read] = "SYS_read", 
   [SYS_write] = "SYS_write",
   [SYS_close] = "SYS_close",
-  [SYS_lseek] = "SYS_lseek" 
+  [SYS_lseek] = "SYS_lseek",
+  [SYS_gettimeofday] = "SYS_gettimeofday"
 };
 
 
@@ -37,14 +38,7 @@ int sys_exit(int status)
 }
 
 int sys_write(uintptr_t fd, uintptr_t buf, uintptr_t count) {
-  int len = count;
-  if (fd < 3)  {
-    for (int i = 0; i < count; i++) {
-      putch(((uint8_t*)buf)[i]);
-    }
-    return len;
-  }
-  len = fs_write(fd, (const void *)buf, count);
+  int len = fs_write(fd, (const void *)buf, count);
   return len;
 }
 
@@ -59,6 +53,14 @@ int sys_brk(uintptr_t addr) {
   return 0;
 }
 
+int rtc(uintptr_t tv, uintptr_t tz) {
+  struct timeval* tval = (struct timeval*) tv;
+  unsigned long usec = io_read(AM_TIMER_UPTIME).us;
+  tval->tv_sec = usec / 1000000;
+  tval->tv_usec = usec;
+  return 0;
+}
+
 void do_syscall(Context *c) {
   uintptr_t a[4];
   a[0] = c->GPR1;
@@ -67,12 +69,14 @@ void do_syscall(Context *c) {
   a[3] = c->GPR4;
 
   int result_code = 0;
+#ifdef strace
   bool has_fd = false;
-
   // determine whether we need to parse fd.
   switch (a[0]) {
     case SYS_read: case SYS_write: case SYS_close: has_fd = true;
   }
+#endif
+
 
 
   switch (a[0]) {
@@ -87,6 +91,7 @@ void do_syscall(Context *c) {
     case SYS_close: result_code = fs_close(a[1]); break;
 
     case SYS_lseek: result_code = fs_lseek(a[1], a[2], a[3]); break;
+    case SYS_gettimeofday: result_code = rtc(a[1], a[2]); break;
     default: panic("Unhandled syscall ID = %d", a[0]);
   }
 

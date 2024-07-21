@@ -43,9 +43,6 @@ int sys_write(uintptr_t fd, uintptr_t buf, uintptr_t count) {
 }
 
 int sys_read(uintptr_t fd, uintptr_t buf, uintptr_t count) {
-  if (fd < 3) {
-    assert(0);
-  }
   return fs_read(fd, (char *)buf, count);
 }
 

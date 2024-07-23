@@ -1,7 +1,7 @@
 # version control
 include ../../../../ysyx-workbench/Makefile
 
-TOPNAME = top
+TOPNAME = Datapath
 INC_PATH ?=
 
 

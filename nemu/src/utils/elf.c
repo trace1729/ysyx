@@ -151,7 +151,7 @@ void init_elf(const char* elf_file) {
   fclose(fp);
 
   void init_elf2(const char*);
-   init_elf2("/home/trace/trace/learning/ysyx/ysyx-workbench/navy-apps/tests/timer-test/build/timer-test-riscv32");
+  init_elf2("/home/trace/trace/learning/ysyx/ysyx-workbench/navy-apps/tests/bmp-test/build/bmp-test-riscv32");
   return;
 
   /* test how to find symbol by address */

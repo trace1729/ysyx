@@ -7,7 +7,7 @@ int main() {
   int sec = 1;
   int i = 0;
   while (1) {
-    while ((NDL_GetTicks() / 500000) == sec) {
+    while ((NDL_GetTicks() / 500) == sec) {
       printf("%d half sec\n", sec++);
     }
   }

@@ -23,9 +23,9 @@ class SRAM extends Module {
 
   // ready follows valid
 
-  in.writeAddr.ready := in.writeAddr.valid
-  in.writeData.ready := in.writeData.valid
-  in.readAddr.ready  := in.readAddr.valid
+  in.aw.ready := in.aw.valid
+  in.w.ready := in.w.valid
+  in.ar.ready  := in.ar.valid
 
   import SRAMState._
 
@@ -42,47 +42,47 @@ class SRAM extends Module {
   // timer := Mux(timer === 10.U, 0.U, timer + 1.U)
 
   // TODO 这里应该把数据锁存在寄存器里，不应该直连
-  dmem.io.raddr := RegEnable(in.readAddr.bits.addr, in.readAddr.valid && in.readAddr.ready)
-  dmem.io.waddr := RegEnable(in.writeAddr.bits.addr, in.writeAddr.valid && in.writeAddr.ready)
-  dmem.io.wdata := RegEnable(in.writeData.bits.data, in.writeData.valid && in.writeData.ready)
-  dmem.io.wmask := RegEnable(in.writeData.bits.strb, in.writeData.valid && in.writeData.ready)
+  dmem.io.raddr := RegEnable(in.ar.bits.addr, in.ar.valid && in.ar.ready)
+  dmem.io.waddr := RegEnable(in.aw.bits.addr, in.aw.valid && in.aw.ready)
+  dmem.io.wdata := RegEnable(in.w.bits.data, in.w.valid && in.w.ready)
+  dmem.io.wmask := RegEnable(in.w.bits.strb, in.w.valid && in.w.ready)
 
   dmem.io.memRW     := 0.U
   dmem.io.memEnable := false.B
 
-  in.readData.bits.data := dmem.io.rdata
+  in.r.bits.data := dmem.io.rdata
 
-  in.writeResp.valid    := false.B
-  in.readData.valid     := false.B
-  in.readData.bits.resp := 1.U
-  in.writeResp.bits     := 1.U
+  in.b.valid    := false.B
+  in.r.valid     := false.B
+  in.r.bits.resp := 1.U
+  in.b.bits.resp     := 1.U
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
   switch(state) {
     is(aIDLE) {
       // received write data and address concurrently
-      when(in.writeAddr.ready && in.writeAddr.valid && in.writeData.valid && in.writeData.ready) {
+      when(in.aw.ready && in.aw.valid && in.w.valid && in.w.ready) {
         state := awriteDataAddr
-      }.elsewhen(in.writeData.ready && in.writeData.valid) {
+      }.elsewhen(in.w.ready && in.w.valid) {
         state := awriteData
-      }.elsewhen(in.writeAddr.ready && in.writeAddr.valid) {
+      }.elsewhen(in.aw.ready && in.aw.valid) {
         state := awriteAddr
       }
       // receive read address
-      when(in.readAddr.ready && in.readAddr.valid) {
+      when(in.ar.ready && in.ar.valid) {
         state := aREAD
       }
     }
     // only received write addr
     is(awriteData) {
-      when(in.writeAddr.ready && in.writeAddr.valid) {
+      when(in.aw.ready && in.aw.valid) {
         state := awriteDataAddr
       }
     }
     // only received write data
     is(awriteAddr) {
-      when(in.writeData.ready && in.writeData.valid) {
+      when(in.w.ready && in.w.valid) {
         state := awriteDataAddr
       }
     }
@@ -100,9 +100,9 @@ class SRAM extends Module {
       // when (timer === 0.U) {
       dmem.io.memEnable  := true.B
       dmem.io.memRW      := 1.U
-      in.writeResp.valid := true.B
-      in.writeResp.bits  := 0.U
-      when(in.writeResp.ready && in.writeResp.valid) {
+      in.b.valid := true.B
+      in.b.bits.resp  := 0.U
+      when(in.b.ready && in.b.valid) {
         state := aIDLE
       }
       // }
@@ -111,9 +111,9 @@ class SRAM extends Module {
       // when (timer === 0.U) {
       dmem.io.memRW         := 0.U
       dmem.io.memEnable     := true.B
-      in.readData.valid     := 1.U
-      in.readData.bits.resp := 0.U
-      when(in.readData.ready && in.readData.valid) {
+      in.r.valid     := 1.U
+      in.r.bits.resp := 0.U
+      when(in.r.ready && in.r.valid) {
         state := aIDLE
       }
     }

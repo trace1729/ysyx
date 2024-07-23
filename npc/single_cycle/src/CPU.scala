@@ -6,11 +6,11 @@ import cpu.config._
 import cpu.utils._
 
 
-class top(memoryFile: String = "") extends Module {
+// the functionality of this class overlaps with the Datapath class
+// abaondon now.
+class ysyx(memoryFile: String = "") extends Module {
   val io = IO(new DatapathIO)
   val datapath = Module(new Datapath(memoryFile))
-  io.inst := datapath.io.inst
-  io.pc := datapath.io.pc
 }
 
 
@@ -31,3 +31,13 @@ class Dpi_ftrace extends BlackBox with HasBlackBoxResource {
   })
   addResource("/Dpi_ftrace.sv")
 }
+
+// class ysyx_00000000 extends BlackBox {
+//   val io = IO(new Bundle {
+//     val clock = Input(Clock())
+//     val reset = Input(Reset())
+//     val io_interrupt = Input(Bool())
+//     val io_master = AXI4Bundle(CPUAXI4BundleParameters())
+//     val io_slave = Flipped(AXI4Bundle(CPUAXI4BundleParameters()))
+//   })
+// }

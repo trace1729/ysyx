@@ -7,6 +7,10 @@ import dataclass.data
 
 class AxiLiteAddr(val addrWidth: Int) extends Bundle {
   val addr = UInt(addrWidth.W)
+  val rid = UInt(3.W)
+  val len = UInt(8.W)
+  val size = UInt(3.W)
+  val burst = UInt(2.W)
 }
 
 object AxiLiteAddr {
@@ -17,6 +21,7 @@ class AxiLiteWriteData(val dataWidth: Int) extends Bundle {
   require(dataWidth == 32 || dataWidth == 64, "AxiLite `dataWidth` must be 32 or 64")
   val data = UInt(dataWidth.W)
   val strb = UInt((dataWidth / 8).W)
+  val last = Bool()
 }
 
 object AxiLiteWriteData {
@@ -27,6 +32,8 @@ class AxiLiteReadData(val dataWidth: Int) extends Bundle {
   require(dataWidth == 32 || dataWidth == 64, "AxiLite `dataWidth` must be 32 or 64")
   val data = UInt(dataWidth.W)
   val resp = UInt(2.W)
+  val last = Bool()
+  val id = UInt(4.W)
 }
 
 object AxiLiteReadData {
@@ -35,6 +42,7 @@ object AxiLiteReadData {
 
 class AxiLiteWriteResponse(val dataWidth: Int) extends Bundle {
   val resp = UInt(2.W)
+  val id = UInt(4.W)
 }
 
 object AxiLiteWriteResponse {

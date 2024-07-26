@@ -120,6 +120,16 @@ class LSU extends Module {
   axiController.stageInput.b.ready := axiController.stageInput.b.valid
   axiController.stageInput.r.ready  := axiController.stageInput.r.valid
 
+  axiController.stageInput.ar.bits.id := 1.U
+  axiController.stageInput.ar.bits.len := 0.U
+  axiController.stageInput.ar.bits.size := id2lsuReg.inst(14, 12)
+  axiController.stageInput.ar.bits.burst := 1.U
+  axiController.stageInput.aw.bits.id := 1.U
+  axiController.stageInput.aw.bits.len := 0.U
+  axiController.stageInput.aw.bits.size := id2lsuReg.inst(14, 12) 
+  axiController.stageInput.aw.bits.burst := 1.U
+  axiController.stageInput.w.bits.last := 1.U
+
   import stageState._
   val lsu_state = RegInit(sIDLE)
 

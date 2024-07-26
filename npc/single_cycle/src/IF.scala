@@ -69,8 +69,21 @@ class IFU(memoryFile: String) extends Module {
   axiController.stageInput.ar.valid := (ifu_state === stageState.sWaitAXI)
   // nextPC 作为取值的请求
   axiController.stageInput.ar.bits.addr := nextPC
-  // 处理器 read ack 请求
+  // 处理 read ack 请求
   axiController.stageInput.r.ready := axiController.stageInput.r.valid
+
+  // AXI-FULL ar
+  axiController.stageInput.ar.bits.id := 0.U
+  axiController.stageInput.ar.bits.len := 1.U
+  /* 
+   * | size | number of bytes  |
+   * | 0    |   1              |
+   * | 1    |   2              |
+   * | 2    |   4              |
+   * */
+  // 指令长度是32位，4个字节，所以size的大小为2
+  axiController.stageInput.ar.bits.size := 2.U
+  axiController.stageInput.ar.bits.burst := 1.U
 
   // 处理 ifu 的状态转移
   switch(ifu_state) {

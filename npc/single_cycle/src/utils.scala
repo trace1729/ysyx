@@ -75,7 +75,7 @@ class myArbiter extends Module {
   sram.aw.valid := false.B
   sram.ar.valid := false.B
 
-  // 默认将 ar, wr, w 的 ready 置为 false
+  // 默认将 ar, wr, w 的 ready 置为 false, ready 信号由 sram 或其他外设进行设置
   // r, b 的 valid 置为 false
   // 其他信号不关心
 
@@ -96,6 +96,9 @@ class myArbiter extends Module {
   lsuIn.r.bits   := DontCare
   lsuIn.b.valid := false.B
   lsuIn.b.bits.resp  := false.B
+
+  lsuIn.b.bits.id := DontCare
+  ifuIn.b.bits.id := DontCare
 
   import ArbiterState._
   val arbiterState = RegInit(sIDLE)
@@ -163,6 +166,7 @@ class Uart extends Module {
   // 有关
   in.b.valid    := false.B
   in.b.bits.resp     := 1.U
+  in.b.bits.id := DontCare
 
   // ready follows valid
   in.aw.ready := in.aw.valid
@@ -201,6 +205,7 @@ class RTC extends Module {
   // 不关心的
   in.b.bits.resp    := DontCare
   in.b.valid    := false.B
+  in.b.bits.id := DontCare
   in.w.ready    := false.B
   in.aw.ready := false.B
 
@@ -208,6 +213,8 @@ class RTC extends Module {
   in.ar.ready := in.ar.valid
   in.r.valid     := false.B
   in.r.bits.resp := 1.U
+  in.r.bits.last := 1.U
+  in.r.bits.id := in.ar.bits.id // rid should match arid
 
   val mtime = RegInit(UInt(64.W), 0.U)
   mtime := mtime + 1.U

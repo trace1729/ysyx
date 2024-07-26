@@ -7,7 +7,7 @@ import dataclass.data
 
 class AxiLiteAddr(val addrWidth: Int) extends Bundle {
   val addr = UInt(addrWidth.W)
-  val rid = UInt(3.W)
+  val id = UInt(3.W)
   val len = UInt(8.W)
   val size = UInt(3.W)
   val burst = UInt(2.W)

@@ -56,6 +56,9 @@ class SRAM extends Module {
   in.r.valid     := false.B
   in.r.bits.resp := 1.U
   in.b.bits.resp     := 1.U
+  in.b.bits.id := DontCare  // bid Dont Care
+  in.r.bits.id := DontCare  // dummy value
+  in.r.bits.last := 1.U
 
   // using a state machine would elegantly represent
   // the whole axi interface communicating process
@@ -102,6 +105,7 @@ class SRAM extends Module {
       dmem.io.memRW      := 1.U
       in.b.valid := true.B
       in.b.bits.resp  := 0.U
+      in.b.bits.id := in.aw.bits.id // bid should match awid
       when(in.b.ready && in.b.valid) {
         state := aIDLE
       }
@@ -113,6 +117,7 @@ class SRAM extends Module {
       dmem.io.memEnable     := true.B
       in.r.valid     := 1.U
       in.r.bits.resp := 0.U
+      in.r.bits.id := in.ar.bits.id // rid should match arid
       when(in.r.ready && in.r.valid) {
         state := aIDLE
       }

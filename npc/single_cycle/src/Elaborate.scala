@@ -1,10 +1,10 @@
 import circt.stage._
 
 import cpu.ysyx
-import cpu.Datapath
+import cpu.ysyx_23060107
 
 object Elaborate extends App {
-  def cpu       = new Datapath()
+  def cpu       = new ysyx_23060107()
 
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => cpu))
   val chiselStageOptions = Seq(

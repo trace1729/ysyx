@@ -10,7 +10,7 @@ import cpu.utils._
 // abaondon now.
 class ysyx() extends Module {
   val io = IO(new DatapathIO)
-  val datapath = Module(new Datapath())
+  val datapath = Module(new ysyx_23060107())
 }
 
 

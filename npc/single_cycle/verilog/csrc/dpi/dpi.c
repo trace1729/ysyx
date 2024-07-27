@@ -11,6 +11,9 @@ extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
 extern bool next_inst;
 
+extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
+extern "C" void mrom_read(int32_t addr, int32_t *data) { assert(0); }
+
 extern "C" void Next_inst() 
 {
   // Log("ebreak encounterd, execution ended");

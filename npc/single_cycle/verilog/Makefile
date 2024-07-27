@@ -1,7 +1,7 @@
 # version control
 include ../../../../ysyx-workbench/Makefile
 
-TOPNAME = Datapath
+TOPNAME = ysyxSoCFull
 INC_PATH ?=
 
 
@@ -21,13 +21,14 @@ CFLAGS_TRACE += -DITRACE_COND=$(if $(CONFIG_ITRACE_COND),$(call remove_quote,$(C
 
 # source files
 VSRCS = $(shell find $(abspath ./vsrc) -name "*.v" -or -name "*.sv")
+VSRCS += $(shell find $(YSYXSOC_HOME)/perip -name "*.v" -or -name "*.sv")
 CSRCS = $(NPC_HOME)/single_cycle/verilog/csrc/utils/disasm.cc
 CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 
 # verilator
 VERILATOR = verilator
 VERILATOR_CFLAGS += -MMD --build -cc  \
-				-O3 --x-assign fast --x-initial fast --noassert --trace
+				-O3 --x-assign fast --x-initial fast --noassert --trace --timescale "1ns/1ns" --no-timing
 
 # build
 WORK_DIR = $(shell pwd)
@@ -36,6 +37,9 @@ OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(OBJ_DIR)/$(TOPNAME)
 $(shell mkdir -p $(BUILD_DIR))
 
+# for ysyxSoC
+VERILOG_INC_PATH = $(YSYXSOC_HOME)/perip/uart16550/rtl
+VERILOG_INC_PATH += $(YSYXSOC_HOME)/perip/spi/rtl
 # for cpp header files
 INC_PATH += $(WORK_DIR)/include
 INCFLAGS = $(addprefix -I, $(INC_PATH))
@@ -59,7 +63,7 @@ LDFLAGS += $(shell llvm-config --libs)
 # default: run
 $(BIN): $(VSRCS) $(CSRCS)
 	@rm -rf $(OBJ_DIR)
-	$(VERILATOR) $(VERILATOR_CFLAGS) \
+	$(VERILATOR) -y $(YSYXSOC_HOME)/perip/uart16550/rtl -y $(YSYXSOC_HOME)/perip/spi/rtl $(VERILATOR_CFLAGS) \
 		--top-module $(TOPNAME) $^ \
 		$(addprefix -CFLAGS , $(CXXFLAGS)) $(addprefix -LDFLAGS , $(LDFLAGS)) \
 		--Mdir $(OBJ_DIR) --exe -o $(abspath $(BIN))
@@ -70,6 +74,10 @@ override ARGS ?= --log=$(BUILD_DIR)/npc-log.txt
 override ARGS += $(ARGS_DIFF)
 
 NPC_EXEC := $(BIN) $(ARGS) $(IMG)
+
+test:
+	echo $(CXXFLAGS)
+	echo $(VSRC)
 
 run: build
 	$(NPC_EXEC)

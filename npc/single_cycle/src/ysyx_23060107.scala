@@ -7,12 +7,7 @@ import cpu.utils._
 
 /** ****************** 数据通路 ****************************
   */
-class DatapathIO extends Bundle {
-  val pc   = Output(UInt(width.W))
-  val inst = Output(UInt(width.W))
-}
-
-class Datapath() extends Module {
+class ysyx_23060107 extends Module {
 
   val io = IO(new Bundle {
     val interrupt = Input(Bool())
@@ -23,7 +18,7 @@ class Datapath() extends Module {
   io.slave := DontCare
   io.master := DontCare
 
-  val ifu     = Module(new IFU())
+  val ifu     = Module(new IFU)
   val idu     = Module(new IDU)
   val lsu     = Module(new LSU)
   val wb      = Module(new WB)

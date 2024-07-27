@@ -22,9 +22,9 @@ class LSU extends Module {
   val jump = IO(Output(Bool()))
 
   val id2lsuIn      = IO(Flipped(Decoupled(new IDUOutputIO)))
-  val lsuAxiOut     = IO(AxiLiteMaster(width, width))
+  val lsuAxiOut     = IO(AxiLiteMaster(width, dataWidth))
   val lsu2wbOut     = IO(Decoupled(new MEMOutputIO(width)))
-  val axiController = Module(AxiController(width, width))
+  val axiController = Module(AxiController(width, dataWidth))
   val alu           = Module(new Alu(width))
 
   // 定义ID 到 LSU 之间的流水线寄存器, 并赋予初值

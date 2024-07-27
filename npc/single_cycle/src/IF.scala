@@ -21,14 +21,14 @@ object stageState extends ChiselEnum {
 // the axiController shall connected to the memArbiter
 // how to? axiController is defined inside the ifu, how can it connect to
 
-class IFU(memoryFile: String) extends Module {
+class IFU() extends Module {
   val npc       = IO(Input(UInt(width.W)))
   val jump      = IO(Input(Bool()))
   val wb2ifIn   = IO(Flipped(Decoupled(new WBOutputIO)))
   val if2idOut  = IO(Decoupled(new IFUOutputIO))
-  val ifuAxiOut = IO(AxiLiteMaster(width, width))
+  val ifuAxiOut = IO(AxiLiteMaster(width, dataWidth))
 
-  val axiController = Module(AxiController(width, width))
+  val axiController = Module(AxiController(width, dataWidth))
   import stageState._
   val ifu_state = RegInit(sWaitAXI)
 

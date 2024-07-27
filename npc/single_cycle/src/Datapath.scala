@@ -12,18 +12,18 @@ class DatapathIO extends Bundle {
   val inst = Output(UInt(width.W))
 }
 
-class Datapath(memoryFile: String) extends Module {
+class Datapath() extends Module {
 
   val io = IO(new Bundle {
     val interrupt = Input(Bool())
-    val master    = AxiLiteMaster(width, width)
-    val slave     = AxiLiteSlave(width, width)
+    val master    = AxiLiteMaster(width, dataWidth)
+    val slave     = AxiLiteSlave(width, dataWidth)
   })
 
   io.slave := DontCare
   io.master := DontCare
 
-  val ifu     = Module(new IFU(memoryFile))
+  val ifu     = Module(new IFU())
   val idu     = Module(new IDU)
   val lsu     = Module(new LSU)
   val wb      = Module(new WB)

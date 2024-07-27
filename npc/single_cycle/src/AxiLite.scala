@@ -89,7 +89,7 @@ object AxiController {
 class AxiController(addrWidth: Int, dataWidth: Int) extends Module {
 
   // 控制器的输入应该是可以通用化的
-  val stageInput = IO(AxiLiteSlave(addrWidth, addrWidth))
+  val stageInput = IO(AxiLiteSlave(addrWidth, dataWidth))
   val axiOut = IO(AxiLiteMaster(addrWidth, dataWidth))
 
   stageInput <> axiOut

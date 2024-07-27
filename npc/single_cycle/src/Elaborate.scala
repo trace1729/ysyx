@@ -4,10 +4,7 @@ import cpu.ysyx
 import cpu.Datapath
 
 object Elaborate extends App {
-  // Argument is appended after --
-  val seperator = args.indexWhere(_ == "--")
-  assert(seperator != -1, "please pass img for program to executed!")
-  def cpu       = new Datapath(memoryFile = args(seperator + 1))
+  def cpu       = new Datapath()
 
   val generator = Seq(chisel3.stage.ChiselGeneratorAnnotation(() => cpu))
   val chiselStageOptions = Seq(
@@ -19,8 +16,8 @@ object Elaborate extends App {
     FirtoolOption(
       "--lowering-options=disallowLocalVariables,disallowPackedArrays,locationInfoStyle=wrapInAtSquareBracket"
     ),
-    FirtoolOption("--split-verilog"), 
-    FirtoolOption("-o=build/sv-gen"),
+    // FirtoolOption("--split-verilog"), 
+    // FirtoolOption("-o=build/sv-gen"),
     FirtoolOption("--disable-all-randomization")
   )
 

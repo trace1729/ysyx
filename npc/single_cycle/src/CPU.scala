@@ -9,7 +9,7 @@ import cpu.utils._
 // the functionality of this class overlaps with the Datapath class
 // abaondon now.
 class ysyx() extends Module {
-  val io = IO(new DatapathIO)
+  // val io = IO(new DatapathIO)
   val datapath = Module(new ysyx_23060107())
 }
 

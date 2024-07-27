@@ -16,17 +16,16 @@ class ysyx_23060107 extends Module {
   })
 
   io.slave := DontCare
-  io.master := DontCare
 
   val ifu     = Module(new IFU)
   val idu     = Module(new IDU)
   val lsu     = Module(new LSU)
   val wb      = Module(new WB)
   val arbiter = Module(new myArbiter)
-  val uart    = Module(new Uart)
   val rtc     = Module(new RTC)
 
-  val sram = Module(new SRAM)
+  // val sram = Module(new SRAM)
+  // val uart    = Module(new Uart)
 
   ifu.if2idOut <> idu.if2idIn
   idu.id2lsuOut <> lsu.id2lsuIn
@@ -40,8 +39,8 @@ class ysyx_23060107 extends Module {
   arbiter.lsuIn <> lsu.lsuAxiOut
 
   // for Peripheral
-  arbiter.sram <> sram.in
-  arbiter.uart <> uart.in
+  arbiter.sram <> io.master
+  arbiter.uart <> io.master
   arbiter.rtc <> rtc.in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)

@@ -6,7 +6,7 @@ import chisel3.util._
 object config {
   val XLEN    = 4
   val regsNum = 32
-  val startPC:  String = "h80000000"
+  val startPC:  String = "h20000000"
   val SERAL_MNIO: String = "ha00003f8"
   val RTC_MNIO: String = "ha0000048"
   val width:    Int    = 32

@@ -37,9 +37,6 @@ OBJ_DIR = $(BUILD_DIR)/obj_dir
 BIN = $(OBJ_DIR)/$(TOPNAME)
 $(shell mkdir -p $(BUILD_DIR))
 
-# for ysyxSoC
-VERILOG_INC_PATH = $(YSYXSOC_HOME)/perip/uart16550/rtl
-VERILOG_INC_PATH += $(YSYXSOC_HOME)/perip/spi/rtl
 # for cpp header files
 INC_PATH += $(WORK_DIR)/include
 INCFLAGS = $(addprefix -I, $(INC_PATH))

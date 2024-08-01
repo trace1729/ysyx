@@ -7,12 +7,42 @@
 #include <utils.h>
 #include <cpu/difftest.h>
 
+#define MROM_BASE 0x20000000
+#define MROM_SIZE 0x1000
+const char* uart= "/home/trace/trace/learning/ysyx/ysyx-workbench/npc/uart.bin";
+
+static char mrom[MROM_SIZE] = {};
+
+
+long mrom_init() {
+  char* img_file = (char* )uart;
+  printf(ANSI_FMT("Using img", ANSI_BG_GREEN)" %s\n", img_file);
+  FILE *fp = fopen(img_file, "rb");
+  Assert(fp, "Can not open '%s'", img_file);
+
+  fseek(fp, 0, SEEK_END);
+  long size = ftell(fp);
+
+  Log("The image is %s, size = %ld", img_file, size);
+
+  fseek(fp, 0, SEEK_SET);
+  int ret = fread(mrom, size, 1, fp);
+  assert(ret == 1);
+
+  fclose(fp);
+  return size;
+}
+
 extern Decode itrace; // define in top
 extern Ftrace ftrace_block; // define in top
 extern bool next_inst;
 
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
-extern "C" void mrom_read(int32_t addr, int32_t *data) { *data = 0x00100073;}
+extern "C" void mrom_read(int32_t addr, int32_t *data) { 
+  char* guest_addr = mrom + addr - MROM_BASE;
+  *data = *((uint32_t*)guest_addr);
+  printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
+}
 
 extern "C" void Next_inst() 
 {
@@ -125,6 +155,14 @@ extern "C" void Regs_display(const svLogicVecVal* regs)
   // printf("setting regs\n");
   for (int i = 0; i < 32; i++) {
     cpu.gpr[i] = regs[i].aval;
+  }
+}
+
+void reset_to_default() {
+  // just setting every register to zero
+  // 如果 reset 的话，那两边都需要清空
+  for (int i = 0; i < 32; i++) {
+    cpu.gpr[i] = 0;
   }
 }
 

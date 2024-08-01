@@ -59,20 +59,16 @@ object ArbiterState extends ChiselEnum {
 class myArbiter extends Module {
   val ifuIn = IO(AxiLiteSlave(width, dataWidth))
   val lsuIn = IO(AxiLiteSlave(width, dataWidth))
-  val sram = IO(AxiLiteMaster(width, dataWidth))
-  val uart = IO(AxiLiteMaster(width, dataWidth))
+  val xbar = IO(AxiLiteMaster(width, dataWidth))
   val rtc  = IO(AxiLiteMaster(width, dataWidth))
 
-  sram := DontCare
-  uart := DontCare
+  xbar := DontCare
   rtc  := DontCare
 
-  uart.w.valid := false.B
-  uart.aw.valid := false.B
   rtc.ar.valid := false.B
-  sram.w.valid := false.B
-  sram.aw.valid := false.B
-  sram.ar.valid := false.B
+  xbar.w.valid := false.B
+  xbar.aw.valid := false.B
+  xbar.ar.valid := false.B
 
   // 默认将 ar, wr, w 的 ready 置为 false, ready 信号由 sram 或其他外设进行设置
   // r, b 的 valid 置为 false
@@ -118,13 +114,13 @@ class myArbiter extends Module {
       }
     }
     is(sIFU) {
-      sram <> ifuIn
+      xbar <> ifuIn
       when(ifuIn.r.valid && ifuIn.r.ready) {
         arbiterState := sIDLE
       }
     }
     is(sLSU) {
-      sram <> lsuIn
+      xbar <> lsuIn
       when(lsuIn.r.valid && lsuIn.r.ready) {
         arbiterState := sIDLE
       }
@@ -133,7 +129,7 @@ class myArbiter extends Module {
       }
     }
     is(sUART) {
-      uart <> lsuIn
+      xbar <> lsuIn
       when(lsuIn.b.valid && lsuIn.b.ready) {
         arbiterState := sIDLE
       }

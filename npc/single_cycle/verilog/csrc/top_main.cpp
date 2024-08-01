@@ -41,6 +41,19 @@ void sim_init(char argc, char* argv[]) {
   tfp->open("wave.vcd");
 }
 
+void soc_sim_rest(TOP_NAME* top) {
+  top->reset = 1;
+  for (int i = 0; i < 9; i++) {
+    top->clock = 0; top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+
+    top->clock = 1; top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+  }
+}
+
 void sim_reset(TOP_NAME* top) {
   top->reset = 1;
   top->clock = 0;
@@ -88,8 +101,10 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  sdb_mainloop();
-  // dummy();
+  void mrom_init();
+  mrom_init();
+  // sdb_mainloop();
+  dummy();
   sim_end();
   Log("gracefully quit");
   
@@ -99,16 +114,22 @@ void verilator_exec_once(Decode* s) {
     ftrace_block.is_next_ins_j = false;
     next_inst = false;
     while (!next_inst) {
+
+      if (top->reset == 1) {
+        void reset_to_default();
+        reset_to_default();
+        continue;
+      }
       // tick = 0
       top->clock = 0;
       top->eval();
       contextp->timeInc(1);
-      // tfp->dump(contextp->time());
+      tfp->dump(contextp->time());
       // tick = 1
       top->clock = 1;
       top->eval();
       contextp->timeInc(1);
-      // tfp->dump(contextp->time());
+      tfp->dump(contextp->time());
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;

@@ -39,8 +39,7 @@ class ysyx_23060107 extends Module {
   arbiter.lsuIn <> lsu.lsuAxiOut
 
   // for Peripheral
-  arbiter.sram <> io.master
-  arbiter.uart <> io.master
+  arbiter.xbar <> io.master
   arbiter.rtc <> rtc.in
 
   // 诡异的连线，上面各阶段之间的握手突出一个毫无意义 (确定 pc 和 寄存器的写回值)

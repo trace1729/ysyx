@@ -62,7 +62,7 @@ class IFU extends Module {
   }
 
   // 为 axiController 设置默认值
-  val readCompleted = axiController.stageInput.r.valid && axiController.stageInput.r.ready
+  val r_fire = axiController.stageInput.r.valid && axiController.stageInput.r.ready
   axiController.stageInput.aw      := DontCare
   axiController.stageInput.w      := DontCare
   axiController.stageInput.b      := DontCare
@@ -94,7 +94,7 @@ class IFU extends Module {
       }
     }
     is (sWaitReady) {
-      when(readCompleted) {
+      when(r_fire) {
         ifu_state := sACK
       }
     }
@@ -106,7 +106,7 @@ class IFU extends Module {
   }
 
   // 处理输出
-  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.r.bits.data), readCompleted)
+  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.r.bits.data), r_fire)
   if2idOut.bits.pc   := Mux(jump || jump_r, 0.U, nextPC)
   if2idOut.valid     := ifu_state === sACK
 

@@ -136,9 +136,9 @@ class LSU extends Module {
   // TODO IDU 的 ready ？
   id2lsuIn.ready := (lsu_state === sIDLE) && lsu2wbOut.ready
 
-  val readCompleted  = axiController.stageInput.r.valid && axiController.stageInput.r.ready
-  val writeCompleted = axiController.stageInput.b.valid && axiController.stageInput.b.ready
-  val readData       = RegEnable(axiController.stageInput.r.bits.data, readCompleted)
+  val r_fire  = axiController.stageInput.r.valid && axiController.stageInput.r.ready
+  val b_fire = axiController.stageInput.b.valid && axiController.stageInput.b.ready
+  val rdata       = RegEnable(axiController.stageInput.r.bits.data, r_fire)
 
   switch(lsu_state) {
     is(sIDLE) {
@@ -187,10 +187,10 @@ class LSU extends Module {
 
     }
     is(sWaitReady) {
-      when(readCompleted) {
+      when(r_fire) {
         lsu_state := sACK
       }
-      when(writeCompleted) {
+      when(b_fire) {
         lsu_state := sACK
       }
       when(id2lsuReg.ctrlsignals.memEnable === 0.U) {
@@ -211,13 +211,13 @@ class LSU extends Module {
   // mem.io.memRW = 0, read, set to 0
   val imm_byte = Wire(UInt(8.W))
   val imm_half = Wire(UInt(16.W))
-  imm_byte := readDataGen(alu.io.res(1, 0), 1, readData)
-  imm_half := readDataGen(alu.io.res(1, 0), 2, readData)
+  imm_byte := readDataGen(alu.io.res(1, 0), 1, rdata)
+  imm_half := readDataGen(alu.io.res(1, 0), 2, rdata)
   rmemdata := Mux(
     id2lsuReg.inst(14),
     // io.inst(14) == 1, unsigned 直接截断就好
     MuxCase(
-      readData,
+      rdata,
       Seq(
         (id2lsuReg.inst(13, 12) === 0.U) -> imm_byte,
         (id2lsuReg.inst(13, 12) === 1.U) -> imm_half
@@ -225,7 +225,7 @@ class LSU extends Module {
     ),
     // io.inst(14) == 0, signed 还需符号扩展
     MuxCase(
-      readData,
+      rdata,
       Seq(
         (id2lsuReg.inst(13, 12) === 0.U) -> Cat(padding(24, imm_byte(7)), imm_byte),
         (id2lsuReg.inst(13, 12) === 1.U) -> Cat(padding(16, imm_half(15)), imm_half)

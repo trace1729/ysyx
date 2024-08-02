@@ -106,7 +106,8 @@ class myArbiter extends Module {
         arbiterState := MuxCase(
           sLSU,
           Seq(
-            (lsuIn.aw.bits.addr === config.SERAL_MNIO.U) -> sUART,
+            (lsuIn.aw.bits.addr >= "h1000_0000".asUInt
+              && lsuIn.aw.bits.addr <= "h1000_ffff".asUInt) -> sUART,
             (lsuIn.ar.bits.addr === config.RTC_MNIO.U) -> sRTC,
             (lsuIn.ar.bits.addr === (config.RTC_MNIO + 4).U) -> sRTC
           )

@@ -69,12 +69,12 @@ class IFU extends Module {
   axiController.stageInput.ar.valid := (ifu_state === stageState.sWaitAXI)
   // nextPC 作为取值的请求
   axiController.stageInput.ar.bits.addr := nextPC
-  // 处理 read ack 请求
-  axiController.stageInput.r.ready := axiController.stageInput.r.valid
-
+  // TODO do not take ar.ready into consideration, might lead to bugs
+  // 处理 read ack 请求 (`after` arvalid is asserted) 
+  axiController.stageInput.r.ready := axiController.stageInput.r.valid && (~axiController.stageInput.ar.valid)
   // AXI-FULL ar
   axiController.stageInput.ar.bits.id := 0.U
-  axiController.stageInput.ar.bits.len := 1.U
+  axiController.stageInput.ar.bits.len := 0.U
   /* 
    * | size | number of bytes  |
    * | 0    |   1              |

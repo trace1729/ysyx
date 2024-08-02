@@ -116,10 +116,10 @@ class LSU extends Module {
   axiController.stageInput.aw.bits.addr := alu.io.res
   axiController.stageInput.ar.bits.addr  := alu.io.res
 
-  // valid 跟随 ready
-  axiController.stageInput.b.ready := axiController.stageInput.b.valid
-  axiController.stageInput.r.ready  := axiController.stageInput.r.valid
-
+  // 处理 writeAck 请求 (`after` wvalid and wready is both asserted)
+  axiController.stageInput.b.ready := axiController.stageInput.b.valid && (~axiController.stageInput.w.valid)  
+  // 处理 read ack 请求 (`after` arvalid and arready is both asserted) 
+  axiController.stageInput.r.ready := axiController.stageInput.r.valid && (~axiController.stageInput.ar.valid)
   axiController.stageInput.ar.bits.id := 1.U
   axiController.stageInput.ar.bits.len := 0.U
   axiController.stageInput.ar.bits.size := id2lsuReg.inst(14, 12)

@@ -13,24 +13,48 @@ const char* uart= "/home/trace/trace/learning/ysyx/ysyx-workbench/npc/uart.bin";
 
 static char mrom[MROM_SIZE] = {};
 
+/* ff810113 addi sp,sp,-8 */
+/* 00112223 sw ra,4(sp) */
+/* 00812023 sw s0,0(sp) */
+/* 00810413 addi s0,sp,8 */
+/* 100007b7 lui a5,0x10000 */
+/* 04100713 li a4,65 */
+/* 00e78023 sb a4,0(a5) */
+/* 100007b7 lui a5,0x10000 */
+/* 00a00713 li a4,10 */
+/* 00e78023 sb a4,0(a5) */
+/* 0000006f j 10100 */
+/*  */
+static uint32_t default_img[] = {
+  0x100007b7,
+  0x04100713,
+  0x00e78023,
+  0x100007b7,
+  0x00a00713,
+  0x00e78023,
+  0x0000006f
+};
+
 
 long mrom_init() {
-  char* img_file = (char* )uart;
-  printf(ANSI_FMT("Using img", ANSI_BG_GREEN)" %s\n", img_file);
-  FILE *fp = fopen(img_file, "rb");
-  Assert(fp, "Can not open '%s'", img_file);
-
-  fseek(fp, 0, SEEK_END);
-  long size = ftell(fp);
-
-  Log("The image is %s, size = %ld", img_file, size);
-
-  fseek(fp, 0, SEEK_SET);
-  int ret = fread(mrom, size, 1, fp);
-  assert(ret == 1);
-
-  fclose(fp);
-  return size;
+  memcpy(mrom, default_img, sizeof(default_img));
+  return sizeof (default_img);
+  /* char* img_file = (char* )uart; */
+  /* printf(ANSI_FMT("Using img", ANSI_BG_GREEN)" %s\n", img_file); */
+  /* FILE *fp = fopen(img_file, "rb"); */
+  /* Assert(fp, "Can not open '%s'", img_file); */
+  /*  */
+  /* fseek(fp, 0, SEEK_END); */
+  /* long size = ftell(fp); */
+  /*  */
+  /* Log("The image is %s, size = %ld", img_file, size); */
+  /*  */
+  /* fseek(fp, 0, SEEK_SET); */
+  /* int ret = fread(mrom, size, 1, fp); */
+  /* assert(ret == 1); */
+  /*  */
+  /* fclose(fp); */
+  /* return size; */
 }
 
 extern Decode itrace; // define in top
@@ -41,7 +65,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
   char* guest_addr = mrom + addr - MROM_BASE;
   *data = *((uint32_t*)guest_addr);
-  printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
+ //  printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
 }
 
 extern "C" void Next_inst() 

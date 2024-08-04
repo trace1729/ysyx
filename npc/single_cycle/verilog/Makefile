@@ -27,7 +27,7 @@ CSRCS += $(shell find $(abspath ./csrc) -name "*.c" -or -name "*.cpp")
 
 # verilator
 VERILATOR = verilator
-VERILATOR_CFLAGS += -MMD --build -cc  \
+VERILATOR_CFLAGS += -autoflush -MMD --build -cc  \
 				-O3 --x-assign fast --x-initial fast --noassert --trace --timescale "1ns/1ns" --no-timing
 
 # build

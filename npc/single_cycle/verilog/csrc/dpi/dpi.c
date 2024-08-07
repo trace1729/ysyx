@@ -7,8 +7,6 @@
 #include <utils.h>
 #include <cpu/difftest.h>
 
-#define MROM_BASE 0x20000000
-#define MROM_SIZE 0x1000
 const char* uart= "/home/trace/trace/learning/ysyx/ysyx-workbench/npc/uart.bin";
 
 static char mrom[MROM_SIZE] = {};
@@ -29,12 +27,13 @@ static uint32_t default_img[] = {
   0x100007b7,
   0x04100713,
   0x00e78023,
-  0x100007b7,
-  0x00a00713,
-  0x00e78023,
   0x0000006f
 };
 
+
+char* copy_to_mrom(int32_t addr) {
+  return mrom + addr - MROM_BASE;
+};
 
 long mrom_init() {
   memcpy(mrom, default_img, sizeof(default_img));
@@ -65,7 +64,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
   char* guest_addr = mrom + addr - MROM_BASE;
   *data = *((uint32_t*)guest_addr);
- //  printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
+  // printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
 }
 
 extern "C" void Next_inst() 

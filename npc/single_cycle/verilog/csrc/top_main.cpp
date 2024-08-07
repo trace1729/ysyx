@@ -66,7 +66,22 @@ void sim_reset(TOP_NAME* top) {
     tfp->dump(contextp->time());
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
+
   // nemu_state.state = NEMU_RUNNING;
+  // delay for ten cycles
+  // 这个时候不接入测试框架
+  // 还需要把 nemu_state 设置为 running
+  for (int i = 0; i < 9; i++) {
+    top->clock = 0; top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+
+    top->clock = 1; top->eval();
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+  }
+
+  nemu_state.state = NEMU_STOP;
 }
 
 void sim_end() {
@@ -101,10 +116,8 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
-  void mrom_init();
-  mrom_init();
-  // sdb_mainloop();
-  dummy();
+  sdb_mainloop();
+  // dummy();
   sim_end();
   Log("gracefully quit");
   
@@ -114,12 +127,6 @@ void verilator_exec_once(Decode* s) {
     ftrace_block.is_next_ins_j = false;
     next_inst = false;
     while (!next_inst) {
-
-      if (top->reset == 1) {
-        void reset_to_default();
-        reset_to_default();
-        continue;
-      }
       // tick = 0
       top->clock = 0;
       top->eval();

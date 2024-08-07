@@ -5,6 +5,7 @@
 #include <getopt.h>
 #include <common.h>
 #include <cpu/difftest.h>
+#include <dpi.h>
 
 
 static char *log_file = NULL;
@@ -35,8 +36,9 @@ void init_difftest(char *ref_so_file, long img_size, int port);
 
 static long load_img() {
   if (img_file == NULL) {
+    long mrom_init(void);
     Log("No image is given. Use the default build-in image.");
-    return 4096; // built-in image size
+    return mrom_init(); // built-in image size
   }
   printf(ANSI_FMT("Using img", ANSI_BG_GREEN)" %s\n", img_file);
   FILE *fp = fopen(img_file, "rb");
@@ -48,7 +50,8 @@ static long load_img() {
   Log("The image is %s, size = %ld", img_file, size);
 
   fseek(fp, 0, SEEK_SET);
-  int ret = fread(guest_to_host(RESET_VECTOR), size, 1, fp);
+  uint8_t* copy_to_mrom(int32_t addr);
+  int ret = fread(copy_to_mrom(MROM_BASE), size, 1, fp);
   assert(ret == 1);
 
   fclose(fp);

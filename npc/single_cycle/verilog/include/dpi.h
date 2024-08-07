@@ -22,4 +22,6 @@ extern "C" void Csrs_display(const svLogicVecVal* regs);
 extern "C" void Next_inst();
 void ftrace(int rd, int type, Decode* s, word_t src1);
 
+#define MROM_BASE 0x20000000
+#define MROM_SIZE 0x1000
 #endif

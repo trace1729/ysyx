@@ -80,10 +80,16 @@ class LSU extends Module {
       (id2lsuReg.ctrlsignals.pcsel === 0.U) -> (id2lsuReg.pc + config.XLEN.U),
       (id2lsuReg.ctrlsignals.pcsel === 1.U) -> alu.io.res,
       (id2lsuReg.ctrlsignals.pcsel === 2.U) -> id2lsuReg.mepc,
-      (id2lsuReg.ctrlsignals.pcsel === 3.U) -> id2lsuReg.mtvec
+      (id2lsuReg.ctrlsignals.pcsel === 3.U) -> id2lsuReg.mtvec,
+      // Access Fault
+      (axiController.stageInput.b.bits.resp =/= 0.U) -> 0.U
     )
   )
-  jump := (id2lsuReg.ctrlsignals.pcsel =/= 0.U) && lsu2wbOut.valid && lsu2wbOut.ready
+
+  // Access Fault
+  jump := 
+    (axiController.stageInput.b.bits.resp =/= 0.U) || 
+    ((id2lsuReg.ctrlsignals.pcsel =/= 0.U) && lsu2wbOut.valid && lsu2wbOut.ready)
 
   // Dpi-itrace 跟踪指令
   val itrace = Module(new Dpi_itrace)

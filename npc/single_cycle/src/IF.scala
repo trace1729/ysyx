@@ -50,6 +50,8 @@ class IFU extends Module {
   // pc 生成逻辑
   val PC     = RegInit(config.startPC.U - config.XLEN.U)
   val nextPC = Wire(UInt(config.width.W))
+  val inst = RegInit(config.NOP)
+
   nextPC := PC + config.XLEN.U
 
   // 当if阶段和id阶段完成握手之后，就可以更新 PC 了
@@ -69,8 +71,7 @@ class IFU extends Module {
   axiController.stageInput.ar.valid := (ifu_state === stageState.sWaitAXI)
   // nextPC 作为取值的请求
   axiController.stageInput.ar.bits.addr := nextPC
-  // TODO do not take ar.ready into consideration, might lead to bugs
-  // 处理 read ack 请求 (`after` arvalid is asserted) 
+  // 处理 read ack 请求 (`after` arvalid and arready is both asserted) 
   axiController.stageInput.r.ready := axiController.stageInput.r.valid && (~axiController.stageInput.ar.valid)
   // AXI-FULL ar
   axiController.stageInput.ar.bits.id := 0.U
@@ -96,6 +97,7 @@ class IFU extends Module {
     is (sWaitReady) {
       when(r_fire) {
         ifu_state := sACK
+        inst := axiController.stageInput.r.bits.data
       }
     }
     is (sACK) {
@@ -106,7 +108,7 @@ class IFU extends Module {
   }
 
   // 处理输出
-  if2idOut.bits.inst := RegEnable(Mux(jump || jump_r, NOP, axiController.stageInput.r.bits.data), r_fire)
+  if2idOut.bits.inst := Mux(jump || jump_r, NOP, inst)
   if2idOut.bits.pc   := Mux(jump || jump_r, 0.U, nextPC)
   if2idOut.valid     := ifu_state === sACK
 

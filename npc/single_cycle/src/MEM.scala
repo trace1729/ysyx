@@ -112,7 +112,8 @@ class LSU extends Module {
   axiController.stageInput.w.valid := false.B
   axiController.stageInput.aw.valid := false.B
 
-  axiController.stageInput.w.bits.data := id2lsuReg.rs2
+  // TODO DO NOT handle unaligned address access 
+  axiController.stageInput.w.bits.data := writeDataGen(alu.io.res(1, 0), id2lsuReg.rs2)
   axiController.stageInput.w.bits.strb := Mux(
     !id2lsuReg.ctrlsignals.memRW,
     0.U,
@@ -128,11 +129,11 @@ class LSU extends Module {
   axiController.stageInput.r.ready := axiController.stageInput.r.valid && (~axiController.stageInput.ar.valid)
   axiController.stageInput.ar.bits.id := 1.U
   axiController.stageInput.ar.bits.len := 0.U
-  axiController.stageInput.ar.bits.size := id2lsuReg.inst(14, 12)
+  axiController.stageInput.ar.bits.size := id2lsuReg.inst(13, 12)
   axiController.stageInput.ar.bits.burst := 1.U
   axiController.stageInput.aw.bits.id := 1.U
   axiController.stageInput.aw.bits.len := 0.U
-  axiController.stageInput.aw.bits.size := id2lsuReg.inst(14, 12) 
+  axiController.stageInput.aw.bits.size := id2lsuReg.inst(13, 12) 
   axiController.stageInput.aw.bits.burst := 1.U
   axiController.stageInput.w.bits.last := 1.U
 

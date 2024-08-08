@@ -21,11 +21,10 @@ SECTIONS {
   }>MROM
   .data : 
 	{
-		_pmem_start = . ;
 		_sdata = . ;
     *(.data)
 		_edata = . ;
-  }>SRAM : data
+  }>MROM : data
 	/* store the end address of the data section*/
   .bss : 
 	{
@@ -33,18 +32,15 @@ SECTIONS {
     *(.bss*)
     *(.sbss*)
     *(.scommon)
-  }>SRAM
+  }>MROM : data
 	.stack (NOLOAD):
 	{
-		. = ALIGN(0x1000);
+		. = ORIGIN(SRAM) + LENGTH(SRAM) - 0x1000 ;
 		_stack_top = . ;
-		. = _stack_top + 0x1000 ; 
-		_stack_pointer = . ;
-		end = . ;
-		_end = . ;
-	} > SRAM
-	. = ALIGN(0x1000);
-	_heap_start = .;
-	end = .;
-	_end = .;
+		_stack_pointer = .  + 0x1000;
+	}
+	_heap_start = ORIGIN(SRAM);
+	_heap_end = _stack_top;
+	end = . ;
+	_end = . ;
 }

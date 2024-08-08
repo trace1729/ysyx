@@ -7,6 +7,15 @@ import cpu.config._
 object utils {
   def padding(len: Int, v: UInt): UInt = Cat(Seq.fill(len)(v))
   // start means the least two significant bits of read addr
+  def writeDataGen(start: UInt, data: UInt): UInt = MuxCase(
+    // lh for addr end with '11' is invaild
+    data,
+    Seq(
+      (start === "b01".asUInt) -> (data << 8),
+      (start === "b10".asUInt) -> (data << 16),
+      (start === "b11".asUInt) -> (data << 24),
+    )
+  )
   def readDataGen(start: UInt, len: Int, data: UInt): UInt = MuxCase(
     // lh for addr end with '11' is invaild
     data(31, 24),

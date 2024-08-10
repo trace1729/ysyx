@@ -156,12 +156,12 @@ static void exec_once(Decode *s, vaddr_t pc) {
 static void execute(uint64_t n) {
   Decode s;
   for (; n > 0; n--) {
-    if (is_skip_nop) {
-      is_skip_nop = false;
-      continue;
-    }
     exec_once(&s, cpu.pc);
     g_nr_guest_inst++;
+    if (is_skip_nop) {
+      is_skip_nop = false; 
+      continue;
+    }
     trace_and_difftest(&s, cpu.pc);
     if (nemu_state.state != NEMU_RUNNING)
       break;

@@ -64,7 +64,7 @@ extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
   char* guest_addr = mrom + addr - MROM_BASE;
   *data = *((uint32_t*)guest_addr);
-  // printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
+  /* printf("mrom trace: 0x%x, 0x%x\n", addr, *data); */
 }
 
 extern "C" void Next_inst() 

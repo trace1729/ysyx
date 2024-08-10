@@ -17,6 +17,7 @@
 #include <cpu/cpu.h>
 #include <difftest-def.h>
 #include <memory/paddr.h>
+#include <memory/soc.h>
 
 #define NR_GPR MUXDEF(CONFIG_RVE, 16, 32)
 struct diff_context_t {
@@ -52,7 +53,7 @@ void diff_set_regs(void* dut) {
 }
 __EXPORT void difftest_memcpy(paddr_t addr, void *buf, size_t n, bool direction) {
   if (direction == DIFFTEST_TO_REF) {
-    memcpy(guest_to_host(RESET_VECTOR), buf, n);
+    memcpy(copy_to_mrom(CONFIG_MROM_BASE), buf, n);
   } else {
     assert(0);
   }

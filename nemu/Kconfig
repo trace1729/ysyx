@@ -42,6 +42,12 @@ config ENGINE_INTERPRETER
     Interpreter guest instructions one by one.
 endchoice
 
+menu "Soc"
+	config YSYXSOC
+	bool "add support for YSYXSOC"
+	default n
+endmenu
+
 config ENGINE
   string
   default "interpreter" if ENGINE_INTERPRETER

@@ -15,6 +15,7 @@
 
 #include <isa.h>
 #include <memory/paddr.h>
+#include <memory/soc.h>
 
 // this is not consistent with uint8_t
 // but it is ok since we do not access the array directly
@@ -28,7 +29,11 @@ static const uint32_t img [] = {
 
 static void restart() {
   /* Set the initial program counter. */
+#ifdef CONFIG_YSYXSOC
+  cpu.pc = CONFIG_MROM_BASE;
+#else
   cpu.pc = RESET_VECTOR;
+#endif
 
   /* The zero register is always 0. */
   cpu.gpr[0] = 0;
@@ -38,8 +43,11 @@ static void restart() {
 
 void init_isa() {
   /* Load built-in image. */
+#ifdef CONFIG_YSYXSOC
+  memcpy(copy_to_mrom(CONFIG_MROM_BASE), img, sizeof(img));
+#else
   memcpy(guest_to_host(RESET_VECTOR), img, sizeof(img));
-
+#endif
   /* Initialize this virtual computer system. */
   restart();
 }

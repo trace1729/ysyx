@@ -1,5 +1,21 @@
 menu "Memory Configuration"
 
+config MROM_BASE
+  hex "mrom base address"
+  default 0x20000000
+
+config SRAM_BASE
+  hex "mrom base address"
+  default 0x0f000000
+
+config MROM_SIZE
+	hex "mrom size"
+	default 0x1000
+
+config SRAM_SIZE
+	hex "sram base address"
+	default 0x2000
+
 config MBASE
   hex "Memory base address"
   default 0x0        if ISA_x86

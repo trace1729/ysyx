@@ -2,6 +2,7 @@
 #include <klib-macros.h>
 #include <riscv/riscv.h>
 #include "npc.h"
+#include <stdint.h>
 
 extern char _heap_start;
 extern char _pmem_start;
@@ -54,8 +55,30 @@ void bootloader() {
   
 }
 
+void uart_init() {
+  // resetting
+
+  volatile uint8_t uart_lcr = inb(UART_LCR);
+  // set 7th bit of LCR to gain access to divior register
+  // lcr |= 0b01000000
+  outb(UART_LCR, uart_lcr | 0x80);
+
+  // setting the divior register to 10
+  outb(UART_DIV, 1);
+  outb(UART_DIV + 1, 0);
+
+  uart_lcr = inb(UART_LCR);
+  // disable access to divior reg
+  // lcr &= (0x10111111)
+  outb(UART_LCR, uart_lcr & (~0x80));
+
+  /* uint8_t uart_lsr = inb(UART_LSR); */
+  
+}
+
 void _trm_init() {
   bootloader();
+  uart_init();
   int ret = main(mainargs);
   halt(ret);
 }

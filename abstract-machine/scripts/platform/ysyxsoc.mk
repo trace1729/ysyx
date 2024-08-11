@@ -11,7 +11,7 @@ LDFLAGS   += -T $(AM_HOME)/scripts/ysyxsoclinker.ld
 LDFLAGS   += --gc-sections -e _start 
 
 # below is for cpp test framework
-NPCFLAGS += -b -l $(shell dirname $(IMAGE).elf)/npc-log.txt -e $(IMAGE).elf -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so 
+NPCFLAGS +=  -l $(shell dirname $(IMAGE).elf)/npc-log.txt -e $(IMAGE).elf -d $(NEMU_HOME)/build/riscv32-nemu-interpreter-so 
 
 CFLAGS += -DMAINARGS=\"$(mainargs)\"
 .PHONY: $(AM_HOME)/am/src/riscv/ysyxsoc/trm.c

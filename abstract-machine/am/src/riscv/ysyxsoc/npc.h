@@ -7,6 +7,11 @@
 #define MMIO_BASE 0xa0000000
 
 #define SERIAL_PORT     (0x10000000)
+#define UART_FCR        (SERIAL_PORT + 2)
+#define UART_LCR        (SERIAL_PORT + 3)
+#define UART_LSR        (SERIAL_PORT + 5)
+#define UART_DIV        (SERIAL_PORT)
+
 #define KBD_ADDR        (DEVICE_BASE + 0x0000060)
 #define RTC_ADDR        (DEVICE_BASE + 0x0000048)
 #define VGACTL_ADDR     (DEVICE_BASE + 0x0000100)

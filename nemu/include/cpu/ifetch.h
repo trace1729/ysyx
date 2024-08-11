@@ -16,13 +16,10 @@
 #ifndef __CPU_IFETCH_H__
 
 #include <memory/vaddr.h>
-#include <stdio.h>
 
 static inline uint32_t inst_fetch(vaddr_t *pc, int len) {
-  printf("nemu ifetch pc=%x\n", *pc);
   uint32_t inst = vaddr_ifetch(*pc, len);
   (*pc) += len;
-  printf("nemu ifetch inst=%x\n", inst);
   return inst;
 }
 

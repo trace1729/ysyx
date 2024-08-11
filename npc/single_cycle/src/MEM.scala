@@ -82,13 +82,15 @@ class LSU extends Module {
       (id2lsuReg.ctrlsignals.pcsel === 2.U) -> id2lsuReg.mepc,
       (id2lsuReg.ctrlsignals.pcsel === 3.U) -> id2lsuReg.mtvec,
       // Access Fault
-      (axiController.stageInput.b.bits.resp =/= 0.U) -> 0.U
+      // (rresp =/= 0.U) -> 0.U,
+      // (bresp =/= 0.U) -> 0.U
     )
   )
 
   // Access Fault
   jump := 
-    (axiController.stageInput.b.bits.resp =/= 0.U) || 
+    // (rresp =/= 0.U) || 
+    // (bresp =/= 0.U) || 
     ((id2lsuReg.ctrlsignals.pcsel =/= 0.U) && lsu2wbOut.valid && lsu2wbOut.ready)
 
   // Dpi-itrace 跟踪指令
@@ -146,6 +148,10 @@ class LSU extends Module {
   val r_fire  = axiController.stageInput.r.valid && axiController.stageInput.r.ready
   val b_fire = axiController.stageInput.b.valid && axiController.stageInput.b.ready
   val rdata       = RegEnable(axiController.stageInput.r.bits.data, r_fire)
+  // val rresp       = RegEnable(axiController.stageInput.r.bits.resp, 0.U, r_fire)
+  // val bresp       = RegEnable(axiController.stageInput.b.bits.resp, 0.U, b_fire)
+
+
 
   switch(lsu_state) {
     is(sIDLE) {

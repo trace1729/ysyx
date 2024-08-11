@@ -13,6 +13,7 @@
 * See the Mulan PSL v2 for more details.
 ***************************************************************************************/
 
+#include "common.h"
 #include <isa.h>
 #include <memory/paddr.h>
 #include <memory/soc.h>
@@ -32,7 +33,11 @@ word_t vaddr_ifetch(vaddr_t addr, int len) {
 
 word_t vaddr_read(vaddr_t addr, int len) {
 #ifdef CONFIG_YSYXSOC
+  if (addr < CONFIG_MROM_BASE)
+    return host_read(copy_to_sram(addr), len);
+  else 
     return host_read(copy_to_mrom(addr), len);
+
 #else
   return paddr_read(addr, len);
 #endif

@@ -41,7 +41,7 @@ run: verilog
 	cp $(YSYXSOC_HOME)/build/ysyxSoCFull.v $(NPC_HOME)/$(TARGET)/verilog/vsrc/
 	make -C $(NPC_HOME)/$(TARGET)/verilog clean
 	-make -C $(NPC_HOME)/$(TARGET)/verilog run IMG=$(IMG)
-	gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
+	# gtkwave $(NPC_HOME)/$(TARGET)/verilog/wave.vcd
 
 
 gdb: verilog 

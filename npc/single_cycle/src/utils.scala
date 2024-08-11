@@ -75,9 +75,12 @@ class myArbiter extends Module {
   rtc  := DontCare
 
   rtc.ar.valid := false.B
-  xbar.w.valid := false.B
-  xbar.aw.valid := false.B
-  xbar.ar.valid := false.B
+
+  xbar.w.valid  := false.B 
+  xbar.aw.valid := false.B 
+  xbar.ar.valid := false.B 
+  xbar.b.ready  := false.B 
+  xbar.r.ready  := false.B 
 
   // 默认将 ar, wr, w 的 ready 置为 false, ready 信号由 sram 或其他外设进行设置
   // r, b 的 valid 置为 false
@@ -109,6 +112,11 @@ class myArbiter extends Module {
 
   switch(arbiterState) {
     is(sIDLE) {
+      xbar.w.valid  := false.B 
+      xbar.aw.valid := false.B 
+      xbar.ar.valid := false.B 
+      xbar.b.ready  := false.B 
+      xbar.r.ready  := false.B 
       when(ifuIn.aw.valid || ifuIn.w.valid || ifuIn.ar.valid) {
         arbiterState := sIFU
       }.elsewhen(lsuIn.aw.valid || lsuIn.w.valid || lsuIn.ar.valid) {

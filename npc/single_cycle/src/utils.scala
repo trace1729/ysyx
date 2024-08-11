@@ -148,6 +148,9 @@ class myArbiter extends Module {
     }
     is(sUART) {
       xbar <> lsuIn
+      when(lsuIn.r.valid && lsuIn.r.ready) {
+        arbiterState := sIDLE
+      }
       when(lsuIn.b.valid && lsuIn.b.ready) {
         arbiterState := sIDLE
       }

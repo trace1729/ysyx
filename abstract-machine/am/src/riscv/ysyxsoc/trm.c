@@ -25,7 +25,37 @@ void halt(int code) {
   while (1);
 }
 
+extern char _etext;
+extern char _sdata;
+extern char _edata;
+extern char _bss_start;
+extern char _bss_end;
+
+void bootloader() {
+  // zero out the bss section
+  volatile char* bss_start = &_bss_start;
+  volatile char* bss_end = &_bss_end;
+
+  while (bss_start < bss_end) {
+    *bss_start = 0;
+    bss_start++;
+  }
+
+  // set initial value for data section
+  char* src = &_etext;
+  char* dst = &_sdata;
+
+  while (dst < &_edata) {
+    *dst = *src;
+    dst++;
+    src++;
+  }
+
+  
+}
+
 void _trm_init() {
+  bootloader();
   int ret = main(mainargs);
   halt(ret);
 }

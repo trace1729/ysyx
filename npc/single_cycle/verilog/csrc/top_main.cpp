@@ -54,16 +54,23 @@ void soc_sim_rest(TOP_NAME* top) {
   }
 }
 
+#ifdef CONFIG_WAVE
+void dump_wave() {
+    contextp->timeInc(1);
+    tfp->dump(contextp->time());
+}
+#else
+void dump_wave() {}
+#endif
+
 void sim_reset(TOP_NAME* top) {
   top->reset = 1;
   top->clock = 0;
   top->eval();
-    contextp->timeInc(1);
-    tfp->dump(contextp->time());
+  dump_wave();
   top->clock = 1;
   top->eval();
-    contextp->timeInc(1);
-    tfp->dump(contextp->time());
+  dump_wave();
   // 上升沿触发，将初始值赋值给 pc
   top->reset = 0;
 
@@ -73,12 +80,10 @@ void sim_reset(TOP_NAME* top) {
   // 还需要把 nemu_state 设置为 running
   for (int i = 0; i < 9; i++) {
     top->clock = 0; top->eval();
-    contextp->timeInc(1);
-    tfp->dump(contextp->time());
+    dump_wave();
 
     top->clock = 1; top->eval();
-    contextp->timeInc(1);
-    tfp->dump(contextp->time());
+    dump_wave();
   }
 
   nemu_state.state = NEMU_STOP;
@@ -91,7 +96,7 @@ void sim_end() {
 
 static void dummy() {
   int num_i = 0;
-  for (int i = 0; i < 40; i++)
+  for (int i = 0; i < 200; i++)
   {
     Log("%d clock cycle", num_i++);
     top->clock = 0;
@@ -116,8 +121,11 @@ int main(int argc, char** argv, char** env) {
   sim_reset(top.get());
 
   init_monitor(argc, argv);
+#ifdef CONFIG_DEBUG
+  dummy();
+#else
   sdb_mainloop();
-  // dummy();
+#endif
   sim_end();
   Log("gracefully quit");
   
@@ -130,13 +138,11 @@ void verilator_exec_once(Decode* s) {
       // tick = 0
       top->clock = 0;
       top->eval();
-      contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      dump_wave();
       // tick = 1
       top->clock = 1;
       top->eval();
-      contextp->timeInc(1);
-      tfp->dump(contextp->time());
+      dump_wave();
     }  
     s->isa.inst.val = itrace.isa.inst.val;
     s->pc = itrace.pc;

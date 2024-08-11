@@ -63,7 +63,10 @@ extern bool next_inst;
 extern "C" void flash_read(int32_t addr, int32_t *data) { assert(0); }
 extern "C" void mrom_read(int32_t addr, int32_t *data) { 
   *data = *((uint32_t*)copy_to_mrom(addr & ~(0x3u)));
-  /* printf("mrom trace: 0x%x, 0x%x\n", addr, *data); */
+#ifdef CONFIG_MTRACE
+  if (addr >= MROM_BASE)
+    printf("mrom trace: 0x%x, 0x%x\n", addr, *data);
+#endif
 }
 
 extern "C" void Next_inst() 
